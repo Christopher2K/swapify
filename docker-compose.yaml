@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   swapify_db:
     image: postgres:16.1
@@ -9,6 +7,13 @@ services:
       - 5432:5432
     volumes:
       - swapify_db_data:/var/lib/postgresql/data
+
+  swapify_db_test:
+    image: postgres:16.1
+    restart: always
+    env_file: .env.test.docker
+    ports:
+      - 54321:5432
 
 volumes:
   swapify_db_data:

@@ -6,10 +6,10 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :swapify_api, SwapifyApi.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "admin",
+  password: "swapifypassword",
   hostname: "localhost",
-  database: "swapify_api_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "swapify_test",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
@@ -31,3 +31,8 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Speed up Argon2 during tests
+config :argon2_elixir,
+  t_cost: 1,
+  m_cost: 8
