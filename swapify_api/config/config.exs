@@ -13,6 +13,10 @@ config :swapify_api,
 
 config :swapify_api, SwapifyApi.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
+config :swapify_api,
+  app_url: "https://swapify.live",
+  cookie_domain: ".swapify.live"
+
 # Configures the endpoint
 config :swapify_api, SwapifyApiWeb.Endpoint,
   url: [host: "localhost"],

@@ -52,6 +52,10 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :swapify_api, dev_routes: true
 
+config :swapify_api,
+  app_url: "http://localhost:3001",
+  cookie_domain: "localhost"
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

@@ -8,7 +8,8 @@ defmodule SwapifyApiWeb.Endpoint do
     store: :cookie,
     key: "_swapify_api_key",
     signing_salt: "zNobAVSf",
-    same_site: "Lax"
+    same_site: "Lax",
+    domain: Application.compile_env!(:swapify_api, :cookie_domain)
   ]
 
   socket "/live", Phoenix.LiveView.Socket,
