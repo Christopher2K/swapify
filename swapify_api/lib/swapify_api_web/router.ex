@@ -5,8 +5,11 @@ defmodule SwapifyApiWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", SwapifyApiWeb do
+  scope "/api/auth", SwapifyApiWeb do
     pipe_through :api
+    post "/signup", AuthController, :signup
+    post "/signin", AuthController, :signin
+    post "/signout", AuthController, :signout
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

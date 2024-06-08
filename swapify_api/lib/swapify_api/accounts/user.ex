@@ -19,10 +19,35 @@ defmodule SwapifyApi.Accounts.User do
     timestamps(type: :utc_datetime)
   end
 
-  @doc false
+  @doc "Default changeset"
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :password])
     |> validate_required([:email, :password])
+    |> hash_new_password()
+  end
+
+  @doc "Changaset user to create a new user"
+  def create_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
+    |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: 8, max: 30)
+    |> unique_constraint(:email)
+    |> hash_new_password()
+  end
+
+  defp hash_new_password(changeset) do
+    clear_password = get_change(changeset, :password)
+
+    case clear_password do
+      nil ->
+        changeset
+
+      pswd ->
+        hash = SwapifyApi.Accounts.Services.UserPasswordHashing.hash(pswd)
+        put_change(changeset, :password, hash)
+    end
   end
 end

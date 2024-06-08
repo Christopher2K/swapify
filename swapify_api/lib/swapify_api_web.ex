@@ -44,6 +44,8 @@ defmodule SwapifyApiWeb do
       import Plug.Conn
       import SwapifyApiWeb.Gettext
 
+      action_fallback SwapifyApiWeb.FallbackController
+
       unquote(verified_routes())
     end
   end
