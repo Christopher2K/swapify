@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  ## SHORTCUTS
+  api:
+    dotenv: [".env.dev"]
+    dir: "./swapify_api"
+    cmds:
+      - "{{ .CLI_ARGS }}"
+
+  mix:
+    cmds:
+      - task: api
+        vars: { CLI_ARGS: "mix {{ .CLI_ARGS }}" }
+
+  iex:
+    cmds:
+      - task: api
+        vars: { CLI_ARGS: "iex -S mix {{ .CLI_ARGS }}" }
+
+  compose:
+    dir: "."
+    cmds:
+      - docker-compose -f ./docker-compose.yaml {{ .CLI_ARGS }}
+
+  ## COMMANDS
+  docker:up:
+    cmds:
+      - task: compose
+        vars: { CLI_ARGS: 'up -d' }
+
+  docker:down:
+    cmds:
+      - task: compose
+        vars: { CLI_ARGS: 'down' }
+
+  api:dev:
+    cmds:
+      - task: api
+        vars: { CLI_ARGS: 'mix phx.server' }
