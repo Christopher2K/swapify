@@ -11,6 +11,8 @@ config :swapify_api,
   ecto_repos: [SwapifyApi.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
 
+config :swapify_api, SwapifyApi.Repo, migration_primary_key: [name: :id, type: :binary_id]
+
 # Configures the endpoint
 config :swapify_api, SwapifyApiWeb.Endpoint,
   url: [host: "localhost"],

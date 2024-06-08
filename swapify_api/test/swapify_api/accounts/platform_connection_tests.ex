@@ -1,0 +1,2 @@
+defmodule SwapifyApi.PlatformConnectionTests do
+end
