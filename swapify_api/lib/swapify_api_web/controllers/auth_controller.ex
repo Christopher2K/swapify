@@ -27,6 +27,8 @@ defmodule SwapifyApiWeb.AuthController do
   end
 
   def signout(conn, _) do
-    # TODO
+    conn
+    |> SwapifyApi.Accounts.UserSession.delete_user_session()
+    |> redirect(external: "#{@app_url}")
   end
 end
