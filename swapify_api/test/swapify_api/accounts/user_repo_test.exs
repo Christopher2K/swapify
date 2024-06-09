@@ -2,6 +2,7 @@ defmodule SwapifyApi.UserRepoTest do
   use SwapifyApi.DataCase
 
   alias SwapifyApi.Accounts.UserRepo
+  alias SwapifyApi.Accounts.User
 
   import SwapifyApi.AccountsFixtures
 
@@ -37,6 +38,14 @@ defmodule SwapifyApi.UserRepoTest do
                })
 
       assert user.password != password
+    end
+  end
+
+  describe "get_by/2" do
+    test "it gets an user by its email" do
+      email = "chris@test.fr"
+      user_fixture(%{email: email})
+      assert {:ok, %User{email: ^email}} = UserRepo.get_by(:email, email)
     end
   end
 end

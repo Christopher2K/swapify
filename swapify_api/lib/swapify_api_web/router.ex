@@ -3,6 +3,7 @@ defmodule SwapifyApiWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/api/auth", SwapifyApiWeb do

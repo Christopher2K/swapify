@@ -1,5 +1,7 @@
 defmodule SwapifyApi.Accounts.User do
-  use SwapifyApi.Schema
+  use SwapifyApi.Schema, query_name: "user"
+
+  import Ecto.Query
 
   alias SwapifyApi.Accounts.PlatformConnection
 
@@ -50,4 +52,9 @@ defmodule SwapifyApi.Accounts.User do
         put_change(changeset, :password, hash)
     end
   end
+
+  def queryable(), do: from(account in __MODULE__, as: :account)
+
+  def filter_by(queryable, :id, value), do: where(queryable, [account: a], a.id == ^value)
+  def filter_by(queryable, :email, value), do: where(queryable, [account: a], a.email == ^value)
 end
