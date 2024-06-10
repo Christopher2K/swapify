@@ -13,4 +13,9 @@ defmodule SwapifyApi.Utils do
       {:ok, nullable_data}
     end
   end
+
+  def prepare_request(req_options),
+    do:
+      req_options
+      |> Keyword.merge(Application.fetch_env!(:swapify_api, :http_client_opts))
 end

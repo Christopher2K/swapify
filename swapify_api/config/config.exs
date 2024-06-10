@@ -15,7 +15,8 @@ config :swapify_api, SwapifyApi.Repo, migration_primary_key: [name: :id, type: :
 
 config :swapify_api,
   app_url: "https://swapify.live",
-  cookie_domain: ".swapify.live"
+  cookie_domain: ".swapify.live",
+  http_client_opts: []
 
 # Configures the endpoint
 config :swapify_api, SwapifyApiWeb.Endpoint,

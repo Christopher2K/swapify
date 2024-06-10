@@ -3,7 +3,7 @@ version: "3"
 tasks:
   ## SHORTCUTS
   api:
-    dotenv: [".env.dev"]
+    dotenv: [".env"]
     dir: "./swapify_api"
     cmds:
       - "{{ .CLI_ARGS }}"

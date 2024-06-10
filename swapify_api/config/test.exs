@@ -39,4 +39,7 @@ config :argon2_elixir,
 
 config :swapify_api,
   app_url: "http://localhost:3001",
-  cookie_domain: "localhost"
+  cookie_domain: "localhost",
+  http_client_opts: [
+    plug: {Req.Test, :test}
+  ]
