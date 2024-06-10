@@ -1,6 +1,16 @@
 import { createMiddleware } from "@solidjs/start/middleware";
 
+import { useSession } from "#root/services/session";
+
 export default createMiddleware({
+  onRequest: [
+    async ({ nativeEvent }) => {
+      const session = await useSession(nativeEvent);
+      console.log(
+        `Session: ${session.id} - User: ${session.data.userId || `null`}`,
+      );
+    },
+  ],
   onBeforeResponse: [
     // LOGGER
     async ({ nativeEvent: event }) => {
