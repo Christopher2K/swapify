@@ -14,10 +14,14 @@
     "@solidjs/meta": "~0.29.4",
     "@solidjs/router": "~0.13.3",
     "@solidjs/start": "~1.0.1",
+    "http-proxy": "~1.18.1",
+    "ky": "~1.3.0",
     "solid-js": "~1.8.17",
     "vinxi": "~0.3.11"
   },
   "devDependencies": {
+    "@types/http-proxy": "~1.17.14",
+    "@types/node": "~20.14.2",
     "prettier": "~3.3.1",
     "typescript": "~5.4.5",
     "vite-tsconfig-paths": "~4.3.2"

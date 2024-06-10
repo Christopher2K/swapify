@@ -12,6 +12,9 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
+    "typeRoots": [
+      "./types"
+    ],
     "types": [
       "vinxi/types/client"
     ],
