@@ -8,6 +8,15 @@ type RemoteData<T> = {
   data: T;
 };
 
+type RemoteArgs<T = void> = T extends void
+  ? {
+      client?: KyInstance;
+    }
+  : {
+      client?: KyInstance;
+      data: T;
+    };
+
 type SuccessResponse<T> = {
   status: "ok";
   data: T;
@@ -60,10 +69,7 @@ type APIUser = {
   updatedAt: string;
 };
 
-type PostSignInArgs = {
-  client?: KyInstance;
-  data: SignInData;
-};
+type PostSignInArgs = RemoteArgs<SignInData>;
 export type SignInData = { email: string; password: string };
 type SignInResponse = RemoteData<{
   accessToken: string;
@@ -74,4 +80,9 @@ export function postSignIn({ client = apiClient, data }: PostSignInArgs) {
   return wrapApiCall(() =>
     client.post("api/auth/signin", { json: data }).json<SignInResponse>(),
   );
+}
+
+type GetMeResponse = RemoteData<APIUser>;
+export function getMe({ client = apiClient }: RemoteArgs) {
+  return wrapApiCall(() => client.get("api/users/me").json<GetMeResponse>());
 }

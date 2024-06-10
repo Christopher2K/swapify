@@ -7,7 +7,7 @@ export default createMiddleware({
     async ({ nativeEvent }) => {
       const session = await useSession(nativeEvent);
       console.log(
-        `Session: ${session.id} - User: ${session.data.userId || `null`}`,
+        `Session: ${session.id} - User: ${session.data.auth?.userId || `null`}`,
       );
     },
   ],

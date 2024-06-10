@@ -1,8 +1,6 @@
 defmodule SwapifyApiWeb.AuthController do
   use SwapifyApiWeb, :controller
 
-  @app_url Application.compile_env!(:swapify_api, :app_url)
-
   def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
 
@@ -23,11 +21,5 @@ defmodule SwapifyApiWeb.AuthController do
       error ->
         error
     end
-  end
-
-  def sign_out(conn, _) do
-    conn
-    |> SwapifyApi.Accounts.UserSession.delete_user_session()
-    |> redirect(external: "#{@app_url}")
   end
 end

@@ -33,6 +33,20 @@ defmodule SwapifyApiWeb.ConnCase do
 
   setup tags do
     SwapifyApi.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    user_attributes = tags[:user]
+
+    if user_attributes do
+      user = SwapifyApi.AccountsFixtures.user_fixture(user_attributes)
+      {:ok, _, access, refresh} = SwapifyApi.Accounts.Services.GenerateAuthTokens.call(user)
+
+      conn =
+        Phoenix.ConnTest.build_conn()
+        |> Plug.Conn.put_req_header("authorization", "Bearer " <> access)
+
+      {:ok, conn: conn, access_token: access, refresh_token: refresh, user: user}
+    else
+      {:ok, conn: Phoenix.ConnTest.build_conn()}
+    end
   end
 end

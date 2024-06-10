@@ -11,11 +11,14 @@ const sessionConfig: SessionConfig = {
 };
 
 type SessionData = {
-  accessToken: string;
-  refreshToken: string;
-  userId: string;
+  auth?: {
+    accessToken: string;
+    refreshToken: string;
+    userId: string;
+  };
 };
 
-export function useSession(event: HTTPEvent) {
-  return baseUseSession<SessionData>(event, sessionConfig);
+export async function useSession(event: HTTPEvent) {
+  const session = await baseUseSession<SessionData>(event, sessionConfig);
+  return session;
 }

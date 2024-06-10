@@ -12,9 +12,11 @@ export async function POST(event: APIEvent) {
     case "ok":
       const response = result.data.data;
       await session.update({
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
-        userId: response.user.id,
+        auth: {
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+          userId: response.user.id,
+        },
       });
       return response.user;
     case "error":

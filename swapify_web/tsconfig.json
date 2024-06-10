@@ -15,9 +15,6 @@
     "typeRoots": [
       "./types"
     ],
-    "types": [
-      "vinxi/types/client"
-    ],
     "lib": [
       "dom",
       "dom.iterable"
