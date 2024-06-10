@@ -8,9 +8,9 @@ defmodule SwapifyApiWeb.Router do
 
   scope "/api/auth", SwapifyApiWeb do
     pipe_through :api
-    post "/signup", AuthController, :signup
-    post "/signin", AuthController, :signin
-    post "/signout", AuthController, :signout
+    post "/signup", AuthController, :sign_up
+    post "/signin", AuthController, :sign_in
+    post "/signout", AuthController, :sign_out
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

@@ -40,6 +40,7 @@ defmodule SwapifyApi.MixProject do
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
+      {:joken, "~> 2.6"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_live_dashboard, "~> 0.8.3"},

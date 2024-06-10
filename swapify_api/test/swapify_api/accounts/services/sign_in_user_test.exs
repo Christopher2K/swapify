@@ -14,7 +14,7 @@ defmodule SwapifyApi.SignInUserTest do
       password: password
     })
 
-    assert {:ok, user} = SignInUser.call(email, password)
+    assert {:ok, user, _, _} = SignInUser.call(email, password)
     assert user.email == email
     assert user.password != email
   end

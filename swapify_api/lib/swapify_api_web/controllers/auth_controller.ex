@@ -3,7 +3,7 @@ defmodule SwapifyApiWeb.AuthController do
 
   @app_url Application.compile_env!(:swapify_api, :app_url)
 
-  def signup(%Plug.Conn{} = conn, _) do
+  def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
 
     with {:ok, _} <- SwapifyApi.Accounts.Services.SignUpNewUser.call(data) do
@@ -11,22 +11,21 @@ defmodule SwapifyApiWeb.AuthController do
     end
   end
 
-  def signin(%Plug.Conn{} = conn, _) do
+  def sign_in(%Plug.Conn{} = conn, _) do
     data = conn.body_params
 
     case SwapifyApi.Accounts.Services.SignInUser.call(data["email"], data["password"]) do
-      {:ok, user} ->
+      {:ok, user, access_token, refresh_token} ->
         conn
-        |> SwapifyApi.Accounts.UserSession.create_user_session(user)
-        |> redirect(external: "#{@app_url}/app/dashboard")
+        |> put_status(200)
+        |> render(:signin, access_token: access_token, refresh_token: refresh_token, user: user)
 
-      {:error, _} ->
-        conn
-        |> redirect(external: "#{@app_url}/login/error")
+      error ->
+        error
     end
   end
 
-  def signout(conn, _) do
+  def sign_out(conn, _) do
     conn
     |> SwapifyApi.Accounts.UserSession.delete_user_session()
     |> redirect(external: "#{@app_url}")

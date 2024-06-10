@@ -53,6 +53,14 @@ defmodule SwapifyApi.Accounts.User do
     end
   end
 
+  def to_map(%__MODULE__{} = user),
+    do: %{
+      "id" => user.id,
+      "email" => user.email,
+      "insertedAt" => user.inserted_at,
+      "updatedAt" => user.updated_at
+    }
+
   def queryable(), do: from(account in __MODULE__, as: :account)
 
   def filter_by(queryable, :id, value), do: where(queryable, [account: a], a.id == ^value)

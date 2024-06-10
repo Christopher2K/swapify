@@ -24,6 +24,8 @@ config :swapify_api, SwapifyApi.MusicProviders.Spotify,
   client_id: System.get_env("SPOTIFY_CLIENT_ID"),
   client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 
+config :joken, default_signer: System.get_env("JWT_SECRET")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

@@ -30,18 +30,12 @@ defmodule SwapifyApiWeb.AuthControllerTest do
 
     test "it signs in an existing user", %{conn: conn, email: email, password: password} do
       conn = post(conn, "/api/auth/signin", email: email, password: password)
-      assert conn.status == 302
-
-      [location] = get_resp_header(conn, "location")
-      assert String.ends_with?(location, "/app/dashboard")
+      assert conn.status == 200
     end
 
     test "it rejects a non existing user", %{conn: conn, password: password} do
       conn = post(conn, "/api/auth/signin", email: "no@body.fr", password: password)
-      assert conn.status == 302
-
-      [location] = get_resp_header(conn, "location")
-      assert String.ends_with?(location, "/login/error")
+      assert conn.status == 401
     end
   end
 end
