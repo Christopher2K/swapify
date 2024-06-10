@@ -8,6 +8,12 @@ tasks:
     cmds:
       - "{{ .CLI_ARGS }}"
 
+  web:
+    dotenv: [".env"]
+    dir: "./swapify_web"
+    cmds:
+      - "{{ .CLI_ARGS }}"
+
   mix:
     cmds:
       - task: api
@@ -17,6 +23,11 @@ tasks:
     cmds:
       - task: api
         vars: { CLI_ARGS: "iex -S mix {{ .CLI_ARGS }}" }
+
+  pnpm:
+    cmds:
+      - task: web
+        vars: { CLI_ARGS: "pnpm {{ .CLI_ARGS }}" }
 
   compose:
     dir: "."
@@ -38,3 +49,8 @@ tasks:
     cmds:
       - task: api
         vars: { CLI_ARGS: 'mix phx.server' }
+
+  web:dev:
+    cmds:
+      - task: web
+        vars: { CLI_ARGS: 'pnpm dev'}
