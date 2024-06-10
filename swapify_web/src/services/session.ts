@@ -1,4 +1,3 @@
-"use server";
 import {
   type SessionConfig,
   type HTTPEvent,
