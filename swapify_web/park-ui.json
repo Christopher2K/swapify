@@ -1,0 +1,10 @@
+{
+  "$schema": "https://park-ui.com/schema.json",
+  "cssFramework": "panda",
+  "jsFramework": "solid",
+  "importAliases": {
+    "components": "#root/components/ui",
+    "utils": "#root/lib"
+  },
+  "useReactServerComponents": false
+}

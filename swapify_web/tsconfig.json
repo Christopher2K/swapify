@@ -12,26 +12,15 @@
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "typeRoots": [
-      "./types"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable"
-    ],
+    "typeRoots": ["./types"],
+    "lib": ["dom", "dom.iterable"],
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "#root/*": [
-        "./src/*"
-      ],
-      "#style/*": [
-        "./styled-system/*"
-      ],
+      "#root/*": ["./src/*"],
+      "#style/*": ["./styled-system/*"],
+      "styled-system/*": ["./styled-system/*"]
     }
   },
-  "include": [
-    "src",
-    "styled-system"
-  ]
+  "include": ["src", "styled-system"]
 }
