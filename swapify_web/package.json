@@ -3,7 +3,10 @@
   "type": "module",
   "packageManager": "pnpm@9.1.0",
   "scripts": {
-    "dev": "vinxi dev",
+    "prepare": "panda codegen",
+    "panda:watch": "panda -w",
+    "vinxi:dev": "vinxi dev",
+    "dev": "concurrently \"pnpm panda:watch\" \"pnpm vinxi:dev\"",
     "build": "vinxi build",
     "start": "vinxi start",
     "version": "vinxi version",
@@ -19,7 +22,9 @@
     "vinxi": "~0.3.11"
   },
   "devDependencies": {
+    "@pandacss/dev": "~0.40.1",
     "@types/node": "~20.14.2",
+    "concurrently": "~8.2.2",
     "prettier": "~3.3.1",
     "typescript": "~5.4.5",
     "vite-tsconfig-paths": "~4.3.2"

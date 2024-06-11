@@ -1,5 +1,6 @@
 import { Title } from "@solidjs/meta";
 import Counter from "#root/components/Counter";
+import { css } from "#style/css";
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <Title>Hello World</Title>
       <h1>Hello world!</h1>
       <Counter />
-      <p>
+      <p class={css({ backgroundColor: "red" })}>
         Visit{" "}
         <a href="https://start.solidjs.com" target="_blank">
           start.solidjs.com

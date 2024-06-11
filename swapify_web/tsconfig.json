@@ -24,10 +24,14 @@
     "paths": {
       "#root/*": [
         "./src/*"
-      ]
+      ],
+      "#style/*": [
+        "./styled-system/*"
+      ],
     }
   },
   "include": [
-    "src"
+    "src",
+    "styled-system"
   ]
 }
