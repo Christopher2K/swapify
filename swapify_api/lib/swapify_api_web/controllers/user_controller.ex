@@ -9,4 +9,3 @@ defmodule SwapifyApiWeb.UserController do
     conn |> render(:me, user: user)
   end
 end
-

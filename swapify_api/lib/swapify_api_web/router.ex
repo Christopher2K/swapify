@@ -23,6 +23,13 @@ defmodule SwapifyApiWeb.Router do
     get "/me", UserController, :me
   end
 
+  scope "/api/integrations", SwapifyApiWeb do
+    pipe_through :api_protected
+
+    get "/spotify/login", IntegrationController, :spotify_login
+    get "/spotify/callback", IntegrationController, :spotify_callback
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:swapify_api, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put

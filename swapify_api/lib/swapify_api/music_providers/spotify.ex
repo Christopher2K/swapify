@@ -7,14 +7,15 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   @account_url "https://accounts.spotify.com"
   @authentication_scope [
-    "playlist-read-private",
-    "playlist-read-collaborative",
-    "playlist-modify-private",
-    "playlist-modify-public",
-    "user-library-read",
-    "user-library-modify"
-  ]
-  @redirect_uri "http://localhost:4000/api/auth/spotify/callback"
+                          "playlist-read-private",
+                          "playlist-read-collaborative",
+                          "playlist-modify-private",
+                          "playlist-modify-public",
+                          "user-library-read",
+                          "user-library-modify"
+                        ]
+                        |> Enum.join(" ")
+  @redirect_uri "http://localhost:3000/api/auth/spotify/callback"
 
   defp get_client_id(), do: Application.fetch_env!(:swapify_api, __MODULE__)[:client_id]
 
@@ -37,7 +38,9 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     uri = URI.parse(@account_url <> "/authorize")
 
     query_params
-    |> Enum.reduce(uri, fn {key, val}, uri -> URI.append_query(uri, key <> "=" <> val) end)
+    |> Enum.reduce(uri, fn {key, val}, uri ->
+      URI.append_query(uri, URI.encode(key <> "=" <> val))
+    end)
     |> URI.to_string()
   end
 
