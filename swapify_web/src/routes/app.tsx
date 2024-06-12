@@ -1,10 +1,10 @@
 import { RouteSectionProps } from "@solidjs/router";
 
 import Layout from "./(static)";
-import { protectedRouteCheck } from "#root/services/auth";
+import { createProtectedRouteCheck } from "#root/services/auth";
 
 export default function AppLayout(props: RouteSectionProps) {
-  protectedRouteCheck();
+  createProtectedRouteCheck();
 
   return <Layout>{props.children}</Layout>;
 }

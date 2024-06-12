@@ -3,10 +3,10 @@ import { A, RouteSectionProps } from "@solidjs/router";
 import { VStack, Container } from "#style/jsx";
 import { Text } from "#root/components/ui/text";
 
-import { anonymousRouteCheck } from "#root/services/auth";
+import { createAnonymousRouteCheck } from "#root/services/auth";
 
 export default function AuthLayout(props: RouteSectionProps) {
-  anonymousRouteCheck();
+  createAnonymousRouteCheck();
 
   return (
     // @ts-expect-error

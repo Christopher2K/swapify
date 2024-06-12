@@ -1,4 +1,4 @@
-import { createContext, createEffect, ParentProps, useContext } from "solid-js";
+import { createContext, ParentProps, useContext } from "solid-js";
 import { getRequestEvent } from "solid-js/web";
 import { cache, createAsync, redirect } from "@solidjs/router";
 
@@ -44,7 +44,7 @@ const _anonymousRouteCheck = cache(async () => {
     throw redirect("/app");
   }
 }, "anonymousRouteCheck");
-export const anonymousRouteCheck = () =>
+export const createAnonymousRouteCheck = () =>
   createAsync(() => _anonymousRouteCheck());
 
 const _protectedRouteCheck = cache(async () => {
@@ -57,5 +57,5 @@ const _protectedRouteCheck = cache(async () => {
   }
 }, "protectedRouteCheck");
 
-export const protectedRouteCheck = () =>
+export const createProtectedRouteCheck = () =>
   createAsync(() => _protectedRouteCheck());

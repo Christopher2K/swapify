@@ -15,7 +15,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
                           "user-library-modify"
                         ]
                         |> Enum.join(" ")
-  @redirect_uri "http://localhost:3000/api/auth/spotify/callback"
+  @redirect_uri "http://localhost:3000/api/integrations/spotify/callback"
 
   defp get_client_id(), do: Application.fetch_env!(:swapify_api, __MODULE__)[:client_id]
 
