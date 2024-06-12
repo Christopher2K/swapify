@@ -5,7 +5,12 @@ defmodule SwapifyApiWeb.UserController do
 
   def me(%Plug.Conn{} = conn, _) do
     user_id = conn.assigns[:user_id]
-    {:ok, user} = UserRepo.get_by(:id, user_id)
-    conn |> render(:me, user: user)
+
+    with {:ok, user} <- UserRepo.get_by(:id, user_id) do
+      conn |> render(:me, user: user)
+    else
+      _ ->
+        {:error, :unauthorized}
+    end
   end
 end

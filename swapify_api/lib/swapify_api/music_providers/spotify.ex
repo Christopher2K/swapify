@@ -45,17 +45,17 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec request_access_token(String.t()) ::
-          {:ok, Oauth.AccessToken.t()} | {:error, non_neg_integer() | atom()}
+          {:ok, Oauth.AccessToken.t()} | {:error, Req.Response.t() | atom()}
   def request_access_token(authorization_code) do
     body = %{
-      "grant_type" => "code",
+      "grant_type" => "authorization_code",
       "redirect_uri" => @redirect_uri,
       "code" => authorization_code
     }
 
-    client_id = get_client_id() |> Base.encode64()
-    client_secret = get_client_secret() |> Base.encode64()
-    token = "#{client_id}:#{client_secret}"
+    client_id = get_client_id()
+    client_secret = get_client_secret()
+    token = "#{client_id}:#{client_secret}" |> Base.encode64()
 
     uri = @account_url <> "/api/token"
 
@@ -63,7 +63,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
       [
         method: :post,
         url: uri,
-        auth: {:bearer, token},
+        headers: %{"authorization" => "Basic #{token}"},
         form: body
       ]
       |> Utils.prepare_request()
@@ -74,8 +74,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         result = response.body |> Oauth.AccessToken.from_map()
         {:ok, result}
 
-      {:ok, %Req.Response{status: status}} ->
-        {:error, status}
+      {:ok, %Req.Response{} = response} ->
+        {:error, response}
 
       {:error, exception} ->
         Logger.error(exception)

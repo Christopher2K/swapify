@@ -12,16 +12,16 @@ async function handler(event: APIEvent) {
     headers["authorization"] = `Bearer ${session.data.auth.accessToken}`;
   }
 
-  return proxyRequest(
-    event.nativeEvent,
-    process.env.VITE_API_URL + new URL(event.request.url).pathname,
-    {
-      fetchOptions: {
-        redirect: "manual",
-      },
-      headers,
+  const requestUrl = new URL(event.request.url);
+  const targetUrl =
+    process.env.VITE_API_URL + requestUrl.pathname + requestUrl.search;
+
+  return proxyRequest(event.nativeEvent, targetUrl, {
+    fetchOptions: {
+      redirect: "manual",
     },
-  );
+    headers,
+  });
 }
 
 export const GET = handler;

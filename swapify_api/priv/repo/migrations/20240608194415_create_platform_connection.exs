@@ -15,8 +15,8 @@ defmodule SwapifyApi.Repo.Migrations.CreatePlatformConnection do
     create table(:platform_connections, primary_key: false) do
       add :id, :binary_id, primary_key: true, default: fragment("gen_random_uuid()")
       add :name, :music_platforms, null: false
-      add :access_token, :string, null: true, default: nil
-      add :refresh_token, :string, null: true, default: nil
+      add :access_token, :text, null: true, default: nil
+      add :refresh_token, :text, null: true, default: nil
 
       add :user_id, references(:users, on_delete: :delete_all), null: false
 

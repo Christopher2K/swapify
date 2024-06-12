@@ -1,6 +1,8 @@
 defmodule SwapifyApi.Accounts.PlatformConnection do
   use SwapifyApi.Schema
 
+  import Ecto.Query
+
   alias SwapifyApi.Accounts.User
 
   @type t :: %__MODULE__{
@@ -21,4 +23,25 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
 
     timestamps(type: :utc_datetime)
   end
+
+  @doc "Default changeset"
+  def changeset(platform_connection, attrs \\ %{}) do
+    platform_connection
+    |> cast(attrs, [:access_token, :refresh_token, :name, :user_id])
+    |> validate_required([:access_token, :refresh_token, :name, :user_id])
+  end
+
+  def update_changeset(platform_connection, attrs \\ %{}) do
+    platform_connection
+    |> cast(attrs, [:access_token, :refresh_token])
+    |> validate_required([:access_token, :refresh_token])
+  end
+
+  def queryable(), do: from(platform_connection in __MODULE__, as: :platform_connection)
+
+  def filter_by(queryable, :user_id, value),
+    do: where(queryable, [platform_connection: pt], pt.user_id == ^value)
+
+  def filter_by(queryable, :name, value),
+    do: where(queryable, [platform_connection: pt], pt.name == ^value)
 end

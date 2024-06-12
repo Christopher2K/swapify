@@ -11,7 +11,13 @@ export const getUser = cache(async () => {
   const request = getRequestEvent()!;
   const session = await useSession(request?.nativeEvent);
   if (session.data.auth) {
-    return getMe();
+    const data = await getMe();
+    if (data.status === "error") {
+      await session.clear();
+      return undefined;
+    } else {
+      return data;
+    }
   }
 
   return undefined;
