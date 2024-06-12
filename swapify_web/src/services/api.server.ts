@@ -1,4 +1,7 @@
 import ky, { HTTPError, KyInstance } from "ky";
+import { getRequestEvent } from "solid-js/web";
+
+import { useSession } from "./session";
 
 export const apiClient = ky.create({
   prefixUrl: import.meta.env.VITE_API_URL,
@@ -62,6 +65,20 @@ async function wrapApiCall<T, E>(
   }
 }
 
+async function getAuthHeaders() {
+  "use server";
+  const request = getRequestEvent()!;
+  const session = await useSession(request.nativeEvent);
+
+  if (session.data.auth) {
+    return {
+      authorization: "Bearer " + session.data.auth.accessToken,
+    };
+  } else {
+    return {};
+  }
+}
+
 type APIUser = {
   id: string;
   email: string;
@@ -77,12 +94,21 @@ type SignInResponse = RemoteData<{
   user: APIUser;
 }>;
 export function postSignIn({ client = apiClient, data }: PostSignInArgs) {
+  "use server";
   return wrapApiCall(() =>
     client.post("api/auth/signin", { json: data }).json<SignInResponse>(),
   );
 }
 
 type GetMeResponse = RemoteData<APIUser>;
-export function getMe({ client = apiClient }: RemoteArgs) {
-  return wrapApiCall(() => client.get("api/users/me").json<GetMeResponse>());
+export async function getMe({ client = apiClient }: RemoteArgs = {}) {
+  "use server";
+  const headers = await getAuthHeaders();
+  return wrapApiCall(() =>
+    client
+      .get("api/users/me", {
+        headers,
+      })
+      .json<GetMeResponse>(),
+  );
 }
