@@ -7,14 +7,17 @@ defmodule SwapifyApi.UserRepoTest do
   import SwapifyApi.AccountsFixtures
 
   describe "create/1" do
+    @tag :wip
     test "it creates a new user" do
       assert {:ok, user} =
                UserRepo.create(%{
+                 "username" => "chris",
                  "email" => "chris@test.fr",
                  "password" => "password1234"
                })
 
       assert user.email == "chris@test.fr"
+      assert user.username == "chris"
     end
 
     test "it fails when a user with the same email already exists" do
@@ -23,7 +26,20 @@ defmodule SwapifyApi.UserRepoTest do
 
       assert {:error, %Ecto.Changeset{}} =
                UserRepo.create(%{
+                 "username" => "chris",
                  "email" => email,
+                 "password" => "password1234"
+               })
+    end
+
+    test "it fails when a user with the same username already exists" do
+      username = "chris"
+      user_fixture(%{username: username})
+
+      assert {:error, %Ecto.Changeset{}} =
+               UserRepo.create(%{
+                 "username" => username,
+                 "email" => "test@test.fr",
                  "password" => "password1234"
                })
     end
@@ -33,6 +49,7 @@ defmodule SwapifyApi.UserRepoTest do
 
       assert {:ok, user} =
                UserRepo.create(%{
+                 "username" => "chris",
                  "email" => "chris@test.fr",
                  "password" => password
                })

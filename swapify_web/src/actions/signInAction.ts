@@ -25,6 +25,7 @@ export const signInAction = action(async (formData: FormData) => {
       const response = result.data.data;
       await session.update({
         auth: {
+          username: response.user.username,
           accessToken: response.accessToken,
           refreshToken: response.refreshToken,
           userId: response.user.id,

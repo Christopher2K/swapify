@@ -7,6 +7,7 @@ defmodule SwapifyApi.Accounts.User do
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
+          username: String.t(),
           email: String.t(),
           password: String.t(),
           inserted_at: DateTime.t(),
@@ -14,8 +15,9 @@ defmodule SwapifyApi.Accounts.User do
         }
 
   schema "users" do
-    field :password, :string
     field :email, :string
+    field :password, :string
+    field :username, :string
     has_many :platform_connections, PlatformConnection
 
     timestamps(type: :utc_datetime)
@@ -24,19 +26,21 @@ defmodule SwapifyApi.Accounts.User do
   @doc "Default changeset"
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password])
-    |> validate_required([:email, :password])
+    |> cast(attrs, [:email, :password, :username])
+    |> validate_required([:email, :password, :username])
     |> hash_new_password()
   end
 
   @doc "Changaset user to create a new user"
   def create_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password])
-    |> validate_required([:email, :password])
+    |> cast(attrs, [:email, :password, :username])
+    |> validate_required([:email, :password, :username])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:password, min: 8, max: 30)
+    |> validate_length(:username, min: 3, max: 20)
     |> unique_constraint(:email)
+    |> unique_constraint(:username)
     |> hash_new_password()
   end
 
@@ -56,6 +60,7 @@ defmodule SwapifyApi.Accounts.User do
   def to_map(%__MODULE__{} = user),
     do: %{
       "id" => user.id,
+      "username" => user.username,
       "email" => user.email,
       "insertedAt" => user.inserted_at,
       "updatedAt" => user.updated_at

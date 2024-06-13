@@ -21,6 +21,7 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
     with {:ok} <- Oauth.check_state(session_state, remote_state),
          {:ok, access_token_data} <- Spotify.request_access_token(code) do
       PlatformConnectionRepo.create_or_update(user_id, name, %{
+        "access_token_exp" => access_token_data.expires_at,
         "access_token" => access_token_data.access_token,
         "refresh_token" => access_token_data.refresh_token
       })

@@ -10,6 +10,7 @@ config :swapify_api, SwapifyApi.Repo,
   password: "swapifypassword",
   hostname: "localhost",
   database: "swapify_test",
+  port: 54321,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 

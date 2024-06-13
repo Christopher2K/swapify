@@ -7,6 +7,7 @@ defmodule SwapifyApi.AccountsFixtures do
     attrs =
       attrs
       |> Enum.into(%{
+        username: Faker.Internet.user_name() |> String.slice(0..20),
         email: Faker.Internet.email(),
         password: Faker.UUID.v4()
       })

@@ -5,7 +5,13 @@ defmodule SwapifyApiWeb.AuthControllerTest do
 
   describe "POST /api/auth/signup" do
     test "it signs up a new user", %{conn: conn} do
-      conn = post(conn, "/api/auth/signup", email: "chris@test.fr", password: "password1234")
+      conn =
+        post(conn, "/api/auth/signup",
+          email: "chris@test.fr",
+          password: "password1234",
+          username: "chris"
+        )
+
       assert conn.status == 204
     end
 
@@ -13,7 +19,8 @@ defmodule SwapifyApiWeb.AuthControllerTest do
       email = "chris@test.fr"
       user_fixture(%{email: email})
 
-      conn = post(conn, "/api/auth/signup", email: email, password: "password1234")
+      conn =
+        post(conn, "/api/auth/signup", email: email, password: "password1234", username: "chris")
 
       assert conn.status == 422
     end

@@ -6,6 +6,7 @@ defmodule SwapifyApi.Accounts.Services.SignUpNewUser do
 
   @doc """
   Expects a map with those properties
+  - username
   - email
   - password
   """

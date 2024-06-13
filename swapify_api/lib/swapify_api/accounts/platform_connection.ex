@@ -10,6 +10,7 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
           user_id: Ecto.UUID.t(),
           name: String.t(),
           access_token: String.t() | nil,
+          access_token_exp: DateTime.t() | nil,
           refresh_token: String.t() | nil,
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
@@ -18,6 +19,7 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
   schema "platform_connections" do
     field :name, :string
     field :access_token, :string
+    field :access_token_exp, :utc_datetime
     field :refresh_token, :string
     belongs_to :user, User
 
@@ -27,14 +29,14 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
   @doc "Default changeset"
   def changeset(platform_connection, attrs \\ %{}) do
     platform_connection
-    |> cast(attrs, [:access_token, :refresh_token, :name, :user_id])
-    |> validate_required([:access_token, :refresh_token, :name, :user_id])
+    |> cast(attrs, [:access_token, :access_token_exp, :refresh_token, :name, :user_id])
+    |> validate_required([:access_token, :access_token_exp, :refresh_token, :name, :user_id])
   end
 
   def update_changeset(platform_connection, attrs \\ %{}) do
     platform_connection
-    |> cast(attrs, [:access_token, :refresh_token])
-    |> validate_required([:access_token, :refresh_token])
+    |> cast(attrs, [:access_token, :access_token_exp, :refresh_token])
+    |> validate_required([:access_token, :access_token_exp, :refresh_token])
   end
 
   def queryable(), do: from(platform_connection in __MODULE__, as: :platform_connection)

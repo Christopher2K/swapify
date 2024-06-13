@@ -15,6 +15,7 @@ type SessionData = {
     accessToken: string;
     refreshToken: string;
     userId: string;
+    username: string;
   };
 };
 
