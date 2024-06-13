@@ -1,6 +1,12 @@
 defmodule SwapifyApiWeb.AuthJSON do
   alias SwapifyApi.Accounts.User
 
+  def signup(_) do
+    %{
+      "data" => %{}
+    }
+  end
+
   def signin(%{access_token: access_token, refresh_token: refresh_token, user: user}) do
     %{
       "data" => %{

@@ -8,7 +8,7 @@ import { css, cx } from "styled-system/css";
 import { splitCssProps } from "styled-system/jsx";
 import { type PinInputVariantProps, pinInput } from "styled-system/recipes";
 import type { JsxStyleProps } from "styled-system/types";
-import { Input } from "~/components/ui/input";
+import { Input } from "#root/components/ui/input";
 
 export interface PinInputProps
   extends Assign<JsxStyleProps, PinInputRootProps>,

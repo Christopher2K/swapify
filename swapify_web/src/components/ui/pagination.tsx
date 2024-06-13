@@ -8,7 +8,7 @@ import { css, cx } from "styled-system/css";
 import { splitCssProps } from "styled-system/jsx";
 import { type PaginationVariantProps, pagination } from "styled-system/recipes";
 import type { JsxStyleProps } from "styled-system/types";
-import { IconButton } from "~/components/ui/icon-button";
+import { IconButton } from "#root/components/ui/icon-button";
 import { Button } from "./button";
 
 export interface PaginationProps

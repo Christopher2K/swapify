@@ -18,7 +18,7 @@ defmodule SwapifyApi.Oauth.AccessToken do
     %__MODULE__{
       access_token: access_token,
       refresh_token: refresh_token,
-      expires_at: DateTime.utc_now() |> DateTime.add(second: expires_in)
+      expires_at: DateTime.utc_now() |> DateTime.add(expires_in, :second)
     }
   end
 end

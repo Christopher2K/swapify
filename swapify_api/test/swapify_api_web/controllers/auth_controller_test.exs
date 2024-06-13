@@ -12,7 +12,7 @@ defmodule SwapifyApiWeb.AuthControllerTest do
           username: "chris"
         )
 
-      assert conn.status == 204
+      assert conn.status == 200
     end
 
     test "it fails when an user with this email already exists", %{conn: conn} do

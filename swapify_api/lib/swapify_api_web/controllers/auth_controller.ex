@@ -7,7 +7,9 @@ defmodule SwapifyApiWeb.AuthController do
     data = conn.body_params
 
     with {:ok, _} <- AccountServices.SignUpNewUser.call(data) do
-      conn |> send_resp(204, "")
+      conn
+      |> put_status(200)
+      |> render(:signup)
     end
   end
 

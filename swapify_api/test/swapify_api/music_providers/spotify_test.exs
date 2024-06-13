@@ -31,8 +31,7 @@ defmodule SwapifyApi.SpotifyTest do
     assert {:ok,
             %Oauth.AccessToken{
               access_token: @fake_access_token,
-              refresh_token: @fake_refresh_token,
-              expires_in: 3600
+              refresh_token: @fake_refresh_token
             }} = Spotify.request_access_token("fake_code")
   end
 

@@ -23,7 +23,7 @@ function SigninForm() {
         <styled.form
           action={signInAction}
           class={vstack()}
-          id="login"
+          id="signin"
           w="full"
           gap="4"
           method="post"
@@ -50,10 +50,15 @@ function SigninForm() {
       </Card.Body>
       <Card.Footer>
         <VStack w="full">
-          <Button variant="link" textDecoration="underline" href="/signup">
+          <Button
+            variant="link"
+            textDecoration="underline"
+            href="/signup"
+            as="a"
+          >
             I don't have an account
           </Button>
-          <Button size="xl" form="login" type="submit">
+          <Button size="xl" form="signin" type="submit">
             Sign in
           </Button>
         </VStack>

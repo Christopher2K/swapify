@@ -87,8 +87,7 @@ type APIUser = {
   updatedAt: string;
 };
 
-type PostSignInArgs = RemoteArgs<SignInData>;
-export type SignInData = { email: string; password: string };
+type PostSignInArgs = RemoteArgs<{ email: string; password: string }>;
 type SignInResponse = RemoteData<{
   accessToken: string;
   refreshToken: string;
@@ -98,6 +97,19 @@ export function postSignIn({ client = apiClient, data }: PostSignInArgs) {
   "use server";
   return wrapApiCall(() =>
     client.post("api/auth/signin", { json: data }).json<SignInResponse>(),
+  );
+}
+
+type PostSignUpArgs = RemoteArgs<{
+  email: string;
+  password: string;
+  username: string;
+}>;
+type SignUpResponse = RemoteData<void>;
+export function postSignUp({ client = apiClient, data }: PostSignUpArgs) {
+  "use server";
+  return wrapApiCall(() =>
+    client.post("api/auth/signup", { json: data }).json<SignUpResponse>(),
   );
 }
 
