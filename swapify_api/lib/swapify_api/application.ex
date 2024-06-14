@@ -17,6 +17,7 @@ defmodule SwapifyApi.Application do
       # Start a worker by calling: SwapifyApi.Worker.start_link(arg)
       # {SwapifyApi.Worker, arg},
       # Start to serve requests, typically the last entry
+      {SwapifyApi.MusicProviders.AppleMusicTokenWorker, name: SwapifyApi.AppleMusicWorker},
       SwapifyApiWeb.Endpoint
     ]
 

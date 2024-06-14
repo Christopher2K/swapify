@@ -41,6 +41,7 @@ defmodule SwapifyApi.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
+      {:jose, "~> 1.11"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_live_dashboard, "~> 0.8.3"},

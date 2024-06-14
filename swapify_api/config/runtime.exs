@@ -24,6 +24,11 @@ config :swapify_api, SwapifyApi.MusicProviders.Spotify,
   client_id: System.get_env("SPOTIFY_CLIENT_ID"),
   client_secret: System.get_env("SPOTIFY_CLIENT_SECRET")
 
+config :swapify_api, SwapifyApi.MusicProviders.AppleMusic,
+  team_id: System.get_env("APPLE_MUSIC_TEAM_ID"),
+  key_id: System.get_env("APPLE_MUSIC_KID"),
+  private_key: System.get_env("APPLE_MUSIC_PRIVATE_KEY")
+
 config :joken, default_signer: System.get_env("JWT_SECRET")
 
 if config_env() == :prod do
