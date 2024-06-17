@@ -46,6 +46,10 @@ function SigninForm() {
             <FormLabel>Password</FormLabel>
             <Input name="password" type="password" required />
           </Stack>
+
+          <Button size="xl" form="signin" type="submit">
+            Sign in
+          </Button>
         </styled.form>
       </Card.Body>
       <Card.Footer>
@@ -57,9 +61,6 @@ function SigninForm() {
             as="a"
           >
             I don't have an account
-          </Button>
-          <Button size="xl" form="signin" type="submit">
-            Sign in
           </Button>
         </VStack>
       </Card.Footer>

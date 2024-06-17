@@ -28,6 +28,8 @@ defmodule SwapifyApiWeb.Router do
 
     get "/spotify/login", IntegrationController, :spotify_login
     get "/spotify/callback", IntegrationController, :spotify_callback
+    get "/applemusic/login", IntegrationController, :apple_music_login
+    post "/applemusic/callback", IntegrationController, :apple_music_callback
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

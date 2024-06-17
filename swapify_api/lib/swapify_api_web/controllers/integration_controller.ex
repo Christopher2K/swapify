@@ -3,6 +3,7 @@ defmodule SwapifyApiWeb.IntegrationController do
 
   require Logger
   alias SwapifyApi.MusicProviders.Spotify
+  alias SwapifyApi.MusicProviders.AppleMusicDeveloperToken
   alias SwapifyApi.Oauth
   alias SwapifyApi.Accounts
 
@@ -50,5 +51,35 @@ defmodule SwapifyApiWeb.IntegrationController do
     |> redirect(
       external: "http://localhost:3000/app/integration?service=spotify&error=service_error"
     )
+  end
+
+  def apple_music_login(%Plug.Conn{} = conn, _) do
+    developer_token = AppleMusicDeveloperToken.create!(token_validity: 120)
+
+    conn
+    |> put_status(200)
+    |> render(:apple_music_login, token: developer_token)
+  end
+
+  def apple_music_callback(%Plug.Conn{body_params: %{"authToken" => apple_user_token}} = conn, _) do
+    user_id = conn.assigns[:user_id]
+
+    result =
+      Accounts.Services.CreateOrUpdateIntegration.call("applemusic",
+        user_id: user_id,
+        token: apple_user_token
+      )
+
+    case result do
+      {:ok, _} ->
+        conn
+        |> redirect(external: "http://localhost:3000/app/integration?service=applemusic")
+
+      {:error, _} ->
+        conn
+        |> redirect(
+          external: "http://localhost:3000/app/integration?service=applemusic&error=server_error"
+        )
+    end
   end
 end

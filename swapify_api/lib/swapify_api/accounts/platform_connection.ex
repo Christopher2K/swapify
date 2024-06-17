@@ -30,13 +30,13 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
   def changeset(platform_connection, attrs \\ %{}) do
     platform_connection
     |> cast(attrs, [:access_token, :access_token_exp, :refresh_token, :name, :user_id])
-    |> validate_required([:access_token, :access_token_exp, :refresh_token, :name, :user_id])
+    |> validate_required([:access_token, :access_token_exp, :name, :user_id])
   end
 
   def update_changeset(platform_connection, attrs \\ %{}) do
     platform_connection
     |> cast(attrs, [:access_token, :access_token_exp, :refresh_token])
-    |> validate_required([:access_token, :access_token_exp, :refresh_token])
+    |> validate_required([:access_token, :access_token_exp])
   end
 
   def queryable(), do: from(platform_connection in __MODULE__, as: :platform_connection)

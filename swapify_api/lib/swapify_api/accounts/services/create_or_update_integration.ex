@@ -8,11 +8,20 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
   @doc """
   Options:
   - :user_id - ID to use for the platform connection
+
+  For Spotify:
   - :code - Authorization code we got from the provider
   - :remote_state - State we got from the provider
   - :session_state - State we kept in the session
+
+  For Apple music:
+  - :token - Token code we got from AppleMusicKit on frontend
   """
-  def call("spotify" = name, opts \\ []) do
+  def call(service_name, opts \\ [])
+
+  def call("spotify" = name, opts) do
+    Keyword.validate!(opts, [:user_id, :code, :remote_state, :session_state])
+
     user_id = Keyword.get(opts, :user_id)
     remote_state = Keyword.get(opts, :remote_state)
     session_state = Keyword.get(opts, :session_state)
@@ -38,7 +47,16 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
     end
   end
 
-  # def call("applemusic", opts \\ []) do
-  #
-  # end
+  def call("applemusic" = name, opts) do
+    Keyword.validate!(opts, [:user_id, :token])
+
+    user_id = Keyword.get(opts, :user_id)
+    token = Keyword.get(opts, :token)
+    exp = DateTime.utc_now() |> DateTime.add(60, :day) |> DateTime.to_unix()
+
+    PlatformConnectionRepo.create_or_update(user_id, name, %{
+      "access_token_exp" => exp,
+      "access_token" => token
+    })
+  end
 end
