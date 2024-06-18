@@ -4,7 +4,7 @@ import * as Card from "#root/components/ui/card";
 import {
   IntegrationType,
   integrationNameMap,
-} from "#root/services/integration";
+} from "#root/lib/integrations/integrations-models";
 
 type IntegrationViewProps = ParentProps<{
   integrationType: IntegrationType;

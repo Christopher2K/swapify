@@ -1,6 +1,6 @@
 import { createMiddleware } from "@solidjs/start/middleware";
 
-import { useSession } from "#root/services/session";
+import { useSession } from "#root/lib/auth/session";
 
 export default createMiddleware({
   onRequest: [

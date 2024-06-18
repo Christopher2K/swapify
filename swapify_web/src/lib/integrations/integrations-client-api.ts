@@ -1,14 +1,11 @@
-import ky from "ky";
-import { wrapApiCall, RemoteArgs, RemoteData } from "./api.types";
-
-const apiClient = ky.create({
-  credentials: "include",
-});
+import { clientApiClient } from "#root/lib/api/client";
+import { wrapApiCall } from "#root/lib/api/utils";
+import type { RemoteArgs, RemoteData } from "#root/lib/api/types";
 
 type GetAppleMusicLoginArgs = RemoteArgs<void>;
 type AppleMusicLoginResponse = RemoteData<{ developerToken: string }>;
 export function getAppleMusicLogin({
-  client = apiClient,
+  client = clientApiClient,
 }: GetAppleMusicLoginArgs) {
   return wrapApiCall(() =>
     client
@@ -20,7 +17,7 @@ export function getAppleMusicLogin({
 type PostAppleMusicLoginCallbackArgs = RemoteArgs<{ authToken: string }>;
 type AppleMusicLoginCallbackResponse = RemoteData<"ok">;
 export function postAppleMusicLoginCallback({
-  client = apiClient,
+  client = clientApiClient,
   data,
 }: PostAppleMusicLoginCallbackArgs) {
   return wrapApiCall(() =>

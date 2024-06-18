@@ -6,18 +6,18 @@ import { Suspense } from "solid-js";
 import "#root/app.css";
 import "#style/styles.css";
 
-import { UserProvider } from "#root/services/auth";
+import { UserProvider } from "#root/lib/auth/user-provider";
 
 export default function App() {
   return (
     <Router
       root={(props) => (
-        <MetaProvider>
-          <Title>Swapify | Set your music free</Title>
-          <Suspense>
+        <Suspense>
+          <MetaProvider>
+            <Title>Swapify | Set your music free</Title>
             <UserProvider>{props.children}</UserProvider>
-          </Suspense>
-        </MetaProvider>
+          </MetaProvider>
+        </Suspense>
       )}
     >
       <FileRoutes />

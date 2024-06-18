@@ -8,7 +8,7 @@ import { Button } from "#root/components/ui/button";
 import { FormLabel } from "#root/components/ui/form-label";
 import * as Card from "#root/components/ui/card";
 import * as Alert from "#root/components/ui/alert";
-import { signInAction } from "#root/actions/signInAction";
+import { signInAction } from "#root/lib/auth/auth-actions";
 
 function SigninForm() {
   const signInSubmission = useSubmission(signInAction);

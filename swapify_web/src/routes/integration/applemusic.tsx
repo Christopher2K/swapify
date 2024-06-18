@@ -1,15 +1,15 @@
 import { clientOnly } from "@solidjs/start";
 
 import { Button } from "#root/components/ui/button";
-import { IntegrationType } from "#root/services/integration";
+import { IntegrationType } from "#root/lib/integrations/integrations-models";
 import {
   getAppleMusicLogin,
   postAppleMusicLoginCallback,
-} from "#root/services/api.client";
-import { initializeMusicKit } from "#root/services/musicKit";
+} from "#root/lib/integrations/integrations-client-api";
+import { initializeMusicKit } from "#root/lib/integrations/music-kit";
 
 const IntegrationView = clientOnly(
-  () => import("#root/components/views/integrationView"),
+  () => import("#root/components/views/integration-view"),
 );
 
 export default function AppleMusicIntegration() {

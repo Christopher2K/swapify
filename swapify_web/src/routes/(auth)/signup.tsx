@@ -1,4 +1,5 @@
 import { Show } from "solid-js";
+import { useSubmission } from "@solidjs/router";
 
 import { vstack } from "#style/patterns";
 import { Stack, styled, VStack } from "#style/jsx";
@@ -7,8 +8,7 @@ import { Button } from "#root/components/ui/button";
 import { FormLabel } from "#root/components/ui/form-label";
 import * as Card from "#root/components/ui/card";
 import * as Alert from "#root/components/ui/alert";
-import { signUpAction } from "#root/actions/signUpAction";
-import { useSubmission } from "@solidjs/router";
+import { signUpAction } from "#root/lib/auth/auth-actions";
 
 function SignupForm() {
   const signUpSubmission = useSubmission(signUpAction);

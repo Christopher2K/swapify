@@ -1,13 +1,13 @@
 import { clientOnly } from "@solidjs/start";
 import { isServer } from "solid-js/web";
-
-import { IntegrationType } from "#root/services/integration";
-import { Button } from "#root/components/ui/button";
-import { styled } from "#style/jsx";
 import { useSearchParams } from "@solidjs/router";
 
+import { IntegrationType } from "#root/lib/integrations/integrations-models";
+import { Button } from "#root/components/ui/button";
+import { styled } from "#style/jsx";
+
 const IntegrationView = clientOnly(
-  () => import("#root/components/views/integrationView"),
+  () => import("#root/components/views/integration-view"),
 );
 
 type SearchParams = {

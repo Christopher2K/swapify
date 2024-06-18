@@ -5,8 +5,8 @@ import { Container, HStack } from "#style/jsx";
 import { styled } from "#style/jsx";
 import { Button } from "#root/components/ui/button";
 import { Text } from "#root/components/ui/text";
-import { signOutAction } from "#root/actions/signOutAction";
-import { useUser } from "#root/services/auth";
+import { signOutAction } from "#root/lib/auth/auth-actions";
+import { useUser } from "#root/lib/auth/user-provider";
 
 function Navigation() {
   const user = useUser();

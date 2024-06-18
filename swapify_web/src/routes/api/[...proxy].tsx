@@ -1,7 +1,7 @@
 import { APIEvent } from "@solidjs/start/server";
 import { getProxyRequestHeaders, proxyRequest } from "vinxi/http";
 
-import { useSession } from "#root/services/session";
+import { useSession } from "#root/lib/auth/session";
 
 async function handler(event: APIEvent) {
   const session = await useSession(event.nativeEvent);

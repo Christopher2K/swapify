@@ -1,13 +1,9 @@
-import { isServer } from "solid-js/web";
 import { batch, createEffect, createSignal } from "solid-js";
 
 import { Button } from "#root/components/ui/button";
 import { HStack, VStack } from "#style/jsx";
-import {
-  IntegrationType,
-  openIntegrationWindow,
-} from "#root/services/integration";
-import { Text } from "#root/components/ui/text";
+import { IntegrationType } from "#root/lib/integrations/integrations-models";
+import { openIntegrationWindow } from "#root/lib/integrations/integrations-services";
 import { Heading } from "#root/components/ui/heading";
 
 export default function AppDashboard() {
