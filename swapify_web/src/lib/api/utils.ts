@@ -15,6 +15,7 @@ export async function wrapApiCall<T, E>(
       data,
     };
   } catch (e) {
+    console.error(e);
     if (e instanceof HTTPError) {
       let errorData;
 

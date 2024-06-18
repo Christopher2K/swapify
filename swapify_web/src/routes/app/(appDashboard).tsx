@@ -1,9 +1,13 @@
 import { batch, createEffect, createSignal } from "solid-js";
+import { createAsync, revalidate } from "@solidjs/router";
 
 import { Button } from "#root/components/ui/button";
 import { HStack, VStack } from "#style/jsx";
 import { IntegrationType } from "#root/lib/integrations/integrations-models";
-import { openIntegrationWindow } from "#root/lib/integrations/integrations-services";
+import {
+  openIntegrationWindow,
+  getUserIntegrations,
+} from "#root/lib/integrations/integrations-services";
 import { Heading } from "#root/components/ui/heading";
 
 export default function AppDashboard() {
@@ -11,6 +15,27 @@ export default function AppDashboard() {
     createSignal<Window | null>(null);
   const [currentIntegrationType, setCurrentIntegrationType] =
     createSignal<IntegrationType | null>(null);
+  const integrations = createAsync(() => getUserIntegrations());
+
+  const getPlatformStatus = () => {
+    const integrationUnwrapped = integrations();
+    const returnObject = {
+      [IntegrationType.Spotify]: false,
+      [IntegrationType.AppleMusic]: false,
+    };
+
+    switch (integrationUnwrapped?.status) {
+      case "ok":
+        integrationUnwrapped.data.data.forEach((integration) => {
+          returnObject[integration.name] = true;
+        });
+
+        return returnObject;
+
+      default:
+        return returnObject;
+    }
+  };
 
   function createIntegrationButtonClickedListener(
     integrationType: IntegrationType,
@@ -44,6 +69,7 @@ export default function AppDashboard() {
           batch(() => {
             setCurrentIntegrationType(null);
             setIntegrationWindowRef(null);
+            revalidate(getUserIntegrations.key);
           });
         }
       }, 1000);
@@ -56,22 +82,32 @@ export default function AppDashboard() {
       <HStack>
         <Button
           type="button"
-          disabled={currentIntegrationType() === IntegrationType.Spotify}
+          disabled={
+            currentIntegrationType() === IntegrationType.Spotify ||
+            getPlatformStatus()[IntegrationType.Spotify]
+          }
           onClick={createIntegrationButtonClickedListener(
             IntegrationType.Spotify,
           )}
         >
-          Spotify
+          {getPlatformStatus()[IntegrationType.Spotify]
+            ? "Connected to Spotify"
+            : "Connect to Spotify"}
         </Button>
 
         <Button
           type="button"
-          disabled={currentIntegrationType() === IntegrationType.AppleMusic}
+          disabled={
+            currentIntegrationType() === IntegrationType.AppleMusic ||
+            getPlatformStatus()[IntegrationType.AppleMusic]
+          }
           onClick={createIntegrationButtonClickedListener(
             IntegrationType.AppleMusic,
           )}
         >
-          Apple Music
+          {getPlatformStatus()[IntegrationType.AppleMusic]
+            ? "Connected to Apple Music"
+            : "Connect to Apple Music"}
         </Button>
       </HStack>
     </VStack>

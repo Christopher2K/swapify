@@ -1,4 +1,8 @@
+import { cache } from "@solidjs/router";
+
 import { IntegrationType } from "./integrations-models";
+
+import { getIntegrations } from "./integrations-server-api";
 
 export const INTEGRATION_WINDOW_NAME = "integrationWindow";
 export function openIntegrationWindow(integrationType: IntegrationType) {
@@ -17,3 +21,8 @@ export function openIntegrationWindow(integrationType: IntegrationType) {
 
   return mbWindow;
 }
+
+export const getUserIntegrations = cache(() => {
+  "use server";
+  return getIntegrations();
+}, "getUserIntegrations");

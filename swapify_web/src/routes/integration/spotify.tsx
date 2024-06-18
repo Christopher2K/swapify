@@ -29,7 +29,9 @@ export default function SpotifyIntegration() {
         action="/api/integrations/spotify/login"
         w="full"
       >
-        <Button type="submit">Connect Spotify account</Button>
+        <Button type="submit" w="full">
+          Connect Spotify account
+        </Button>
       </styled.form>
     </IntegrationView>
   );

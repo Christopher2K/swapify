@@ -4,8 +4,18 @@ defmodule SwapifyApiWeb.IntegrationController do
   require Logger
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.AppleMusicDeveloperToken
+  alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.Oauth
   alias SwapifyApi.Accounts
+
+  def index(%Plug.Conn{} = conn, _) do
+    user_id = conn.assigns[:user_id]
+    platform_connections = PlatformConnectionRepo.get_by_user_id(user_id)
+
+    conn
+    |> put_status(200)
+    |> render(:index, platform_connections: platform_connections)
+  end
 
   def spotify_login(%Plug.Conn{} = conn, _) do
     state = Oauth.generate_state()

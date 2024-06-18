@@ -26,6 +26,7 @@ defmodule SwapifyApiWeb.Router do
   scope "/api/integrations", SwapifyApiWeb do
     pipe_through :api_protected
 
+    get "/", IntegrationController, :index
     get "/spotify/login", IntegrationController, :spotify_login
     get "/spotify/callback", IntegrationController, :spotify_callback
     get "/applemusic/login", IntegrationController, :apple_music_login

@@ -26,6 +26,14 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
     timestamps(type: :utc_datetime)
   end
 
+  def to_json(platform_connection),
+    do: %{
+      "id" => platform_connection.id,
+      "name" => platform_connection.name,
+      "accessTokenExp" => platform_connection.access_token_exp,
+      "userId" => platform_connection.user_id
+    }
+
   @doc "Default changeset"
   def changeset(platform_connection, attrs \\ %{}) do
     platform_connection
