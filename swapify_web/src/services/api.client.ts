@@ -18,7 +18,7 @@ export function getAppleMusicLogin({
 }
 
 type PostAppleMusicLoginCallbackArgs = RemoteArgs<{ authToken: string }>;
-type AppleMusicLoginCallbackResponse = RemoteData<void>;
+type AppleMusicLoginCallbackResponse = RemoteData<"ok">;
 export function postAppleMusicLoginCallback({
   client = apiClient,
   data,

@@ -52,7 +52,7 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
 
     user_id = Keyword.get(opts, :user_id)
     token = Keyword.get(opts, :token)
-    exp = DateTime.utc_now() |> DateTime.add(60, :day) |> DateTime.to_unix()
+    exp = DateTime.utc_now() |> DateTime.add(60, :day)
 
     PlatformConnectionRepo.create_or_update(user_id, name, %{
       "access_token_exp" => exp,

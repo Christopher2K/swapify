@@ -22,4 +22,11 @@ defmodule SwapifyApiWeb.FallbackController do
     |> put_view(json: SwapifyApiWeb.ErrorJSON)
     |> render(:"401")
   end
+
+  def call(conn, {:ok}) do
+    conn
+    |> put_status(200)
+    |> put_view(json: SwapifyApiWeb.SuccessJSON)
+    |> render(:"200")
+  end
 end

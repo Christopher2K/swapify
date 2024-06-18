@@ -33,14 +33,14 @@ defmodule SwapifyApiWeb.IntegrationController do
       {:ok, _} ->
         conn
         |> delete_session(:spotify_state)
-        |> redirect(external: "http://localhost:3000/app/integration?service=spotify")
+        |> redirect(external: "http://localhost:3000/integration/spotify?result=success")
 
       {:error, error} ->
         conn
         |> delete_session(:spotify_state)
         |> redirect(
           external:
-            "http://localhost:3000/app/integration?service=spotify&error=#{Atom.to_string(error)}"
+            "http://localhost:3000/integration/spotify?result=error&error=#{Atom.to_string(error)}"
         )
     end
   end
@@ -64,22 +64,12 @@ defmodule SwapifyApiWeb.IntegrationController do
   def apple_music_callback(%Plug.Conn{body_params: %{"authToken" => apple_user_token}} = conn, _) do
     user_id = conn.assigns[:user_id]
 
-    result =
-      Accounts.Services.CreateOrUpdateIntegration.call("applemusic",
-        user_id: user_id,
-        token: apple_user_token
-      )
-
-    case result do
-      {:ok, _} ->
-        conn
-        |> redirect(external: "http://localhost:3000/app/integration?service=applemusic")
-
-      {:error, _} ->
-        conn
-        |> redirect(
-          external: "http://localhost:3000/app/integration?service=applemusic&error=server_error"
-        )
+    with {:ok, _} <-
+           Accounts.Services.CreateOrUpdateIntegration.call("applemusic",
+             user_id: user_id,
+             token: apple_user_token
+           ) do
+      {:ok}
     end
   end
 end
