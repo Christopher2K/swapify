@@ -54,3 +54,9 @@ tasks:
     cmds:
       - task: web
         vars: { CLI_ARGS: 'pnpm dev'}
+
+  run:playground:
+    cmds:
+      - task: mix
+        vars: { CLI_ARGS: 'run playground.exs' }
+

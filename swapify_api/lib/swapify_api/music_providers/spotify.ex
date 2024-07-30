@@ -1,5 +1,5 @@
 defmodule SwapifyApi.MusicProviders.Spotify do
-  @moduledoc "Interface to talk with Spotify"
+  @moduledoc "Interface to talk to Spotify"
   require Logger
 
   alias SwapifyApi.Utils
@@ -8,6 +8,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   @account_url "https://accounts.spotify.com"
   @api_url "https://api.spotify.com/v1"
+  @default_resource_limit 50
 
   @authentication_scope [
                           "playlist-read-private",
@@ -147,7 +148,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   def get_user_library(
         token,
         offset \\ 0,
-        limit \\ 50
+        limit \\ @default_resource_limit
       ) do
     Logger.debug("start: get_user_library/3", offset: offset, limit: limit)
 

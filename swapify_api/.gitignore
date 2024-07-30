@@ -25,3 +25,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 swapify_api-*.tar
 
+# Playground file
+playground.exs
