@@ -41,7 +41,7 @@ config :swapify_api, SwapifyApi.Mailer, adapter: Swoosh.Adapters.Local
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [:request_id, :status]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

@@ -42,6 +42,19 @@ defmodule SwapifyApi.SpotifyTest do
     assert {:error, %{status: 400}} = Spotify.request_access_token("fake_code")
   end
 
+  @tag mocked_response: %{
+         "access_token" => @fake_access_token,
+         "refresh_token" => @fake_refresh_token,
+         "expires_in" => 3600
+       }
+  test "refresh_access_token/1 returns an access_token on success" do
+    assert {:ok,
+            %Oauth.AccessToken{
+              access_token: @fake_access_token,
+              refresh_token: @fake_refresh_token
+            }} = Spotify.refresh_access_token(@fake_refresh_token)
+  end
+
   @tag mocked_response: user_library_response_fixture()
   test "get_user_library/1 returns a list of tracks" do
     assert {:ok, tracks, _} = Spotify.get_user_library(@fake_access_token)

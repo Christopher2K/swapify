@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Music.Track do
+defmodule SwapifyApi.MusicProviders.Track do
   @moduledoc "Business representation of a track"
 
   @enforce_keys [:isrc, :name, :artists, :album]

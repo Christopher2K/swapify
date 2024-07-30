@@ -4,7 +4,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   alias SwapifyApi.Utils
   alias SwapifyApi.Oauth
-  alias SwapifyApi.Music.Track
+  alias SwapifyApi.MusicProviders.Track
 
   @account_url "https://accounts.spotify.com"
   @api_url "https://api.spotify.com/v1"
@@ -96,14 +96,61 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     end
   end
 
+  @doc "Refresh the access token of a user"
+  @spec refresh_access_token(String.t()) ::
+          {:ok, Oauth.AccessToken.t()} | {:error, Req.Response.t() | atom()}
+  def refresh_access_token(refresh_token) do
+    uri = @account_url <> "/api/token"
+    client_id = get_client_id()
+    auth_header = "#{client_id}:#{get_client_secret()}" |> Base.encode64()
+
+    body = %{
+      "grant_type" => "refresh_token",
+      "refresh_token" => refresh_token,
+      "client_id" => client_id
+    }
+
+    result =
+      [
+        method: :post,
+        url: uri,
+        headers: %{"authorization" => "Basic #{auth_header}"},
+        form: body
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        result =
+          response.body
+          |> Map.put("refresh_token", refresh_token)
+          |> Oauth.AccessToken.from_map()
+
+        {:ok, result}
+
+      {:ok, response} ->
+        Logger.error("Refresh token error: #{response.status}")
+        {:error, response}
+
+      {:error, exception} ->
+        Logger.error(exception)
+        {:error, :service_error}
+    end
+  end
+
   ## RESOURCES FUNCTIONS
   @spec get_user_library(String.t(), pos_integer(), pos_integer()) ::
-          {:ok, list()} | {:error, atom()}
+          {:ok, list(), Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
   def get_user_library(
         token,
-        limit \\ 50,
-        offset \\ 0
+        offset \\ 0,
+        limit \\ 50
       ) do
+    Logger.debug("start: get_user_library/3", offset: offset, limit: limit)
+
     uri =
       get_api_url("/me/tracks", [
         {"limit", limit |> Integer.to_string()},
@@ -121,6 +168,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
+        Logger.debug("success: get_user_library/3 - response: #{response.status}")
+
         tracks =
           response.body["items"]
           |> Enum.map(fn user_lib_item ->
@@ -130,13 +179,15 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         {:ok, tracks, response}
 
       {:ok, %Req.Response{status: 401} = response} ->
-        {:error, response}
+        Logger.debug("error: get_user_library/3 - response: #{response.status}")
+        {:error, 401, response}
 
       {:ok, %Req.Response{status: 429} = response} ->
-        {:error, response}
+        Logger.debug("error: get_user_library/3 - response: #{response.status}")
+        {:error, 429, response}
 
       {:error, exception} ->
-        Logger.error(exception)
+        Logger.debug("service error: get_user_library/3", error: exception)
         {:error, :service_error}
     end
   end
