@@ -4,8 +4,11 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   alias SwapifyApi.Utils
   alias SwapifyApi.Oauth
+  alias SwapifyApi.Music.Track
 
   @account_url "https://accounts.spotify.com"
+  @api_url "https://api.spotify.com/v1"
+
   @authentication_scope [
                           "playlist-read-private",
                           "playlist-read-collaborative",
@@ -21,6 +24,16 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   defp get_client_secret(),
     do: Application.fetch_env!(:swapify_api, __MODULE__)[:client_secret]
+
+  defp get_api_url("/" <> _ = path, query_params) do
+    uri = URI.parse(@api_url <> path)
+
+    query_params
+    |> Enum.reduce(uri, fn {key, val}, uri ->
+      URI.append_query(uri, URI.encode(key <> "=" <> val))
+    end)
+    |> URI.to_string()
+  end
 
   ## AUTH FUNCTIONS
   @spec generate_auth_url(String.t()) :: String.t()
@@ -75,6 +88,51 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         {:ok, result}
 
       {:ok, %Req.Response{} = response} ->
+        {:error, response}
+
+      {:error, exception} ->
+        Logger.error(exception)
+        {:error, :service_error}
+    end
+  end
+
+  ## RESOURCES FUNCTIONS
+  @spec get_user_library(String.t(), pos_integer(), pos_integer()) ::
+          {:ok, list()} | {:error, atom()}
+  def get_user_library(
+        token,
+        limit \\ 50,
+        offset \\ 0
+      ) do
+    uri =
+      get_api_url("/me/tracks", [
+        {"limit", limit |> Integer.to_string()},
+        {"offset", offset |> Integer.to_string()}
+      ])
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{"authorization" => "Bearer #{token}"}
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        tracks =
+          response.body["items"]
+          |> Enum.map(fn user_lib_item ->
+            Track.from_spotify_track(user_lib_item["track"])
+          end)
+
+        {:ok, tracks, response}
+
+      {:ok, %Req.Response{status: 401} = response} ->
+        {:error, response}
+
+      {:ok, %Req.Response{status: 429} = response} ->
         {:error, response}
 
       {:error, exception} ->

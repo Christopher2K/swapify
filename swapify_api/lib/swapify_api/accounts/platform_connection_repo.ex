@@ -2,7 +2,6 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
   @moduledoc "PlatformConnection Repository"
   alias SwapifyApi.Repo
   alias SwapifyApi.Accounts.PlatformConnection
-  alias SwapifyApi.Utils
 
   @doc """
   Create if it doesn'texist or update a platform connection data for a given user

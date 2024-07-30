@@ -5,6 +5,8 @@ defmodule SwapifyApi.SpotifyTest do
   alias SwapifyApi.Oauth
   alias Plug.Conn
 
+  import SwapifyApi.SpotifyAPIFixtures
+
   @fake_access_token "fake_at"
   @fake_refresh_token "fake_rt"
 
@@ -38,5 +40,11 @@ defmodule SwapifyApi.SpotifyTest do
   @tag mocked_status: 400
   test "request_access_token/1 returns an error on http error" do
     assert {:error, %{status: 400}} = Spotify.request_access_token("fake_code")
+  end
+
+  @tag mocked_response: user_library_response_fixture()
+  test "get_user_library/1 returns a list of tracks" do
+    assert {:ok, tracks, _} = Spotify.get_user_library(@fake_access_token)
+    assert length(tracks) == 1
   end
 end
