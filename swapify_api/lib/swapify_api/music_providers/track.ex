@@ -1,15 +1,28 @@
 defmodule SwapifyApi.MusicProviders.Track do
   @moduledoc "Business representation of a track"
 
-  @enforce_keys [:name, :artists, :album]
-  defstruct isrc: nil, name: nil, artists: [], album: nil
+  use SwapifyApi.Schema
 
   @type t :: %__MODULE__{
-          isrc: String.t(),
+          isrc: String.t() | nil,
           name: String.t(),
           artists: list(String.t()),
           album: String.t()
         }
+
+  embedded_schema do
+    field :isrc, :string, default: nil
+    field :name, :string
+    field :album, :string
+    field :artists, {:array, :string}
+  end
+
+  @doc "Default changeset"
+  def changeset(track, attrs) do
+    track
+    |> cast(attrs, [:isrc, :name, :album, :artists])
+    |> validate_required([:name, :artists, :album])
+  end
 
   @doc "Convert a Spotify track to a business representation"
   @spec from_spotify_track(map()) :: t()
@@ -41,9 +54,9 @@ defmodule SwapifyApi.MusicProviders.Track do
     }
   end
 
-  @doc "Convert a app track to JSON"
-  @spec to_json(t()) :: map()
-  def to_json(track),
+  @doc "Convert a app track to a json compatible map"
+  @spec to_map(t()) :: map()
+  def to_map(track),
     do: %{
       "isrc" => track.isrc,
       "name" => track.name,
