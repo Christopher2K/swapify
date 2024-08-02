@@ -33,6 +33,12 @@ defmodule SwapifyApiWeb.Router do
     post "/applemusic/callback", IntegrationController, :apple_music_callback
   end
 
+  scope "/api/playlists", SwapifyApiWeb do
+    pipe_through :api_protected
+
+    get "/library", PlaylistController, :get_library
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:swapify_api, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put

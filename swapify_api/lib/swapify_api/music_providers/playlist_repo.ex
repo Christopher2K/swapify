@@ -50,4 +50,14 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
+
+  @doc "Get all the user libraries"
+  @spec get_user_libraries(String.t()) :: {:ok, list(Playlist.t())}
+  def get_user_libraries(user_id) do
+    {:ok,
+     Playlist.queryable()
+     |> Playlist.filter_by(:user_id, user_id)
+     |> Playlist.filter_by(:is_library, true)
+     |> Repo.all()}
+  end
 end
