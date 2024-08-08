@@ -12,7 +12,7 @@ defmodule SwapifyApi.MusicProviders.Services.GetMusicLibrary do
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.Track
 
-  @spec call(%PlatformConnection{}) :: {:ok, list(Track.t())}
+  @spec call(%PlatformConnection{}) :: {:ok, list(Track.t())} | {:error, atom()}
   def call(%PlatformConnection{name: "spotify"} = pc) do
     case do_call(pc, 0, []) do
       {:ok, tracks} ->

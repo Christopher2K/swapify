@@ -7,7 +7,8 @@ defmodule SwapifyApi.MusicProviders.Track do
           isrc: String.t() | nil,
           name: String.t(),
           artists: list(String.t()),
-          album: String.t()
+          # Apparently, Apple Music, sometimes, doesn't return the album name
+          album: String.t() | nil
         }
 
   embedded_schema do
@@ -21,7 +22,7 @@ defmodule SwapifyApi.MusicProviders.Track do
   def changeset(track, attrs) do
     track
     |> cast(attrs, [:isrc, :name, :album, :artists])
-    |> validate_required([:name, :artists, :album])
+    |> validate_required([:name, :artists])
   end
 
   @doc "Convert a Spotify track to a business representation"

@@ -23,7 +23,7 @@ defmodule SwapifyApi.MusicProviders.Playlist do
     field :platform_name, :string
     field :is_library, :boolean
 
-    embeds_many :tracks, Track
+    embeds_many :tracks, Track, on_replace: :delete
 
     belongs_to :user, User
 
@@ -33,8 +33,9 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   @doc "Default changeset"
   def changetset(playlist, attrs) do
     playlist
-    |> cast(attrs, [:name, :platform_name, :is_library, :tracks, :user_id])
-    |> validate_required([:platform_name, :tracks, :user_id])
+    |> cast(attrs, [:name, :platform_name, :is_library, :user_id])
+    |> cast_embed(:tracks, required: true)
+    |> validate_required([:platform_name, :user_id])
   end
 
   @doc "Changaset playlist to create a new playlist"
@@ -45,8 +46,8 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   @doc "Changaset playlist to update a playlist"
   def update_changeset(playlist, attrs) do
     playlist
-    |> cast(attrs, [:tracks])
-    |> validate_required([:tracks])
+    |> cast(attrs, [])
+    |> cast_embed(:tracks, required: true)
   end
 
   def to_map(%__MODULE__{} = playlist),
