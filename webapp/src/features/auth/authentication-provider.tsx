@@ -1,5 +1,4 @@
 import { type PropsWithChildren, createContext, useContext } from "react";
-import { useNavigate } from "@tanstack/react-router";
 
 import { APIUser } from "#root/services/api.types";
 
@@ -26,24 +25,25 @@ export function useAuthenticatedUser() {
   return ctx;
 }
 
-export type AuthenticationProviderProps = PropsWithChildren;
+export type AuthenticationProviderProps = {
+  renderIfAuthenticated: (user: APIUser) => React.ReactNode;
+  renderIfUnauthenticated: () => React.ReactNode;
+};
 
 export function AuthenticationProvider({
-  children,
+  renderIfAuthenticated,
+  renderIfUnauthenticated,
 }: AuthenticationProviderProps) {
   const { user, isError } = useUserQuery();
-  const navigate = useNavigate();
 
   if (isError) {
-    queueMicrotask(() => {
-      navigate({ to: "/signin", replace: true });
-    });
+    return renderIfUnauthenticated();
   }
 
   if (user != null) {
     return (
       <AuthenticatedUserProvider user={user}>
-        {children}
+        {renderIfAuthenticated(user)}
       </AuthenticatedUserProvider>
     );
   }

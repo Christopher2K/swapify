@@ -3,14 +3,14 @@ import { useNavigate } from "@tanstack/react-router";
 
 import { AuthenticationProvider } from "./authentication-provider";
 
-export function AuthenticatedLayout({ children }: PropsWithChildren) {
+export function UnauthenticatedLayout({ children }: PropsWithChildren) {
   const navigate = useNavigate();
 
   return (
     <AuthenticationProvider
-      renderIfAuthenticated={() => <>{children}</>}
-      renderIfUnauthenticated={() => {
-        navigate({ to: "/sign-in", replace: true });
+      renderIfUnauthenticated={() => <>{children}</>}
+      renderIfAuthenticated={() => {
+        navigate({ to: "/", replace: true });
         return null;
       }}
     />

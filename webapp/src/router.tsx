@@ -10,6 +10,7 @@ import { Root } from "#root/root";
 import { PageSignin } from "#root/features/auth/page-signin";
 import { PageSignup } from "#root/features/auth/page-signup";
 import { AuthenticatedLayout } from "#root/features/auth/layout-authenticated";
+import { UnauthenticatedLayout } from "#root/features/auth/layout-unauthenticated";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -22,13 +23,13 @@ const rootRoute = createRootRoute({
 
 const signinRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/signin",
+  path: "/sign-in",
   component: PageSignin,
 });
 
 const signupRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/signup",
+  path: "/sign-up",
   component: PageSignup,
 });
 
@@ -38,6 +39,12 @@ const authenticatedLayoutRoute = createRoute({
   component: AuthenticatedLayout,
 });
 
+const unauthenticatedLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "unauthenticated",
+  component: UnauthenticatedLayout,
+});
+
 const indexRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: "/",
@@ -45,8 +52,7 @@ const indexRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  signinRoute,
-  signupRoute,
+  unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
   authenticatedLayoutRoute.addChildren([indexRoute]),
 ]);
 export const router = createRouter({
