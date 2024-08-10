@@ -1,4 +1,5 @@
 import { type PropsWithChildren, createContext, useContext } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 import { APIUser } from "#root/services/api.types";
 
@@ -31,9 +32,12 @@ export function AuthenticationProvider({
   children,
 }: AuthenticationProviderProps) {
   const { user, isError } = useUserQuery();
+  const navigate = useNavigate();
 
   if (isError) {
-    <h1>Error</h1>;
+    queueMicrotask(() => {
+      navigate({ to: "/signin", replace: true });
+    });
   }
 
   if (user != null) {

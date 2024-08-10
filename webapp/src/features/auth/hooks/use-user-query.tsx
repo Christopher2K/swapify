@@ -7,10 +7,12 @@ export function useUserQuery() {
     queryKey: ["user"],
   });
 
+  console.log(isError);
+
   return {
     user: data?.status === 200 ? data?.body.data : undefined,
-    isLoading,
     isError,
+    isLoading,
     refetch,
   };
 }

@@ -9,6 +9,8 @@ export const tsr = initTsrReactQuery(contract, {
   baseUrl: import.meta.env.VITE_API_URL,
   baseHeaders: {
     "x-swapify-application": "swapify-web",
+    accept: "application/json",
+    "content-type": "application/json",
   },
   credentials: "include",
 });
