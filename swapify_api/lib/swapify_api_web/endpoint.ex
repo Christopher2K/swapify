@@ -12,9 +12,23 @@ defmodule SwapifyApiWeb.Endpoint do
     domain: Application.compile_env!(:swapify_api, :cookie_domain)
   ]
 
+  @allowed_origins [
+    "http://localhost:5173"
+  ]
+
+  @allowed_headers [
+    "Baggage",
+    "Sentry-Trace",
+    "x-swapify-application" | CORSPlug.defaults()[:headers]
+  ]
+
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
+
+  socket "/socket", SwapifyApiWeb.SyncSocket,
+    websocket: true,
+    longpoll: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -48,5 +62,10 @@ defmodule SwapifyApiWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug CORSPlug,
+    origin: @allowed_origins,
+    headers: @allowed_headers
+
   plug SwapifyApiWeb.Router
 end
