@@ -1,26 +1,42 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "allowJs": true,
-    "strict": true,
-    "noEmit": true,
     "skipLibCheck": true,
-    "typeRoots": ["./types"],
-    "lib": ["dom", "dom.iterable"],
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "#root/*": ["./src/*"],
-      "#style/*": ["./styled-system/*"],
-      "styled-system/*": ["./styled-system/*"]
-    }
+      "#root/*": [
+        "./src/*"
+      ],
+      "#style/*": [
+        "./styled-system/*"
+      ],
+      "~/*": [
+        "./src/*"
+      ]
+    },
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "styled-system"]
+  "include": [
+    "src",
+    "styled-system"
+  ]
 }

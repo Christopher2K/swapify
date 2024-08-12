@@ -8,8 +8,8 @@ const parkUIPreset = createPreset({
 export default defineConfig({
   preflight: true,
   presets: ["@pandacss/preset-base", parkUIPreset],
+  jsxFramework: "react",
   include: ["./src/**/*.{ts,tsx}"],
-  jsxFramework: "solid",
   exclude: [],
   outdir: "styled-system",
 });

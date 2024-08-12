@@ -1,64 +1,31 @@
-import {
-  PinInput as ArkPinInput,
-  type Assign,
-  type PinInputRootProps,
-} from "@ark-ui/solid";
-import { Index, Show, children, splitProps } from "solid-js";
-import { css, cx } from "styled-system/css";
-import { splitCssProps } from "styled-system/jsx";
-import { type PinInputVariantProps, pinInput } from "styled-system/recipes";
-import type { JsxStyleProps } from "styled-system/types";
-import { Input } from "#root/components/ui/input";
+import { forwardRef } from 'react'
+import { Input } from './input'
+import * as StyledPinInput from './styled/pin-input'
 
-export interface PinInputProps
-  extends Assign<JsxStyleProps, PinInputRootProps>,
-    PinInputVariantProps {
+export interface PinInputProps extends StyledPinInput.RootProps {
   /**
    * The number of inputs to render.
    * @default 4
    */
-  length?: number;
+  length?: number
 }
 
-export const PinInput = (props: PinInputProps) => {
-  const [variantProps, pinInputProps] = pinInput.splitVariantProps(props);
-  const [cssProps, elementProps] = splitCssProps(pinInputProps);
-  const [localProps, rootProps] = splitProps(elementProps, [
-    "children",
-    "class",
-    "length",
-  ]);
-  const getChildren = children(() => localProps.children);
-  const styles = pinInput(variantProps);
+export const PinInput = forwardRef<HTMLDivElement, PinInputProps>((props, ref) => {
+  const { children, length = 4, ...rootProps } = props
 
   return (
-    <ArkPinInput.Root
-      class={cx(styles.root, css(cssProps), localProps.class)}
-      {...rootProps}
-    >
-      <Show when={getChildren()}>
-        <ArkPinInput.Label class={styles.label}>
-          {getChildren()}
-        </ArkPinInput.Label>
-      </Show>
-      <ArkPinInput.Control class={styles.control}>
-        <Index
-          each={Array.from(
-            { length: localProps.length ?? 4 },
-            (_, index) => index,
-          )}
-        >
-          {(index) => (
-            <ArkPinInput.Input
-              class={styles.input}
-              index={index()}
-              asChild={(props) => (
-                <Input {...props()} size={variantProps.size} />
-              )}
-            />
-          )}
-        </Index>
-      </ArkPinInput.Control>
-    </ArkPinInput.Root>
-  );
-};
+    <StyledPinInput.Root ref={ref} {...rootProps}>
+      {children && <StyledPinInput.Label>{children}</StyledPinInput.Label>}
+      <StyledPinInput.Control>
+        {Array.from({ length }, (_, index) => index).map((id, index) => (
+          <StyledPinInput.Input key={id} index={index} asChild>
+            <Input size={rootProps.size} />
+          </StyledPinInput.Input>
+        ))}
+      </StyledPinInput.Control>
+      <StyledPinInput.HiddenInput />
+    </StyledPinInput.Root>
+  )
+})
+
+PinInput.displayName = 'PinInput'

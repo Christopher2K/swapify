@@ -1,49 +1,23 @@
-import {
-  Avatar as ArkAvatar,
-  type Assign,
-  type AvatarRootProps,
-} from "@ark-ui/solid";
-import { Show, splitProps } from "solid-js";
-import { css, cx } from "styled-system/css";
-import { splitCssProps } from "styled-system/jsx";
-import { type AvatarVariantProps, avatar } from "styled-system/recipes";
-import type { JsxStyleProps } from "styled-system/types";
+import { forwardRef } from 'react'
+import * as StyledAvatar from './styled/avatar'
 
-export interface AvatarProps
-  extends Assign<JsxStyleProps, AvatarRootProps>,
-    AvatarVariantProps {
-  name?: string;
-  src?: string;
+export interface AvatarProps extends StyledAvatar.RootProps {
+  name?: string
+  src?: string
 }
 
-export const Avatar = (props: AvatarProps) => {
-  const [variantProps, avatarProps] = avatar.splitVariantProps(props);
-  const [cssProps, elementProps] = splitCssProps(avatarProps);
-  const [localProps, rootProps] = splitProps(elementProps, [
-    "name",
-    "src",
-    "class",
-  ]);
-  const styles = avatar(variantProps);
+export const Avatar = forwardRef<HTMLDivElement, AvatarProps>((props, ref) => {
+  const { name, src, ...rootProps } = props
 
   return (
-    <ArkAvatar.Root
-      class={cx(styles.root, css(cssProps), localProps.class)}
-      {...rootProps}
-    >
-      <ArkAvatar.Fallback class={styles.fallback}>
-        <Show when={localProps.name} fallback={<UserIcon />}>
-          {getInitials(localProps.name)}
-        </Show>
-      </ArkAvatar.Fallback>
-      <ArkAvatar.Image
-        class={styles.image}
-        src={localProps.src}
-        alt={localProps.name}
-      />
-    </ArkAvatar.Root>
-  );
-};
+    <StyledAvatar.Root ref={ref} {...rootProps}>
+      <StyledAvatar.Fallback>{getInitials(name) || <UserIcon />}</StyledAvatar.Fallback>
+      <StyledAvatar.Image src={src} alt={name} />
+    </StyledAvatar.Root>
+  )
+})
+
+Avatar.displayName = 'Avatar'
 
 const UserIcon = () => (
   <svg
@@ -51,18 +25,18 @@ const UserIcon = () => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    stroke-width="2"
+    strokeWidth="2"
   >
     <title>User Icon</title>
     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </svg>
-);
+)
 
-const getInitials = (name = "") =>
+const getInitials = (name = '') =>
   name
-    .split(" ")
+    .split(' ')
     .map((part) => part[0])
     .splice(0, 2)
-    .join("")
-    .toUpperCase();
+    .join('')
+    .toUpperCase()

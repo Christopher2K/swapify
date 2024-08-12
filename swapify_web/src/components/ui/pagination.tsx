@@ -1,68 +1,44 @@
-import {
-  Pagination as ArkPagination,
-  type Assign,
-  type PaginationRootProps,
-} from "@ark-ui/solid";
-import { For, splitProps } from "solid-js";
-import { css, cx } from "styled-system/css";
-import { splitCssProps } from "styled-system/jsx";
-import { type PaginationVariantProps, pagination } from "styled-system/recipes";
-import type { JsxStyleProps } from "styled-system/types";
-import { IconButton } from "#root/components/ui/icon-button";
-import { Button } from "./button";
+'use client'
+import { forwardRef } from 'react'
+import { Button } from './button'
+import { IconButton } from './icon-button'
+import * as StyledPagination from './styled/pagination'
 
-export interface PaginationProps
-  extends Assign<JsxStyleProps, PaginationRootProps>,
-    PaginationVariantProps {}
+export interface PaginationProps extends StyledPagination.RootProps {}
 
-export const Pagination = (props: PaginationProps) => {
-  const [variantProps, numberInputProps] = pagination.splitVariantProps(props);
-  const [cssProps, elementProps] = splitCssProps(numberInputProps);
-  const [localProps, rootProps] = splitProps(elementProps, [
-    "children",
-    "class",
-  ]);
-  const styles = pagination(variantProps);
-
+export const Pagination = forwardRef<HTMLElement, PaginationProps>((props, ref) => {
   return (
-    <ArkPagination.Root
-      class={cx(styles.root, css(cssProps), localProps.class)}
-      {...rootProps}
-    >
-      <ArkPagination.PrevTrigger class={styles.prevTrigger}>
+    <StyledPagination.Root ref={ref} {...props}>
+      <StyledPagination.PrevTrigger asChild>
         <IconButton variant="ghost" aria-label="Next Page">
           <ChevronLeftIcon />
         </IconButton>
-      </ArkPagination.PrevTrigger>
-      <ArkPagination.Context>
-        {(pagiation) => (
-          <For each={pagiation().pages}>
-            {(page, index) =>
-              page.type === "page" ? (
-                <ArkPagination.Item
-                  {...page}
-                  class={styles.item}
-                  asChild={(props) => <Button {...props} variant="outline" />}
-                >
-                  {page.value}
-                </ArkPagination.Item>
-              ) : (
-                <ArkPagination.Ellipsis index={index()} class={styles.ellipsis}>
-                  &#8230;
-                </ArkPagination.Ellipsis>
-              )
-            }
-          </For>
-        )}
-      </ArkPagination.Context>
-      <ArkPagination.NextTrigger class={styles.nextTrigger}>
+      </StyledPagination.PrevTrigger>
+      <StyledPagination.Context>
+        {(pagination) =>
+          pagination.pages.map((page, index) =>
+            page.type === 'page' ? (
+              <StyledPagination.Item key={index} {...page} asChild>
+                <Button variant="outline">{page.value}</Button>
+              </StyledPagination.Item>
+            ) : (
+              <StyledPagination.Ellipsis key={index} index={index}>
+                &#8230;
+              </StyledPagination.Ellipsis>
+            ),
+          )
+        }
+      </StyledPagination.Context>
+      <StyledPagination.NextTrigger asChild>
         <IconButton variant="ghost" aria-label="Next Page">
           <ChevronRightIcon />
         </IconButton>
-      </ArkPagination.NextTrigger>
-    </ArkPagination.Root>
-  );
-};
+      </StyledPagination.NextTrigger>
+    </StyledPagination.Root>
+  )
+})
+
+Pagination.displayName = 'Pagination'
 
 const ChevronLeftIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -70,13 +46,13 @@ const ChevronLeftIcon = () => (
     <path
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
       d="m15 18l-6-6l6-6"
     />
   </svg>
-);
+)
 
 const ChevronRightIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -84,10 +60,10 @@ const ChevronRightIcon = () => (
     <path
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
       d="m9 18l6-6l-6-6"
     />
   </svg>
-);
+)

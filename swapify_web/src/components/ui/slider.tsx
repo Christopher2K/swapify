@@ -1,74 +1,48 @@
-import {
-  Slider as ArkSlider,
-  type Assign,
-  type SliderRootProps,
-} from "@ark-ui/solid";
-import { Index, type JSX, Show, children, splitProps } from "solid-js";
-import { css, cx } from "styled-system/css";
-import { splitCssProps } from "styled-system/jsx";
-import { type SliderVariantProps, slider } from "styled-system/recipes";
-import type { JsxStyleProps } from "styled-system/types";
+'use client'
+import { type ReactNode, forwardRef } from 'react'
+import * as StyledSlider from './styled/slider'
 
-export interface SliderProps
-  extends Assign<JsxStyleProps, SliderRootProps>,
-    SliderVariantProps {
+export interface SliderProps extends StyledSlider.RootProps {
+  children?: ReactNode
   marks?: {
-    value: number;
-    label?: JSX.Element;
-  }[];
+    value: number
+    label?: ReactNode
+  }[]
 }
 
-export const Slider = (props: SliderProps) => {
-  const [variantProps, ratingGroupProps] = slider.splitVariantProps(props);
-  const [cssProps, elementProps] = splitCssProps(ratingGroupProps);
-  const [localProps, rootProps] = splitProps(elementProps, [
-    "children",
-    "class",
-    "marks",
-  ]);
-  const getChildren = children(() => localProps.children);
-  const styles = slider(variantProps);
+export const Slider = forwardRef<HTMLDivElement, SliderProps>((props, ref) => {
+  const { children, marks, ...rootProps } = props
 
   return (
-    <ArkSlider.Root
-      class={cx(styles.root, css(cssProps), localProps.class)}
-      {...rootProps}
-    >
-      <ArkSlider.Context>
+    <StyledSlider.Root ref={ref} {...rootProps}>
+      <StyledSlider.Context>
         {(api) => (
           <>
-            <Show when={getChildren()}>
-              <ArkSlider.Label class={styles.label}>
-                {getChildren()}
-              </ArkSlider.Label>
-            </Show>
-            <ArkSlider.Control class={styles.control}>
-              <ArkSlider.Track class={styles.track}>
-                <ArkSlider.Range class={styles.range} />
-              </ArkSlider.Track>
-              <Index each={api().value}>
-                {(_, index) => (
-                  <ArkSlider.Thumb index={index} class={styles.thumb} />
-                )}
-              </Index>
-            </ArkSlider.Control>
-            <Show when={localProps.marks}>
-              <ArkSlider.MarkerGroup class={styles.markerGroup}>
-                <Index each={localProps.marks}>
-                  {(mark) => (
-                    <ArkSlider.Marker
-                      value={mark().value}
-                      class={styles.marker}
-                    >
-                      {mark().label}
-                    </ArkSlider.Marker>
-                  )}
-                </Index>
-              </ArkSlider.MarkerGroup>
-            </Show>
+            {children && <StyledSlider.Label>{children}</StyledSlider.Label>}
+            <StyledSlider.Control>
+              <StyledSlider.Track>
+                <StyledSlider.Range />
+              </StyledSlider.Track>
+              {api.value.map((_, index) => (
+                <StyledSlider.Thumb key={index} index={index}>
+                  <StyledSlider.HiddenInput />
+                </StyledSlider.Thumb>
+              ))}
+            </StyledSlider.Control>
+            {props.marks && (
+              <StyledSlider.MarkerGroup>
+                {props.marks.map((mark) => (
+                  <StyledSlider.Marker key={mark.value} value={mark.value}>
+                    {mark.label}
+                  </StyledSlider.Marker>
+                ))}
+              </StyledSlider.MarkerGroup>
+            )}
           </>
         )}
-      </ArkSlider.Context>
-    </ArkSlider.Root>
-  );
-};
+      </StyledSlider.Context>
+    </StyledSlider.Root>
+  )
+})
+
+Slider.displayName = 'Slider'
