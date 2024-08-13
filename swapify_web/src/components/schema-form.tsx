@@ -5,10 +5,18 @@ import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
 import { vstack } from "#style/patterns";
 
 import { Button } from "./ui/button";
+import { Alert } from "./ui/alert";
+
 import { TextField, PasswordField } from "./textfield";
+import { ThemedAlert } from "./themed-alert";
 
 export const PasswordSchema = createUniqueFieldSchema(
   z.string().min(8, "Password must be at least 8 characters"),
+  "password",
+);
+
+export const UncheckedPasswordSchema = createUniqueFieldSchema(
+  z.string(),
   "password",
 );
 
@@ -22,6 +30,7 @@ type SchemaFormContainerProps = PropsWithChildren<{
   submitText?: string;
   isLoading?: boolean;
   hideSubmitButton?: boolean;
+  globalError?: string;
   onSubmit: () => void;
 }>;
 export function SchemaFormContainer({
@@ -29,6 +38,7 @@ export function SchemaFormContainer({
   submitText,
   isLoading,
   hideSubmitButton = false,
+  globalError,
   onSubmit,
   children,
 }: SchemaFormContainerProps) {
@@ -41,6 +51,9 @@ export function SchemaFormContainer({
         gap: "6",
       })}
     >
+      {globalError && (
+        <ThemedAlert title="Error" description={globalError} severity="error" />
+      )}
       {children}
       {!hideSubmitButton && (
         <Button loading={isLoading} type="submit" w="full" size="xl">

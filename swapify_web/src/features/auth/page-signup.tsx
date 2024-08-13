@@ -5,41 +5,40 @@ import { VStack } from "#style/jsx";
 import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
 import { Card } from "#root/components/ui/card";
+import { tsr } from "#root/services/api";
 
 import {
   SignUpForm,
   SignUpFormData,
   useSignUpForm,
 } from "./components/sign-up-form";
-import { useSignupMutation } from "./hooks/use-signup-mutation";
 
 export function PageSignup() {
-  const { signupAsync, isLoading, error } = useSignupMutation();
-  const navigate = useNavigate();
   const form = useSignUpForm();
-  handleError();
-
-  function handleError() {
-    if (error == null) return;
-    if (isFetchError(error)) return;
-    if (error.status === 422) {
-      Object.entries(error.body.errors.form ?? {}).forEach(
-        ([field, errorMsg]) => {
-          // @ts-expect-error :(
-          form.setError(field, {
-            type: "manual",
-            message: errorMsg,
-          });
-        },
-      );
-    }
-  }
+  const navigate = useNavigate();
+  const { mutateAsync: signUpAsync, isPending } = tsr.signupUser.useMutation({
+    onSuccess: () => {
+      navigate({ to: "/sign-in", search: { "just-signed-up": true } });
+    },
+    onError: (error) => {
+      if (error == null) return;
+      if (isFetchError(error)) return;
+      if (error.status === 422) {
+        Object.entries(error.body.errors.form ?? {}).forEach(
+          ([field, errorMsg]) => {
+            // @ts-expect-error :(
+            form.setError(field, {
+              type: "manual",
+              message: errorMsg,
+            });
+          },
+        );
+      }
+    },
+  });
 
   async function handleSubmit(data: SignUpFormData) {
-    try {
-      await signupAsync({ body: data });
-      navigate({ to: "/sign-in", search: { "just-signed-up": true } });
-    } catch (_) {}
+    signUpAsync({ body: data });
   }
 
   return (
@@ -58,7 +57,7 @@ export function PageSignup() {
           <SignUpForm
             form={form}
             handleSubmit={handleSubmit}
-            isLoading={isLoading}
+            isLoading={isPending}
           />
         </Card.Body>
         <Card.Footer>

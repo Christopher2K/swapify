@@ -17,15 +17,9 @@ export type SignUpFormProps = {
   form?: ReturnType<typeof useSignUpForm>;
   isLoading?: boolean;
   handleSubmit: (data: z.infer<typeof SignUpFormSchema>) => void;
-  hideSubmitButton?: boolean;
 };
 
-export function SignUpForm({
-  isLoading,
-  handleSubmit,
-  form,
-  hideSubmitButton,
-}: SignUpFormProps) {
+export function SignUpForm({ isLoading, handleSubmit, form }: SignUpFormProps) {
   return (
     <SchemaForm
       form={form}
@@ -40,7 +34,6 @@ export function SignUpForm({
         submitText: "Sign up",
         isLoading,
         id: SIGN_UP_FORM_ID,
-        hideSubmitButton,
       }}
     />
   );

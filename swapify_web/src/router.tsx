@@ -21,26 +21,6 @@ const rootRoute = createRootRoute({
   ),
 });
 
-type SignInRouteSearch = {
-  ["just-signed-up"]?: boolean;
-};
-const signinRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/sign-in",
-  component: PageSignin,
-  validateSearch: (search): SignInRouteSearch => {
-    return {
-      ["just-signed-up"]: search.justSignedUp === "true",
-    };
-  },
-});
-
-const signupRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/sign-up",
-  component: PageSignup,
-});
-
 const authenticatedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "authticated",
@@ -51,6 +31,26 @@ const unauthenticatedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "unauthenticated",
   component: UnauthenticatedLayout,
+});
+
+type SignInRouteSearch = {
+  ["just-signed-up"]?: boolean;
+};
+const signinRoute = createRoute({
+  getParentRoute: () => unauthenticatedLayoutRoute,
+  path: "/sign-in",
+  component: PageSignin,
+  validateSearch: (search): SignInRouteSearch => {
+    return {
+      ["just-signed-up"]: search.justSignedUp === "true",
+    };
+  },
+});
+
+const signupRoute = createRoute({
+  getParentRoute: () => unauthenticatedLayoutRoute,
+  path: "/sign-up",
+  component: PageSignup,
 });
 
 const indexRoute = createRoute({

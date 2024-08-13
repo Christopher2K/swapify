@@ -2,7 +2,7 @@ import { defineConfig } from "@pandacss/dev";
 import { createPreset } from "@park-ui/panda-preset";
 
 const parkUIPreset = createPreset({
-  additionalColors: ["red"],
+  additionalColors: ["red", "tomato", "blue"],
 });
 
 export default defineConfig({
