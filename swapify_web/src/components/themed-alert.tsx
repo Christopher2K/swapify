@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { cva, type RecipeVariantProps } from "#style/css";
-import { CircleXIcon, InfoIcon } from "lucide-react";
+import { CircleXIcon, InfoIcon, CircleCheckIcon } from "lucide-react";
 
 import { Alert } from "./ui/alert";
 
@@ -19,6 +19,11 @@ const rootVariants = cva({
         borderStyle: "solid",
         borderColor: "blue.10",
         backgroundColor: "blue.2",
+      },
+      success: {
+        borderStyle: "solid",
+        borderColor: "grass.10",
+        backgroundColor: "grass.2",
       },
     },
   },
@@ -39,6 +44,10 @@ const elementVariants = cva({
         stroke: "blue.10",
         color: "blue.10",
       },
+      success: {
+        stroke: "grass.10",
+        color: "grass.10",
+      },
     },
   },
   defaultVariants: {
@@ -55,6 +64,9 @@ const descriptionVariants = cva({
       },
       info: {
         color: "blue.9",
+      },
+      success: {
+        color: "grass.9",
       },
     },
   },
@@ -73,6 +85,7 @@ const icons: Record<
 > = {
   error: ({ className }) => <CircleXIcon className={className} />,
   info: ({ className }) => <InfoIcon className={className} />,
+  success: ({ className }) => <CircleCheckIcon className={className} />,
 };
 
 type ThemedAlertProps = {
