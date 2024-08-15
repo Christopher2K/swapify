@@ -5,6 +5,7 @@ import {
   createRootRoute,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { z } from "zod";
 
 import { Root } from "#root/root";
 import { PageSignin } from "#root/features/auth/page-signin";
@@ -33,18 +34,15 @@ const unauthenticatedLayoutRoute = createRoute({
   component: UnauthenticatedLayout,
 });
 
-type SignInRouteSearch = {
-  ["just-signed-up"]?: boolean;
-};
+const signInRouteSearch = z.object({
+  justSignedUp: z.boolean().optional(),
+});
+
 const signinRoute = createRoute({
   getParentRoute: () => unauthenticatedLayoutRoute,
   path: "/sign-in",
   component: PageSignin,
-  validateSearch: (search): SignInRouteSearch => {
-    return {
-      ["just-signed-up"]: search.justSignedUp === "true",
-    };
-  },
+  validateSearch: signInRouteSearch,
 });
 
 const signupRoute = createRoute({

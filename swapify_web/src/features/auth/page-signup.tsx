@@ -18,7 +18,7 @@ export function PageSignup() {
   const navigate = useNavigate();
   const { mutateAsync: signUpAsync, isPending } = tsr.signupUser.useMutation({
     onSuccess: () => {
-      navigate({ to: "/sign-in", search: { "just-signed-up": true } });
+      navigate({ to: "/sign-in", search: { justSignedUp: true } });
     },
     onError: (error) => {
       if (error == null) return;

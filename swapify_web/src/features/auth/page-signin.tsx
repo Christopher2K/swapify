@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { isFetchError } from "@ts-rest/react-query/v5";
 
 import { Heading } from "#root/components/ui/heading";
@@ -6,6 +6,7 @@ import { Text } from "#root/components/ui/text";
 import { Card } from "#root/components/ui/card";
 import { VStack } from "#style/jsx";
 import { tsr } from "#root/services/api";
+import { ThemedAlert } from "#root/components/themed-alert";
 
 import {
   SignInForm,
@@ -14,6 +15,9 @@ import {
 } from "./components/sign-in-form";
 
 export function PageSignin() {
+  const { justSignedUp } = useSearch({
+    from: "/unauthenticated/sign-in",
+  });
   const form = useSignInForm();
   const navigate = useNavigate();
   const { mutateAsync: signInAsync, isPending } = tsr.signinUser.useMutation({
@@ -48,6 +52,15 @@ export function PageSignin() {
       </VStack>
 
       <Card.Root w="full" maxW="lg" p="5">
+        {justSignedUp && (
+          <Card.Header>
+            <ThemedAlert
+              title="Please sign in to continue"
+              description="Your account has been created!"
+              severity="success"
+            />
+          </Card.Header>
+        )}
         <Card.Body pt="5">
           <SignInForm
             handleSubmit={handleSubmit}
