@@ -8,10 +8,14 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { z } from "zod";
 
 import { Root } from "#root/root";
+import { Container } from "#root/components/container";
 import { PageSignin } from "#root/features/auth/page-signin";
 import { PageSignup } from "#root/features/auth/page-signup";
+import { DashboardPage } from "#root/features/dashboard/dashboard-page";
+import { IntegrationsPage } from "#root/features/integrations/integrations-page";
 import { AuthenticatedLayout } from "#root/features/auth/layout-authenticated";
 import { UnauthenticatedLayout } from "#root/features/auth/layout-unauthenticated";
+import { AppScreenLayout } from "./components/app-screen-layout";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -24,14 +28,26 @@ const rootRoute = createRootRoute({
 
 const authenticatedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: "authticated",
-  component: AuthenticatedLayout,
+  id: "authenticated",
+  component: () => (
+    <AuthenticatedLayout>
+      <AppScreenLayout>
+        <Outlet />
+      </AppScreenLayout>
+    </AuthenticatedLayout>
+  ),
 });
 
 const unauthenticatedLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "unauthenticated",
-  component: UnauthenticatedLayout,
+  component: () => (
+    <UnauthenticatedLayout>
+      <Container>
+        <Outlet />
+      </Container>
+    </UnauthenticatedLayout>
+  ),
 });
 
 const signInRouteSearch = z.object({
@@ -54,12 +70,18 @@ const signupRoute = createRoute({
 const indexRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: "/",
-  component: () => <h1>Hello World</h1>,
+  component: DashboardPage,
+});
+
+const integrationsRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: "/integrations",
+  component: IntegrationsPage,
 });
 
 const routeTree = rootRoute.addChildren([
   unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
-  authenticatedLayoutRoute.addChildren([indexRoute]),
+  authenticatedLayoutRoute.addChildren([indexRoute, integrationsRoute]),
 ]);
 export const router = createRouter({
   routeTree,
