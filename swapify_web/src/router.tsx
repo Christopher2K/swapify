@@ -15,7 +15,8 @@ import { DashboardPage } from "#root/features/dashboard/dashboard-page";
 import { IntegrationsPage } from "#root/features/integrations/integrations-page";
 import { AuthenticatedLayout } from "#root/features/auth/layout-authenticated";
 import { UnauthenticatedLayout } from "#root/features/auth/layout-unauthenticated";
-import { AppScreenLayout } from "./components/app-screen-layout";
+import { AppScreenLayout } from "#root/components/app-screen-layout";
+import { IntegrationConfigurationPage } from "#root/features/integrations/integration-configuration-page";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -26,14 +27,26 @@ const rootRoute = createRootRoute({
   ),
 });
 
-const authenticatedLayoutRoute = createRoute({
+const appScreenLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: "authenticated",
+  id: "app-screen-layout",
   component: () => (
     <AuthenticatedLayout>
       <AppScreenLayout>
         <Outlet />
       </AppScreenLayout>
+    </AuthenticatedLayout>
+  ),
+});
+
+const authenticatedLayoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "authenticated",
+  component: () => (
+    <AuthenticatedLayout>
+      <Container>
+        <Outlet />
+      </Container>
     </AuthenticatedLayout>
   ),
 });
@@ -68,20 +81,27 @@ const signupRoute = createRoute({
 });
 
 const indexRoute = createRoute({
-  getParentRoute: () => authenticatedLayoutRoute,
+  getParentRoute: () => appScreenLayoutRoute,
   path: "/",
   component: DashboardPage,
 });
 
 const integrationsRoute = createRoute({
-  getParentRoute: () => authenticatedLayoutRoute,
+  getParentRoute: () => appScreenLayoutRoute,
   path: "/integrations",
   component: IntegrationsPage,
 });
 
+const integrationConfigurationRoute = createRoute({
+  getParentRoute: () => authenticatedLayoutRoute,
+  path: "/integrations/$integrationName",
+  component: IntegrationConfigurationPage,
+});
+
 const routeTree = rootRoute.addChildren([
   unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
-  authenticatedLayoutRoute.addChildren([indexRoute, integrationsRoute]),
+  authenticatedLayoutRoute.addChildren([integrationConfigurationRoute]),
+  appScreenLayoutRoute.addChildren([indexRoute, integrationsRoute]),
 ]);
 export const router = createRouter({
   routeTree,

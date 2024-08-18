@@ -1,8 +1,8 @@
 import { type PropsWithChildren, createContext, useContext } from "react";
 
 import { APIUser } from "#root/services/api.types";
-
-import { useUserQuery } from "./hooks/use-user-query";
+import { LoadingContainer } from "#root/components/loading-container";
+import { useUserQuery } from "#root/features/auth/hooks/use-user-query";
 
 const AuthenticatedUserCtx = createContext<APIUser | null>(null);
 function AuthenticatedUserProvider({
@@ -48,5 +48,5 @@ export function AuthenticationProvider({
     );
   }
 
-  return <h1>Loading...</h1>;
+  return <LoadingContainer />;
 }

@@ -7,16 +7,26 @@ import { VStack, Box } from "#style/jsx";
 import AppleMusicIcon from "#root/components/icons/apple-music.svg?react";
 import SpotifyIcon from "#root/components/icons/spotify.svg?react";
 
-import { useAppleDeveloperTokenQuery } from "./hooks/use-apple-developer-token-query";
 import { IntegrationCard } from "./components/integration-card";
 
 export function IntegrationsPage() {
   const { setPageTitle } = useScreenOptions();
-  const { data } = useAppleDeveloperTokenQuery();
 
-  function connectAppleMusic() {}
+  function connectAppleMusic() {
+    const _amPopup = window.open(
+      "/integrations/applemusic",
+      "_blank",
+      "popup=yes",
+    );
+  }
 
-  function connectSpotify() {}
+  function connectSpotify() {
+    const _spotifyPopup = window.open(
+      "/integrations/spotify",
+      "_blank",
+      "popup=yes",
+    );
+  }
 
   useEffect(() => {
     setPageTitle("Integrations");

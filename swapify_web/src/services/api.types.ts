@@ -6,6 +6,8 @@ const APIResponseTemplate = <T extends z.ZodTypeAny>(dataSchema: T) =>
     data: dataSchema,
   });
 
+const APISuccessSchema = z.literal("ok");
+
 const APIErrorTemplate = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     errors: dataSchema,
@@ -63,6 +65,10 @@ const APISigninPayloadSchema = z.object({
 });
 export type APISigninPayload = z.infer<typeof APISigninPayloadSchema>;
 
+const APIUpdateAppleMusicUserTokenPayloadSchema = z.object({
+  authToken: z.string(),
+});
+
 const c = initContract();
 
 export const contract = c.router({
@@ -112,6 +118,14 @@ export const contract = c.router({
       ),
     },
     summary: "Get the Apple Music Developer Token",
+  },
+  updateAppleMusicUserToken: {
+    method: "POST",
+    path: "/api/integrations/applemusic/callback",
+    body: APIUpdateAppleMusicUserTokenPayloadSchema,
+    responses: {
+      200: APIResponseTemplate(APISuccessSchema),
+    },
   },
   getUserLibraries: {
     method: "GET",

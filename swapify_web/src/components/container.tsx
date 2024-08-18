@@ -5,6 +5,7 @@ import { Stack } from "#style/jsx";
 export function Container({ children }: PropsWithChildren) {
   return (
     <Stack
+      position="relative"
       w="100%"
       gap="0"
       px="4"
