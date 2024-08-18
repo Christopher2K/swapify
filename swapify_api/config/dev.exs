@@ -53,7 +53,7 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
 config :swapify_api, dev_routes: true
 
 config :swapify_api,
-  app_url: "http://localhost:3000",
+  app_url: "http://localhost:5173",
   cookie_domain: "localhost"
 
 # Do not include metadata nor timestamps in development logs

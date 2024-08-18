@@ -47,6 +47,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
         justifyContent="flex-start"
         alignItems="flex-start"
         w="full"
+        bg="tomato"
         gap="0"
         position="relative"
       >
@@ -58,7 +59,6 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
         <VStack
           flex="1"
           w="full"
-          h="auto"
           minH="100svh"
           gap="0"
           pl={[undefined, "300px"]}
@@ -80,6 +80,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
             px="4"
             height="16"
             boxShadow="sm"
+            zIndex="banner"
           >
             <Button
               display={["block", "none"]}
@@ -91,13 +92,16 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
             <Heading>{pageTitle}</Heading>
           </HStack>
           <Box
+            position="relative"
             minH="100%"
             flex={1}
             alignItems="stretch"
             width="full"
             bg="accent.2"
           >
-            {children}
+            <Box position="absolute" height="full" width="full" zIndex="1">
+              {children}
+            </Box>
           </Box>
         </VStack>
       </HStack>

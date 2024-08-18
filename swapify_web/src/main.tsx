@@ -8,6 +8,10 @@ import { router } from "#root/router";
 
 const rootElement = document.getElementById("root")!;
 
+if (window.MusicKit) {
+  console.debug("[Debug] MusicKit loaded");
+}
+
 createRoot(rootElement).render(
   <StrictMode>
     <RouterProvider router={router} />

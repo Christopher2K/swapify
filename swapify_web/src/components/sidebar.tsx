@@ -56,7 +56,7 @@ export function Sidebar({
       p="4"
       gap="4"
       boxShadow="sm"
-      zIndex="docked"
+      zIndex="overlay"
       transition="all"
       transitionTimingFunction="ease-in-out"
       transitionDuration="fast"
