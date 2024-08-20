@@ -43,14 +43,14 @@ defmodule SwapifyApiWeb.IntegrationController do
       {:ok, _} ->
         conn
         |> delete_session(:spotify_state)
-        |> redirect(external: "http://localhost:3000/integration/spotify?result=success")
+        |> redirect(external: "http://localhost:5173/integrations/spotify?result=success")
 
       {:error, error} ->
         conn
         |> delete_session(:spotify_state)
         |> redirect(
           external:
-            "http://localhost:3000/integration/spotify?result=error&error=#{Atom.to_string(error)}"
+            "http://localhost:5173/integrations/spotify?result=error&error=#{Atom.to_string(error)}"
         )
     end
   end
@@ -59,7 +59,7 @@ defmodule SwapifyApiWeb.IntegrationController do
     conn
     |> delete_session(:spotify_state)
     |> redirect(
-      external: "http://localhost:3000/app/integration?service=spotify&error=service_error"
+      external: "http://localhost:5173/integration/spotify?result=error&error=service_error"
     )
   end
 

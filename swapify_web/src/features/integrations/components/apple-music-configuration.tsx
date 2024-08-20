@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { SquareArrowOutUpRightIcon } from "lucide-react";
 
 import { Text } from "#root/components/ui/text";
@@ -13,7 +13,16 @@ import { LoadingContainer } from "#root/components/loading-container";
 import { VStack } from "#style/jsx";
 import { css } from "#style/css";
 
-export function AppleMusicConfigurationPage() {
+function formatPostMessage(eventType: string, message?: string) {
+  return {
+    integration: "applemusic",
+    eventType: eventType,
+    message: message,
+  };
+}
+
+export function AppleMusicConfiguration() {
+  const { current: opener } = useRef(window.opener);
   const { data, isError } = useAppleDeveloperTokenQuery();
   const { mutateAsync: updateAppleMusicUserTokenAsync } =
     tsr.updateAppleMusicUserToken.useMutation();
@@ -21,13 +30,6 @@ export function AppleMusicConfigurationPage() {
   const [authorizationIsLoading, setAuthorizationIsLoading] = useState(false);
 
   const isLoading = !data || !musicKitInstance;
-
-  if (isError) {
-    window.postMessage({ error: "applemusic" });
-    return null;
-  }
-
-  if (isLoading) return <LoadingContainer />;
 
   async function authorizeRequest() {
     if (!musicKitInstance) return;
@@ -41,14 +43,28 @@ export function AppleMusicConfigurationPage() {
         },
       });
     } catch (_) {
-      window.postMessage({ error: "applemusic" });
+      opener.postMessage(formatPostMessage("error"));
       setAuthorizationIsLoading(false);
+      window.close();
       return;
     }
 
     setAuthorizationIsLoading(false);
-    window.postMessage({ success: "applemusic" });
+    opener.postMessage(formatPostMessage("success"));
+    window.close();
   }
+
+  if (isError) {
+    opener.postMessage(
+      formatPostMessage(
+        "error",
+        "Error while Apple Music metadata. Please try again or contact support.",
+      ),
+    );
+    window.close();
+  }
+
+  if (isLoading) return <LoadingContainer />;
 
   return (
     <VStack w="full" h="full" p="4" maxW="500px" mx="auto" gap="10">

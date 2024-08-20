@@ -4,6 +4,7 @@ import { SquareArrowOutUpRightIcon } from "lucide-react";
 import { Card } from "#root/components/ui/card";
 import { Text } from "#root/components/ui/text";
 import { Button } from "#root/components/ui/button";
+import { ThemedAlert } from "#root/components/themed-alert";
 import { css } from "#style/css";
 
 export type IntegrationCardProps = {
@@ -12,6 +13,7 @@ export type IntegrationCardProps = {
   description: string;
   onConnectClick: () => void;
   isDisabled?: boolean;
+  isConnected?: boolean;
   isLoading?: boolean;
 };
 
@@ -22,6 +24,7 @@ export function IntegrationCard({
   onConnectClick,
   isDisabled,
   isLoading,
+  isConnected,
 }: IntegrationCardProps) {
   return (
     <Card.Root>
@@ -45,17 +48,21 @@ export function IntegrationCard({
         <Text textAlign="center">{description}</Text>
       </Card.Body>
       <Card.Footer>
-        <Button
-          variant="solid"
-          size="sm"
-          w="full"
-          disabled={isDisabled}
-          loading={isLoading}
-          onClick={onConnectClick}
-        >
-          <SquareArrowOutUpRightIcon />
-          Connect
-        </Button>
+        {isConnected ? (
+          <ThemedAlert title="Connected" severity="success" />
+        ) : (
+          <Button
+            variant="solid"
+            size="sm"
+            w="full"
+            disabled={isDisabled}
+            loading={isLoading}
+            onClick={onConnectClick}
+          >
+            <SquareArrowOutUpRightIcon />
+            Connect
+          </Button>
+        )}
       </Card.Footer>
     </Card.Root>
   );

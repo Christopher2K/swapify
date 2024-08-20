@@ -4,19 +4,9 @@
 import { useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
 
-import { Text } from "#root/components/ui/text";
-import { Heading } from "#root/components/ui/heading";
 import { integrationEnumValidator } from "#root/features/integrations/models/integration-enum";
-import { AppleMusicConfigurationPage } from "#root/features/integrations/components/apple-music-configuration";
-
-function SpotifyConfigurationPage() {
-  return (
-    <div>
-      <Heading>Spotify Configuration</Heading>
-      <Text>This is the Spotify configuration page</Text>
-    </div>
-  );
-}
+import { SpotifyConfiguration } from "#root/features/integrations/components/spotify-configuration";
+import { AppleMusicConfiguration } from "#root/features/integrations/components/apple-music-configuration";
 
 export function IntegrationConfigurationPage() {
   const params = useParams({
@@ -41,10 +31,10 @@ export function IntegrationConfigurationPage() {
   }
 
   if (integrationName === "applemusic") {
-    return <AppleMusicConfigurationPage />;
+    return <AppleMusicConfiguration />;
   }
 
   if (integrationName === "spotify") {
-    return <SpotifyConfigurationPage />;
+    return <SpotifyConfiguration />;
   }
 }

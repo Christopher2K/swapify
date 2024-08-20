@@ -92,10 +92,14 @@ const integrationsRoute = createRoute({
   component: IntegrationsPage,
 });
 
+const integrationConfigurationRouteSearch = z.object({
+  result: z.enum(["success", "error"]).optional(),
+});
 const integrationConfigurationRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,
   path: "/integrations/$integrationName",
   component: IntegrationConfigurationPage,
+  validateSearch: integrationConfigurationRouteSearch,
 });
 
 const routeTree = rootRoute.addChildren([
