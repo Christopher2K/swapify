@@ -1,6 +1,11 @@
 import type { ComponentProps, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboardIcon, ToyBrickIcon, XIcon } from "lucide-react";
+import {
+  LayoutDashboardIcon,
+  ToyBrickIcon,
+  XIcon,
+  MusicIcon,
+} from "lucide-react";
 
 import { VStack } from "#style/jsx";
 import { css } from "#style/css";
@@ -92,6 +97,11 @@ export function Sidebar({
           to="/"
           label="Dashboard"
           icon={<LayoutDashboardIcon strokeWidth="2" />}
+        />
+        <SidebarLink
+          to="/playlists"
+          label="Playlists"
+          icon={<MusicIcon strokeWidth="2" />}
         />
         <SidebarLink
           to="/integrations"

@@ -17,6 +17,7 @@ import { AuthenticatedLayout } from "#root/features/auth/layout-authenticated";
 import { UnauthenticatedLayout } from "#root/features/auth/layout-unauthenticated";
 import { AppScreenLayout } from "#root/components/app-screen-layout";
 import { IntegrationConfigurationPage } from "#root/features/integrations/integration-configuration-page";
+import { PlaylistsPage } from "#root/features/playlists/playlists-page";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -102,10 +103,20 @@ const integrationConfigurationRoute = createRoute({
   validateSearch: integrationConfigurationRouteSearch,
 });
 
+const playlistsRoute = createRoute({
+  getParentRoute: () => appScreenLayoutRoute,
+  path: "/playlists",
+  component: PlaylistsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
   authenticatedLayoutRoute.addChildren([integrationConfigurationRoute]),
-  appScreenLayoutRoute.addChildren([indexRoute, integrationsRoute]),
+  appScreenLayoutRoute.addChildren([
+    indexRoute,
+    integrationsRoute,
+    playlistsRoute,
+  ]),
 ]);
 export const router = createRouter({
   routeTree,
