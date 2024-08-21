@@ -34,8 +34,8 @@ defmodule SwapifyApi.MixProject do
     [
       {:argon2_elixir, "~> 4.0"},
       {:bandit, "~> 1.2"},
-      {:dns_cluster, "~> 0.1.1"},
       {:cors_plug, "~> 3.0"},
+      {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:faker, "~> 0.18", only: :test},
       {:finch, "~> 0.13"},
@@ -43,6 +43,7 @@ defmodule SwapifyApi.MixProject do
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
+      {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_live_dashboard, "~> 0.8.3"},

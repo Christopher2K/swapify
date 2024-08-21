@@ -24,6 +24,8 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
 # In test we don't send emails.
 config :swapify_api, SwapifyApi.Mailer, adapter: Swoosh.Adapters.Test
 
+config :swapify_api, Oban, testing: :inline
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 

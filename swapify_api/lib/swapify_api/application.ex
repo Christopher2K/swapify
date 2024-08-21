@@ -18,7 +18,8 @@ defmodule SwapifyApi.Application do
       # {SwapifyApi.Worker, arg},
       # Start to serve requests, typically the last entry
       {SwapifyApi.MusicProviders.AppleMusicTokenWorker, name: SwapifyApi.AppleMusicWorker},
-      SwapifyApiWeb.Endpoint
+      SwapifyApiWeb.Endpoint,
+      {Oban, Application.fetch_env!(:swapify_api, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
