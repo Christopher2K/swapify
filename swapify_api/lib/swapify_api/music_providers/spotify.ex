@@ -131,11 +131,22 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         {:ok, result}
 
       {:ok, response} ->
-        Logger.error("Refresh token error: #{response.status}")
+        Logger.error("Failed to call an API",
+          service: "spotify",
+          uri: uri,
+          status: response.status,
+          response: response.body
+        )
+
         {:error, response}
 
       {:error, exception} ->
-        Logger.error(exception)
+        Logger.error("Failed to call an API",
+          service: "spotify",
+          uri: uri,
+          error: exception
+        )
+
         {:error, :service_error}
     end
   end
@@ -150,13 +161,13 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         offset \\ 0,
         limit \\ @default_resource_limit
       ) do
-    Logger.debug("start: get_user_library/3", offset: offset, limit: limit)
-
     uri =
       get_api_url("/me/tracks", [
         {"limit", limit |> Integer.to_string()},
         {"offset", offset |> Integer.to_string()}
       ])
+
+    Logger.debug("Call API", service: "spotify", uri: uri)
 
     result =
       [
@@ -169,8 +180,6 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
-        Logger.debug("success: get_user_library/3 - response: #{response.status}")
-
         tracks =
           response.body["items"]
           |> Enum.map(fn user_lib_item ->
@@ -179,16 +188,23 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
         {:ok, tracks, response}
 
-      {:ok, %Req.Response{status: 401} = response} ->
-        Logger.debug("error: get_user_library/3 - response: #{response.status}")
-        {:error, 401, response}
+      {:ok, %Req.Response{} = response} ->
+        Logger.error("API Service error",
+          service: "spotify",
+          uri: uri,
+          status: response.status,
+          response: response.body
+        )
 
-      {:ok, %Req.Response{status: 429} = response} ->
-        Logger.debug("error: get_user_library/3 - response: #{response.status}")
-        {:error, 429, response}
+        {:error, response.status, response}
 
       {:error, exception} ->
-        Logger.debug("service error: get_user_library/3", error: exception)
+        Logger.error("Failed to call an API",
+          service: "spotify",
+          uri: uri,
+          error: exception
+        )
+
         {:error, :service_error}
     end
   end

@@ -8,35 +8,16 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   @doc """
   Create a new playlist from a map
   - data.user_id - ID to use for the playlist
+  - data.name - Name of the playlist
+  - data.platform_id - Boolean to indicate if the playlist is a library
   - data.platform_name - Name of the platform
   - data.tracks - List of tracks to add to the playlist
-  - data.is_library - Boolean to indicate if the playlist is a library
-  - data.name - Name of the playlist
   """
   @spec create(map()) :: {:ok, Playlist.t()} | {:error, Ecto.Changeset.t()}
   def create(data) do
     %Playlist{}
     |> Playlist.create_changeset(data)
     |> Repo.insert()
-  end
-
-  @doc """
-  Update a playlist
-  - playlist_id - ID of the playlist to update
-  - tracks - List of tracks to add to the playlist
-  """
-  @spec update(String.t(), list(Track.t())) ::
-          {:ok, Playlist.t()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
-  def update(playlist_id, tracks) do
-    with {:ok, playlist} <-
-           Playlist.queryable()
-           |> Playlist.filter_by(:id, playlist_id)
-           |> Repo.one()
-           |> Utils.from_nullable_to_tuple() do
-      playlist
-      |> Playlist.update_changeset(%{tracks: tracks})
-      |> Repo.update()
-    end
   end
 
   @doc "Get a playlist by its ID and platform"
@@ -59,5 +40,27 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
      |> Playlist.filter_by(:user_id, user_id)
      |> Playlist.filter_by(:is_library, true)
      |> Repo.all()}
+  end
+
+  @doc "Get a playlist by its ID"
+  @spec get_by_id(String.t()) :: {:ok, Playlist.t()} | {:error, :not_found}
+  def get_by_id(id) do
+    Playlist.queryable()
+    |> Playlist.filter_by(:id, id)
+    |> Repo.one()
+    |> Utils.from_nullable_to_tuple()
+  end
+
+  @doc """
+  Add tracks to a playlist and update its status
+  New tracks are added under the `+tracks` key of the data map
+  """
+  @spec update(String.t(), map()) ::
+          {:ok, Playlist.t()} | {:error, :not_found}
+  def update(id, data) do
+    with {:ok, playlist} <- get_by_id(id),
+         changeset <- Playlist.update_changeset(playlist, data) do
+      Repo.update(changeset, returning: true)
+    end
   end
 end

@@ -76,7 +76,10 @@ defmodule SwapifyApi.AppleMusicAPIFixtures do
           }
         }
       ],
-      "next" => "/v1/me/library/songs?offset=25&include=catalog"
+      "next" => "/v1/me/library/songs?offset=25&include=catalog",
+      "meta" => %{
+        "total" => 1
+      }
     }
   end
 end
