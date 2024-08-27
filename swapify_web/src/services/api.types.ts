@@ -51,6 +51,11 @@ const APIPlaylistSchema = z.object({
 });
 export type APIPlaylist = z.infer<typeof APIPlaylistSchema>;
 
+export const APIMetaSchema = z.object({
+  socketToken: z.string(),
+});
+export type APIMeta = z.infer<typeof APIMetaSchema>;
+
 // API Payloads
 const APISignupPayloadSchema = z.object({
   username: z.string(),
@@ -72,6 +77,13 @@ const APIUpdateAppleMusicUserTokenPayloadSchema = z.object({
 const c = initContract();
 
 export const contract = c.router({
+  getMeta: {
+    method: "GET",
+    path: "/api/meta",
+    responses: {
+      200: APIResponseTemplate(APIMetaSchema),
+    },
+  },
   getUser: {
     method: "GET",
     path: "/api/users/me",

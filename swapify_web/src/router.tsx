@@ -18,6 +18,7 @@ import { UnauthenticatedLayout } from "#root/features/auth/layout-unauthenticate
 import { AppScreenLayout } from "#root/components/app-screen-layout";
 import { IntegrationConfigurationPage } from "#root/features/integrations/integration-configuration-page";
 import { PlaylistsPage } from "#root/features/playlists/playlists-page";
+import { MetaProvider } from "#root/features/meta/components/meta-provider";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -33,9 +34,11 @@ const appScreenLayoutRoute = createRoute({
   id: "app-screen-layout",
   component: () => (
     <AuthenticatedLayout>
-      <AppScreenLayout>
-        <Outlet />
-      </AppScreenLayout>
+      <MetaProvider>
+        <AppScreenLayout>
+          <Outlet />
+        </AppScreenLayout>
+      </MetaProvider>
     </AuthenticatedLayout>
   ),
 });

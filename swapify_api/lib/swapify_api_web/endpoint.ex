@@ -26,7 +26,7 @@ defmodule SwapifyApiWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  socket "/", SwapifyApiWeb.UserSocket,
+  socket "/user_socket", SwapifyApiWeb.UserSocket,
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
