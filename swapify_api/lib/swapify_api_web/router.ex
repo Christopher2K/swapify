@@ -23,6 +23,11 @@ defmodule SwapifyApiWeb.Router do
     get "/me", UserController, :me
   end
 
+  scope "/api/meta", SwapifyApiWeb do
+    pipe_through :api_protected
+    get "/", MetaController, :index
+  end
+
   scope "/api/integrations", SwapifyApiWeb do
     pipe_through :api_protected
 
