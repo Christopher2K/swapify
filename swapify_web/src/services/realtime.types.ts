@@ -1,12 +1,14 @@
-export type IncomingMessageRecord = {
-  [message: string]: {
+export type IncomingMessageRecord = Record<
+  string,
+  {
     payload: object;
-  };
-};
+  }
+>;
 
-export type OutgoingMessageRecord = {
-  [message: string]: {
+export type OutgoingMessageRecord = Record<
+  string,
+  {
     payload: object;
     response: object;
-  };
-};
+  }
+>;
