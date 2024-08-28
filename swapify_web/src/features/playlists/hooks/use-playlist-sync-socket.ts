@@ -4,7 +4,7 @@ type OutgoingMessageRecord = {
   sync: {
     payload: {
       playlistId: string;
-      platformName: string;
+      platformName: "applemusic" | "spotify";
     };
     response: {};
   };

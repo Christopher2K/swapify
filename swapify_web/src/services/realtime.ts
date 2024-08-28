@@ -28,12 +28,16 @@ export function useSocket() {
   });
 
   useEffect(() => {
-    socket.connect();
+    if (!socket.isConnected()) {
+      socket.connect();
+    }
 
     return () => {
-      socket.disconnect();
+      if (socket.isConnected()) {
+        socket.disconnect();
+      }
     };
-  }, [socket]);
+  }, []);
 
   return socket;
 }
@@ -84,12 +88,16 @@ export function useChannel<
   }
 
   useEffect(() => {
-    channel.join();
+    if (channel.state !== "joined" && channel.state !== "joining") {
+      channel.join();
+    }
 
     return () => {
-      channel.leave();
+      if (channel.state === "joined") {
+        channel.leave();
+      }
     };
-  }, [channel]);
+  }, []);
 
   return {
     sendMessage,
