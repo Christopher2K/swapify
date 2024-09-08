@@ -4,6 +4,7 @@ defmodule SwapifyApi.Repo.Migrations.CreatePlaylists do
   def change do
     execute """
             CREATE TYPE sync_status as ENUM (
+              'unsynced',
               'syncing',
               'synced',
               'error'
@@ -18,13 +19,15 @@ defmodule SwapifyApi.Repo.Migrations.CreatePlaylists do
       add :name, :string, null: true
       add :platform_id, :string, null: false
       add :platform_name, :music_platforms, null: false
-      add :tracks, {:array, :map}, null: false, default: "{}"
+      add :tracks, :jsonb, null: false, default: "[]"
       add :tracks_total, :integer, null: false, default: 0
-      add :sync_status, :sync_status, null: false, default: "syncing"
+      add :sync_status, :sync_status, null: false, default: "unsynced"
 
       add :user_id, references(:users, on_delete: :delete_all), null: false
 
       timestamps(type: :utc_datetime)
     end
+
+    create unique_index(:playlists, [:user_id, :platform_id, :platform_name])
   end
 end

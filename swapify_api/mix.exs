@@ -35,6 +35,7 @@ defmodule SwapifyApi.MixProject do
       {:argon2_elixir, "~> 4.0"},
       {:bandit, "~> 1.2"},
       {:cors_plug, "~> 3.0"},
+      {:digger, "~> 3.0.0"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
       {:faker, "~> 0.18", only: :test},

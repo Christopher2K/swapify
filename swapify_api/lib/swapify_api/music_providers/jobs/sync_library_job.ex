@@ -4,31 +4,33 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   Keep tracks in the database.
 
   Job arguments:
-  - service - spotify | applemusic
-  - playlist_id - ID of the playlist to update
+  - platform_name - spotify | applemusic
+  - user_id - ID of the user - Useful for renewing / removing tokens
+  - playlist_id - ID of the playlist row to update
   - offset - Offset to start the request
-  - user_id
+  - synced_tracks_count - nil for the first job
+  - tracks_count -  nil for the first job
   - access_token
   - refresh_token - Optional
-  `
-    "service" => service,
-    "playlist_id" => playlist_id,
-    "offset" => offset,
-    "user_id" => user_id,
-    "access_token" => access_token,
-    "refresh_token" => refresh_token
-  `
   """
   require Logger
-  use Oban.Worker, queue: :sync_library, max_attempts: 6
+
+  use Oban.Worker,
+    queue: :sync_library,
+    max_attempts: 6,
+    unique: [
+      keys: [:user_id, :playlist_id, :offset, :access_token],
+      states: [:available, :scheduled, :executing, :retryable]
+    ]
 
   alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
   alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.PlaylistRepo
+  alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.MusicProviders.Track
+  alias SwapifyApi.MusicProviders.SyncNotification
 
   @spotify_limit 50
   @apple_music_limit 100
@@ -41,47 +43,38 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   defp save_tracks(
          %{
-           "service" => service,
+           "platform_name" => platform_name,
            "playlist_id" => playlist_id,
-           "offset" => offset,
-           "user_id" => user_id
+           "offset" => offset
          } = args,
          tracks,
          tracks_total,
          has_next?,
-         service_limit
+         platform_limit
        ) do
     new_status = if has_next?, do: :syncing, else: :synced
 
-    updated_playlist_result =
-      case playlist_id do
-        nil ->
-          PlaylistRepo.create(%{
-            "user_id" => user_id,
-            "platform_name" => service,
-            "platform_id" => "library",
-            "tracks_total" => tracks_total,
-            "tracks" => tracks |> Enum.map(&Track.to_map/1),
-            "sync_status" => new_status
-          })
-
-        id ->
-          PlaylistRepo.update(
-            id,
-            %{"sync_status" => new_status, "tracks_total" => tracks_total, "+tracks" => tracks}
-          )
-      end
-
-    case updated_playlist_result do
-      {:ok, %{id: updated_playlist_id}} ->
+    PlaylistRepo.add_tracks(
+      playlist_id,
+      tracks,
+      tracks_total,
+      new_status,
+      replace_tracks: offset == 0
+    )
+    |> case do
+      {:ok, _} ->
         if has_next? do
-          %{args | "offset" => offset + service_limit, "playlist_id" => updated_playlist_id}
+          Map.merge(args, %{
+            "offset" => offset + platform_limit,
+            "tracks_total" => tracks_total,
+            "synced_tracks_count" => offset + length(tracks)
+          })
           |> __MODULE__.new()
           |> Oban.insert()
         end
 
         Logger.debug("Fetched library items",
-          service: service,
+          platform_name: platform_name,
           has_next: has_next?,
           total: tracks_total
         )
@@ -89,14 +82,14 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         :ok
 
       {:error, error} ->
-        Logger.error("Failed to update playlist", service: service, error: error)
+        Logger.error("Failed to update playlist", platform_name: platform_name, error: error)
         {:error, :database_error}
     end
   end
 
   defp fetch_tracks(
          %{
-           "service" => "spotify",
+           "platform_name" => "spotify",
            "offset" => offset,
            "user_id" => user_id,
            "access_token" => access_token,
@@ -113,13 +106,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
       {:error, 401, _} ->
         case RefreshPartnerIntegration.call(user_id, "spotify", refresh_token) do
           {:ok, refreshed_pc} ->
-            Logger.info("Restart the job with new credentials", service: "spotify")
+            Logger.info("Restart the job with new credentials", platform_name: "spotify")
 
-            %{
-              args
-              | "access_token" => refreshed_pc.access_token,
-                "refresh_token" => refreshed_pc.refresh_token
-            }
+            Map.merge(args, %{
+              "access_token" => refreshed_pc.access_token,
+              "refresh_token" => refreshed_pc.refresh_token
+            })
             |> __MODULE__.new()
             |> Oban.insert()
 
@@ -136,7 +128,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   defp fetch_tracks(
          %{
-           "service" => "applemusic",
+           "platform_name" => "applemusic",
            "offset" => offset,
            "user_id" => user_id,
            "access_token" => access_token
@@ -159,6 +151,51 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         handle_error(error)
     end
   end
+
+  @doc """
+  Helper to build the base args map
+  """
+  @spec args(String.t(), Playlist.platform_name(), String.t(), String.t(), String.t() | nil) ::
+          map()
+  def args(
+        playlist_id,
+        platform_name,
+        user_id,
+        access_token,
+        refresh_token \\ nil
+      ) do
+    %{
+      "platform_name" => platform_name,
+      "user_id" => user_id,
+      "playlist_id" => playlist_id,
+      "access_token" => access_token,
+      "refresh_token" => refresh_token,
+      "offset" => 0,
+      "synced_tracks_count" => 0,
+      "tracks_count" => 0
+    }
+  end
+
+  @doc """
+  Helper to build the sync notification
+  """
+  @spec to_notification(map(), Playlist.sync_status()) :: SyncNotification.t()
+  def to_notification(
+        %{
+          "playlist_id" => playlist_id,
+          "platform_name" => platform_name,
+          "tracks_count" => tracks_count,
+          "synced_tracks_count" => synced_tracks_count
+        },
+        status
+      ),
+      do: %SyncNotification{
+        playlist_id: playlist_id,
+        platform_name: platform_name,
+        tracks_count: tracks_count,
+        sync_count: synced_tracks_count,
+        status: status
+      }
 
   @impl Oban.Worker
   def perform(%Oban.Job{

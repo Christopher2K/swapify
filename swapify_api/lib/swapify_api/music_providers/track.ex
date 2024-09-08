@@ -1,5 +1,6 @@
 defmodule SwapifyApi.MusicProviders.Track do
   @moduledoc "Business representation of a track"
+  @derive Jason.Encoder
 
   use SwapifyApi.Schema
 

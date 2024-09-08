@@ -1,7 +1,9 @@
 defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
   @moduledoc "PlatformConnection Repository"
-  alias SwapifyApi.Repo
+
   alias SwapifyApi.Accounts.PlatformConnection
+  alias SwapifyApi.Repo
+  alias SwapifyApi.Utils
 
   @doc """
   Create if it doesn'texist or update a platform connection data for a given user
@@ -49,5 +51,15 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
     PlatformConnection.queryable()
     |> PlatformConnection.filter_by(:user_id, user_id)
     |> Repo.all()
+  end
+
+  @spec get_by_user_id_and_platform(String.t(), String.t()) ::
+          {:ok, PlatformConnection.t()} | {:error, :not_found}
+  def get_by_user_id_and_platform(user_id, platform_name) do
+    PlatformConnection.queryable()
+    |> PlatformConnection.filter_by(:user_id, user_id)
+    |> PlatformConnection.filter_by(:name, platform_name)
+    |> Repo.one()
+    |> Utils.from_nullable_to_tuple()
   end
 end

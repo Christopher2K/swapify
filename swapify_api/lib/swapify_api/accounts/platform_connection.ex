@@ -5,10 +5,12 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
 
   alias SwapifyApi.Accounts.User
 
+  @type platform_name :: :spotify | :applemusic
+
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
           user_id: Ecto.UUID.t(),
-          name: String.t(),
+          name: platform_name(),
           access_token: String.t() | nil,
           access_token_exp: DateTime.t() | nil,
           refresh_token: String.t() | nil,

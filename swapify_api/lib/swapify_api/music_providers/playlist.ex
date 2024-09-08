@@ -6,17 +6,21 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   import Ecto.Query
 
   alias SwapifyApi.Accounts.User
+  alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.MusicProviders.Track
+
+  @type sync_status :: :unsynced | :syncing | :synced | :error
+  @type platform_name :: PlatformConnection.platform_name()
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
           name: String.t(),
           platform_id: String.t(),
-          platform_name: String.t(),
+          platform_name: platform_name(),
           user_id: Ecto.UUID.t(),
           tracks: list(Track.t()),
           tracks_total: pos_integer(),
-          sync_status: String.t(),
+          sync_status: sync_status(),
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
@@ -25,7 +29,7 @@ defmodule SwapifyApi.MusicProviders.Playlist do
     field :name, :string
     field :platform_id, :string
     field :platform_name, Ecto.Enum, values: [:spotify, :applemusic]
-    field :sync_status, Ecto.Enum, values: [:syncing, :synced, :error]
+    field :sync_status, Ecto.Enum, values: [:unsynced, :syncing, :synced, :error]
 
     field :tracks_total, :integer
     embeds_many :tracks, Track, on_replace: :delete
@@ -36,24 +40,33 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   end
 
   @doc "Default changeset"
-  def changeset(playlist, attrs) do
-    playlist
-    |> cast(attrs, [
-      :name,
-      :platform_id,
-      :platform_name,
-      :user_id,
-      :tracks_total,
-      :sync_status
-    ])
-    |> cast_embed(:tracks)
-    |> validate_required([:platform_name, :user_id, :sync_status, :platform_id])
-  end
+  def changeset(playlist, attrs),
+    do:
+      playlist
+      |> cast(attrs, [
+        :name,
+        :platform_id,
+        :platform_name,
+        :user_id,
+        :tracks_total,
+        :sync_status
+      ])
+      |> cast_embed(:tracks)
+      |> validate_required([:platform_name, :user_id, :platform_id])
 
   @doc "Changeset to create a new playlist"
-  def create_changeset(playlist, attrs) do
-    changeset(playlist, attrs)
-  end
+  def create_changeset(playlist, attrs),
+    do:
+      playlist
+      |> cast(attrs, [
+        :name,
+        :platform_id,
+        :platform_name,
+        :user_id,
+        :tracks_total,
+        :sync_status
+      ])
+      |> validate_required([:platform_name, :user_id, :platform_id])
 
   @doc "Changeset to update a playlist and add new tracks"
   def update_changeset(playlist, attrs) do
@@ -104,4 +117,7 @@ defmodule SwapifyApi.MusicProviders.Playlist do
 
   def filter_by(queryable, :user_id, value),
     do: where(queryable, [playlist: p], p.user_id == ^value)
+
+  def order_by_asc(queryable, :updated_at),
+    do: order_by(queryable, [playlist: p], asc: p.updated_at)
 end
