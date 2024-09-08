@@ -16,7 +16,7 @@ defmodule SwapifyApiWeb.PlaylistController do
           PlaylistRepo.get_user_libraries(user_id)
 
         _ ->
-          PlaylistRepo.get_library_by_user_id_and_platform(
+          PlaylistRepo.get_user_library(
             user_id,
             platform
           )

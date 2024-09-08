@@ -106,4 +106,24 @@ defmodule SwapifyApi.PlaylistRepoTest do
       assert Enum.count(p.tracks) == 15
     end
   end
+
+  describe "update_status/2" do
+    setup do
+      user = user_fixture()
+      {:ok, user: user}
+    end
+
+    test "it should update the playlist status", %{
+      user: user
+    } do
+      playlist =
+        playlist_fixture(%{
+          user_id: user.id,
+          sync_status: :synced
+        })
+
+      assert {:ok, %Playlist{} = p} = PlaylistRepo.update_status(playlist.id, :error)
+      assert p.sync_status == :error
+    end
+  end
 end

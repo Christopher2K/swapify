@@ -9,21 +9,6 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   alias SwapifyApi.MusicProviders.Track
 
   @doc """
-  Create a new playlist from a map
-  - data.user_id - ID to use for the playlist
-  - data.name - Name of the playlist
-  - data.platform_id - Boolean to indicate if the playlist is a library
-  - data.platform_name - Name of the platform
-  - data.tracks_total - How many tracks there is in this playlist
-  """
-  @spec create(map()) :: {:ok, Playlist.t()} | {:error, Ecto.Changeset.t()}
-  def create(data) do
-    %Playlist{}
-    |> Playlist.create_changeset(data)
-    |> Repo.insert()
-  end
-
-  @doc """
   Create or update a playlist with some new informations
   """
   @spec create_or_update(
@@ -104,26 +89,21 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     end
   end
 
-  @doc "Get a playlist by its ID and platform"
-  @spec get_library_by_user_id_and_platform(String.t(), String.t()) ::
-          {:ok, list(Playlist.t())} | {:error, :not_found}
-  def get_library_by_user_id_and_platform(user_id, platform) do
+  @doc "Update status"
+  def update_status(playlist_id, sync_status) do
     Playlist.queryable()
-    |> Playlist.filter_by(:user_id, user_id)
-    |> Playlist.filter_by(:platform_name, platform)
-    |> Playlist.filter_by(:is_library, true)
-    |> Repo.one()
-    |> Utils.from_nullable_to_tuple()
-  end
+    |> Playlist.filter_by(:id, playlist_id)
+    |> update([playlist: p],
+      set: [sync_status: ^sync_status]
+    )
+    |> Repo.update_all([])
+    |> case do
+      {1, _} ->
+        get_by_id(playlist_id)
 
-  @doc "Get all the user libraries"
-  @spec get_user_libraries(String.t()) :: {:ok, list(Playlist.t())}
-  def get_user_libraries(user_id) do
-    {:ok,
-     Playlist.queryable()
-     |> Playlist.filter_by(:user_id, user_id)
-     |> Playlist.filter_by(:is_library, true)
-     |> Repo.all()}
+      _ ->
+        {:error, :not_found}
+    end
   end
 
   @doc "Get a playlist by its ID"
@@ -135,29 +115,25 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     |> Utils.from_nullable_to_tuple()
   end
 
-  @doc """
-  Add tracks to a playlist and update its status
-  New tracks are added under the `+tracks` key of the data map
-  """
-  @spec update(String.t(), map()) ::
-          {:ok, Playlist.t()} | {:error, :not_found}
-  def update(id, data) do
-    with {:ok, playlist} <- get_by_id(id),
-         changeset <- Playlist.update_changeset(playlist, data) do
-      Repo.update(changeset, returning: true)
-    end
+  @doc "Get all the user libraries"
+  @spec get_user_libraries(String.t()) :: {:ok, list(Playlist.t())}
+  def get_user_libraries(user_id) do
+    {:ok,
+     Playlist.queryable()
+     |> Playlist.filter_by(:user_id, user_id)
+     |> Playlist.is_library(true)
+     |> Repo.all()}
   end
 
   @doc """
   Get the latest library playlist for a given user and platform
   """
-  @spec get_latest_library(String.t(), String.t()) :: {:ok, Playlist.t()} | {:error, :not_found}
-  def get_latest_library(user_id, platform_name) do
+  @spec get_user_library(String.t(), String.t()) :: {:ok, Playlist.t()} | {:error, :not_found}
+  def get_user_library(user_id, platform_name) do
     Playlist.queryable()
     |> Playlist.filter_by(:user_id, user_id)
-    |> Playlist.filter_by(:is_library, true)
     |> Playlist.filter_by(:platform_name, platform_name)
-    |> Playlist.order_by_asc(:updated_at)
+    |> Playlist.is_library(true)
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end

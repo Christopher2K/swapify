@@ -54,31 +54,9 @@ defmodule SwapifyApi.MusicProviders.Playlist do
       |> cast_embed(:tracks)
       |> validate_required([:platform_name, :user_id, :platform_id])
 
-  @doc "Changeset to create a new playlist"
-  def create_changeset(playlist, attrs),
-    do:
-      playlist
-      |> cast(attrs, [
-        :name,
-        :platform_id,
-        :platform_name,
-        :user_id,
-        :tracks_total,
-        :sync_status
-      ])
-      |> validate_required([:platform_name, :user_id, :platform_id])
-
-  @doc "Changeset to update a playlist and add new tracks"
+  @doc "Changeset to update a new playlist"
   def update_changeset(playlist, attrs) do
-    cs = changeset(playlist, attrs)
-    new_tracks = attrs["+tracks"]
-
-    if new_tracks do
-      cs
-      |> put_embed(:tracks, Enum.concat(playlist.tracks, attrs["+tracks"]))
-    else
-      cs
-    end
+    changeset(playlist, attrs)
   end
 
   def to_map(%__MODULE__{} = playlist),
@@ -92,25 +70,11 @@ defmodule SwapifyApi.MusicProviders.Playlist do
       "tracks" => playlist.tracks |> Enum.map(&Track.to_map/1)
     }
 
+  ## Queries
+
   def queryable(), do: from(playlist in __MODULE__, as: :playlist)
 
   def filter_by(queryable, :id, value), do: where(queryable, [playlist: p], p.id == ^value)
-
-  def filter_by(queryable, :is_library, true),
-    do:
-      where(
-        queryable,
-        [playlist: p],
-        p.platform_id == ^"library"
-      )
-
-  def filter_by(queryable, :is_library, false),
-    do:
-      where(
-        queryable,
-        [playlist: p],
-        p.platform_id != ^"library"
-      )
 
   def filter_by(queryable, :platform_name, value),
     do: where(queryable, [playlist: p], p.platform_name == ^value)
@@ -118,6 +82,19 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   def filter_by(queryable, :user_id, value),
     do: where(queryable, [playlist: p], p.user_id == ^value)
 
-  def order_by_asc(queryable, :updated_at),
-    do: order_by(queryable, [playlist: p], asc: p.updated_at)
+  def is_library(queryable, true),
+    do:
+      where(
+        queryable,
+        [playlist: p],
+        p.platform_id == p.user_id
+      )
+
+  def is_library(queryable, false),
+    do:
+      where(
+        queryable,
+        [playlist: p],
+        p.platform_id != p.user_id
+      )
 end
