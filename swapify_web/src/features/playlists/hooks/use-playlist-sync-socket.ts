@@ -18,7 +18,7 @@ type OutgoingMessageRecord = {
 };
 
 type IncomingMessageRecord = {
-  sync_status: {
+  status_update: {
     payload: {};
   };
 };

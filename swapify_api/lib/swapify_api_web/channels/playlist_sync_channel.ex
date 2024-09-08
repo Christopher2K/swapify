@@ -1,21 +1,28 @@
 defmodule SwapifyApiWeb.PlaylistSyncChannel do
+  require Logger
+
   use SwapifyApiWeb, :channel
+
+  alias SwapifyApi.MusicProviders.SyncNotification
 
   @impl true
   def join("playlist_sync", _payload, socket), do: {:ok, socket}
 
-  # Channels can be used in a request/response fashion
-  # by sending replies to requests from the client
-  @impl true
-  def handle_in("ping", payload, socket) do
-    {:reply, {:ok, payload}, socket}
-  end
+  # PUBLIC API
 
-  # It is also common to receive messages from the client and
-  # broadcast to everyone in the current topic (playlist_sync:lobby).
-  @impl true
-  def handle_in("shout", payload, socket) do
-    broadcast(socket, "shout", payload)
-    {:noreply, socket}
+  def broadcast_sync_progress(user_id, %SyncNotification{} = notification) do
+    case SwapifyApiWeb.Endpoint.broadcast(
+           "user_socket:#{user_id}",
+           "status_update",
+           notification |> SyncNotification.to_json()
+         ) do
+      :ok ->
+        Logger.info("Broadcasted sync progress")
+
+      {:error, reason} ->
+        Logger.error("Failed to broadcast sync progress", reason: reason)
+    end
+
+    :ok
   end
 end
