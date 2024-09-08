@@ -20,6 +20,7 @@ export function PlaylistsTable({ playlists }: PlaylistsTableProps) {
         <Table.Row>
           <Table.Header>Platform</Table.Header>
           <Table.Header>Name</Table.Header>
+          <Table.Header>Tracks</Table.Header>
           <Table.Header>Status</Table.Header>
           <Table.Header>Last synced</Table.Header>
           <Table.Header>Actions</Table.Header>
@@ -39,6 +40,11 @@ export function PlaylistsTable({ playlists }: PlaylistsTableProps) {
               })}
             >
               <PlatformLogo platform={p.platformName} />
+            </Table.Cell>
+            <Table.Cell>
+              {p.tracksTotal != undefined
+                ? `${p.tracksTotal} tracks`
+                : "Unknown"}
             </Table.Cell>
             <Table.Cell fontWeight="medium">
               {isLibrary(p) ? "Music Library" : p.name}

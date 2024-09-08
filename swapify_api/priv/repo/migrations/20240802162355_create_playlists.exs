@@ -20,7 +20,7 @@ defmodule SwapifyApi.Repo.Migrations.CreatePlaylists do
       add :platform_id, :string, null: false
       add :platform_name, :music_platforms, null: false
       add :tracks, :jsonb, null: false, default: "[]"
-      add :tracks_total, :integer, null: false, default: 0
+      add :tracks_total, :integer, null: true
       add :sync_status, :sync_status, null: false, default: "unsynced"
 
       add :user_id, references(:users, on_delete: :delete_all), null: false

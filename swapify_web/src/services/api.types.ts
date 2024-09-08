@@ -58,7 +58,7 @@ const APIPlaylistSchema = z.object({
   name: z.string().optional(),
   platformId: z.string(),
   platformName: APIPlatformNameSchema,
-  tracksTotal: z.string(),
+  tracksTotal: z.number().optional(),
   syncStatus: APIPlaylistSyncStatusSchema,
   insertedAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
