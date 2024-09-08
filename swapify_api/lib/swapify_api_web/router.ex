@@ -41,7 +41,7 @@ defmodule SwapifyApiWeb.Router do
   scope "/api/playlists", SwapifyApiWeb do
     pipe_through :api_protected
 
-    get "/library", PlaylistController, :get_library
+    get "/library", PlaylistController, :search_library
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

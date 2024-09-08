@@ -17,6 +17,9 @@ const APIFormErrorsSchema = z.object({
   form: z.record(z.string()),
 });
 
+const APIPlatformNameSchema = z.enum(["applemusic", "spotify"]);
+export type APIPlatformName = z.infer<typeof APIPlaylistSyncStatusSchema>;
+
 const APIUserSchema = z.object({
   id: z.string(),
   username: z.string(),
@@ -28,7 +31,7 @@ export type APIUser = z.infer<typeof APIUserSchema>;
 
 const APIPlatformConnectionSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  name: APIPlatformNameSchema,
   accessTokenExp: z.string(),
   userId: z.string(),
 });
@@ -42,12 +45,23 @@ const APITrackSchema = z.object({
 });
 export type APITrack = z.infer<typeof APITrackSchema>;
 
+const APIPlaylistSyncStatusSchema = z.enum([
+  "unsynced",
+  "syncing",
+  "synced",
+  "error",
+]);
+export type APIPlaylistSyncStatus = z.infer<typeof APIPlaylistSyncStatusSchema>;
+
 const APIPlaylistSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
-  platformName: z.string(),
-  isLibrary: z.boolean(),
-  tracks: z.array(APITrackSchema),
+  platformId: z.string(),
+  platformName: APIPlatformNameSchema,
+  tracksTotal: z.string(),
+  syncStatus: APIPlaylistSyncStatusSchema,
+  insertedAt: z.date(),
+  updatedAt: z.date(),
 });
 export type APIPlaylist = z.infer<typeof APIPlaylistSchema>;
 
@@ -139,7 +153,7 @@ export const contract = c.router({
       200: APIResponseTemplate(APISuccessSchema),
     },
   },
-  getUserLibraries: {
+  searchUserLibraries: {
     method: "GET",
     path: "/api/playlists/library",
     query: z.object({
@@ -148,6 +162,6 @@ export const contract = c.router({
     responses: {
       200: APIResponseTemplate(z.array(APIPlaylistSchema)),
     },
-    summary: "Get the user libraries",
+    summary: "Search user libraries",
   },
 });

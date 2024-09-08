@@ -1,5 +1,6 @@
 defmodule SwapifyApi.MusicProviders.Playlist do
   @moduledoc "Playlist content fetched from a music provider"
+
   require Logger
   use SwapifyApi.Schema
 
@@ -87,7 +88,7 @@ defmodule SwapifyApi.MusicProviders.Playlist do
       where(
         queryable,
         [playlist: p],
-        p.platform_id == p.user_id
+        fragment("? = ?::text", p.platform_id, p.user_id)
       )
 
   def is_library(queryable, false),
@@ -95,6 +96,6 @@ defmodule SwapifyApi.MusicProviders.Playlist do
       where(
         queryable,
         [playlist: p],
-        p.platform_id != p.user_id
+        fragment("? != ?::text", p.platform_id, p.user_id)
       )
 end
