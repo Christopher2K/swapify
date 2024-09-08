@@ -1,13 +1,16 @@
 import { useEffect } from "react";
 
 import { useScreenOptions } from "#root/components/app-screen-layout";
+import { VStack } from "#style/jsx";
 
+import { PlaylistsTable } from "./components/playlists-table";
 import { usePlaylistSyncSocket } from "./hooks/use-playlist-sync-socket";
+import { useLibrariesQuery } from "./hooks/use-libraries-query";
 
 export function PlaylistsPage() {
   const { setPageTitle } = useScreenOptions();
-
   const { sendMessage } = usePlaylistSyncSocket();
+  const { libraries } = useLibrariesQuery();
 
   function syncAppleMusic() {
     sendMessage("sync", {
@@ -28,10 +31,8 @@ export function PlaylistsPage() {
   }, []);
 
   return (
-    <h1>
-      Playlists
-      <button onClick={syncAppleMusic}>Sync apple music lib</button>
-      <button onClick={syncSpotify}>Sync spotify lib</button>
-    </h1>
+    <VStack w="full" h="full" p="4">
+      <PlaylistsTable playlists={libraries} />
+    </VStack>
   );
 }

@@ -17,7 +17,7 @@ export function useLibrariesQuery(platformName?: APIPlatformName) {
     });
 
   return {
-    playlists: data?.status === 200 ? data?.body.data : undefined,
+    libraries: data?.status === 200 ? data?.body.data : undefined,
     isError,
     isLoading,
     refetch,

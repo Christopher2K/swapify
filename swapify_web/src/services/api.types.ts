@@ -18,7 +18,7 @@ const APIFormErrorsSchema = z.object({
 });
 
 const APIPlatformNameSchema = z.enum(["applemusic", "spotify"]);
-export type APIPlatformName = z.infer<typeof APIPlaylistSyncStatusSchema>;
+export type APIPlatformName = z.infer<typeof APIPlatformNameSchema>;
 
 const APIUserSchema = z.object({
   id: z.string(),
@@ -60,8 +60,9 @@ const APIPlaylistSchema = z.object({
   platformName: APIPlatformNameSchema,
   tracksTotal: z.string(),
   syncStatus: APIPlaylistSyncStatusSchema,
-  insertedAt: z.date(),
-  updatedAt: z.date(),
+  insertedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  userId: z.string(),
 });
 export type APIPlaylist = z.infer<typeof APIPlaylistSchema>;
 

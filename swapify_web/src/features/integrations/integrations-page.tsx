@@ -4,9 +4,7 @@ import { useScreenOptions } from "#root/components/app-screen-layout";
 
 import { VStack, Box } from "#style/jsx";
 
-import AppleMusicIcon from "#root/components/icons/apple-music.svg?react";
-import SpotifyIcon from "#root/components/icons/spotify.svg?react";
-import { tsr } from "#root/services/api";
+import { PlatformLogo } from "#root/components/platform-logo";
 
 import { IntegrationCard } from "./components/integration-card";
 import { useIntegrationsQuery } from "./hooks/use-integrations-query";
@@ -126,7 +124,7 @@ export function IntegrationsPage() {
         >
           <IntegrationCard
             onConnectClick={connectAppleMusic}
-            icon={<AppleMusicIcon />}
+            icon={<PlatformLogo platform="applemusic" />}
             title="Apple Music"
             description="Connect your Apple Music account to start transferring your music now!"
             isLoading={appleMusicButtonLoadingState}
@@ -134,7 +132,7 @@ export function IntegrationsPage() {
           />
           <IntegrationCard
             onConnectClick={connectSpotify}
-            icon={<SpotifyIcon />}
+            icon={<PlatformLogo platform="spotify" />}
             title="Spotify"
             description="Connect your Spotify account to start transferring your music now!"
             isLoading={spotifyButtonLoadingState}

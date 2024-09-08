@@ -9,7 +9,8 @@ defmodule SwapifyApi.MusicProviders.PlaylistJSON do
     :tracks_total,
     :sync_status,
     :inserted_at,
-    :updated_at
+    :updated_at,
+    :user_id
   ]
 
   def show(%Playlist{} = p) do
