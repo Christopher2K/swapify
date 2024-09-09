@@ -3,7 +3,7 @@ defmodule SwapifyApi.Accounts.Services.RemovePartnerIntegration do
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.PlatformConnectionRepo
 
-  @spec call(String.t(), String.t()) ::
+  @spec call(String.t(), PlatformConnection.platform_name()) ::
           {:ok, PlatformConnection.t()} | {:error, atom()}
   def call(user_id, platform_name) do
     PlatformConnectionRepo.delete(user_id, platform_name)

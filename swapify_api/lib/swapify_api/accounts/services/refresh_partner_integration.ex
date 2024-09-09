@@ -6,9 +6,9 @@ defmodule SwapifyApi.Accounts.Services.RefreshPartnerIntegration do
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth.AccessToken
 
-  @spec call(String.t(), String.t(), String.t()) ::
+  @spec call(String.t(), PlatformConnection.platform_name(), String.t()) ::
           {:ok, PlatformConnection.t()} | {:error, atom()}
-  def call(user_id, "spotify" = name, refresh_token) do
+  def call(user_id, :spotify = name, refresh_token) do
     with {:ok,
           %AccessToken{
             access_token: access_token,

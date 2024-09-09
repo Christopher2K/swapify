@@ -36,7 +36,7 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
     end
   end
 
-  @spec delete(String.t(), String.t()) :: {:ok}
+  @spec delete(String.t(), PlatformConnection.platform_name()) :: {:ok}
   def delete(user_id, name) do
     PlatformConnection.queryable()
     |> PlatformConnection.filter_by(:user_id, user_id)

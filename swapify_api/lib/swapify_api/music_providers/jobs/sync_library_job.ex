@@ -118,6 +118,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
             :ok
 
           {:error, _} ->
+            RemovePartnerIntegration.call(user_id, :spotify)
             {:cancel, :authentication_error}
         end
 
@@ -142,9 +143,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         has_next? = response.body["next"] != nil
 
         save_tracks(args, tracks, total, has_next?, @apple_music_limit)
-
-      {:error, 401, _} ->
-        RemovePartnerIntegration.call(user_id, "applemusic")
+        RemovePartnerIntegration.call(user_id, :applemusic)
         {:cancel, :authentication_error}
 
       error ->

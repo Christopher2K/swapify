@@ -20,5 +20,5 @@ defmodule SwapifyApi.MusicProviders.SyncNotification do
             status: nil
 
   def to_json(notification),
-    do: Jason.encode(notification) |> Digger.CamelCaser.camel_case(key_transform: :lower)
+    do: Map.from_struct(notification) |> Recase.Enumerable.convert_keys(&Recase.to_camel/1)
 end

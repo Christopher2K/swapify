@@ -19,7 +19,7 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
         }
 
   schema "platform_connections" do
-    field :name, :string
+    field :name, Ecto.Enum, values: [:spotify, :applemusic]
     field :access_token, :string
     field :access_token_exp, :utc_datetime
     field :refresh_token, :string
