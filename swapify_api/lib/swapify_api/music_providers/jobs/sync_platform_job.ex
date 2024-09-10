@@ -7,6 +7,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   - user_id - ID of the user - Useful for renewing / removing tokens
   - access_token
   - refresh_token - Optional
+  - offset
+
+  The `job_id` should be added to the jobs args for the job to work
   """
   require Logger
 
@@ -22,6 +25,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
   alias SwapifyApi.MusicProviders.Services.SyncPlaylistMetadata
   alias SwapifyApi.MusicProviders.AppleMusic
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
@@ -32,8 +36,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   defp handle_error({:error, _, _}), do: {:error, :http_error}
 
-  @spec args(Playlist.platform_name(), String.t(), String.t(), String.t() | nil) :: map()
-  def args(platform_name, user_id, access_token, refresh_token \\ nil, should_sync_library?) do
+  @spec args(String.t(), Playlist.platform_name(), String.t(), String.t(), String.t() | nil) ::
+          map()
+  def args(
+        platform_name,
+        user_id,
+        access_token,
+        refresh_token \\ nil,
+        should_sync_library?
+      ) do
     %{
       "platform_name" => platform_name,
       "user_id" => user_id,
@@ -52,13 +63,18 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
             "user_id" => user_id,
             "access_token" => access_token,
             "refresh_token" => refresh_token,
-            "should_sync_library" => true
+            "should_sync_library" => true,
+            "job_id" => job_id
           } = args
       }) do
     case Spotify.get_user_library(access_token) do
       {:ok, _tracks, response} ->
         total = response.body["total"]
-        SyncPlaylistMetadata.call(:library, :spotify, user_id, total)
+
+        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :spotify, user_id, total) do
+          :timer.sleep(6000)
+          UpdateJobStatus.call(job_id, :done)
+        end
 
       {:error, 401, _} ->
         case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
@@ -90,7 +106,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
           "platform_name" => "applemusic",
           "user_id" => user_id,
           "access_token" => access_token,
-          "should_sync_library" => true
+          "should_sync_library" => true,
+          "job_id" => job_id
         }
       }) do
     developer_token = AppleMusicTokenWorker.get()
@@ -98,7 +115,10 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
     case AppleMusic.get_user_library(developer_token, access_token) do
       {:ok, _tracks, response} ->
         total = response.body["meta"]["total"]
-        SyncPlaylistMetadata.call(:library, :applemusic, user_id, total)
+
+        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :applemusic, user_id, total) do
+          UpdateJobStatus.call(job_id, :done)
+        end
 
       {:error, 401, _} ->
         RemovePartnerIntegration.call(user_id, :applemusic)

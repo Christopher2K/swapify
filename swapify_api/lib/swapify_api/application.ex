@@ -73,13 +73,6 @@ defmodule SwapifyApi.Application do
              [:oban, :job, :exception],
              callback,
              []
-           ),
-         :ok <-
-           :telemetry.attach(
-             "#{job_name}-oban-engine_cancel_job_start",
-             [:oban, :engine, :cancel_job, :start],
-             callback,
-             []
            ) do
       :ok
     end

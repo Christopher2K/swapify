@@ -3,6 +3,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents do
   Events for the sync_platform job
   """
   require Logger
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
 
   def handle_event(
         [:oban, :job, :start],
@@ -14,7 +15,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents do
       user_id: args["user_id"],
       service: args["service"]
     )
-
   end
 
   def handle_event(
@@ -27,33 +27,30 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents do
       user_id: args["user_id"],
       service: args["service"]
     )
-
   end
 
   def handle_event(
         [:oban, :job, :exception],
         _,
-        %{job: %{worker: "SwapifyApi.MusicProviders.Jobs.SyncPlatformJob", args: args}},
+        %{
+          job:
+            %Oban.Job{worker: "SwapifyApi.MusicProviders.Jobs.SyncPlatformJob", args: args} = job
+        },
         _
       ) do
+    if job.attempt == job.max_attempts do
+      Logger.info("Sync Library job cancelled",
+        user_id: args["user_id"],
+        service: args["service"]
+      )
 
-    Logger.info("Sync Library job cancelled",
-      user_id: args["user_id"],
-      service: args["service"]
-    )
-  end
-
-  def handle_event(
-        [:oban, :engine, :cancel_job, :start],
-        _,
-        %{job: %{worker: "SwapifyApi.MusicProviders.Jobs.SyncPlatformJob", args: args}},
-        _
-      ) do
-
-    Logger.error("Sync Library job error",
-      user_id: args["user_id"],
-      service: args["service"]
-    )
+      UpdateJobStatus.call(args["job_id"], :error)
+    else
+      Logger.info("Sync Library job error",
+        user_id: args["user_id"],
+        service: args["service"]
+      )
+    end
   end
 
   def handle_event(_, _, _, _), do: :ok
