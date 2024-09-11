@@ -1,9 +1,11 @@
 defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
   require Logger
 
+  alias SwapifyApi.MusicProviders.Services.StartSyncPlatform
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
   alias SwapifyApi.Accounts.PlatformConnectionRepo
+  alias SwapifyApi.Accounts.PlatformConnection
 
   @doc """
   Options:
@@ -17,9 +19,11 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
   For Apple music:
   - :token - Token code we got from AppleMusicKit on frontend
   """
+  @spec call(PlatformConnection.platform_name(), atom()) ::
+          {:ok, PlatformConnection.t()} | {:error, Ecto.Changeset.t()}
   def call(service_name, opts \\ [])
 
-  def call("spotify" = name, opts) do
+  def call(:spotify = name, opts) do
     Keyword.validate!(opts, [:user_id, :code, :remote_state, :session_state])
 
     user_id = Keyword.get(opts, :user_id)
@@ -28,12 +32,19 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
     code = Keyword.get(opts, :code)
 
     with {:ok} <- Oauth.check_state(session_state, remote_state),
-         {:ok, access_token_data} <- Spotify.request_access_token(code) do
-      PlatformConnectionRepo.create_or_update(user_id, name, %{
-        "access_token_exp" => access_token_data.expires_at,
-        "access_token" => access_token_data.access_token,
-        "refresh_token" => access_token_data.refresh_token
-      })
+         {:ok, access_token_data} <- Spotify.request_access_token(code),
+         {:ok, pc, operation_type} <-
+           PlatformConnectionRepo.create_or_update(user_id, name, %{
+             "access_token_exp" => access_token_data.expires_at,
+             "access_token" => access_token_data.access_token,
+             "refresh_token" => access_token_data.refresh_token
+           }) do
+      if operation_type == :created do
+        # When created for the first time we will try to synchronize the library data for this user
+        StartSyncPlatform.call(user_id, name)
+      end
+
+      {:ok, pc}
     else
       {:error, %Ecto.Changeset{}} ->
         {:error, :server_error}
@@ -47,16 +58,24 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
     end
   end
 
-  def call("applemusic" = name, opts) do
+  def call(:applemusic = name, opts) do
     Keyword.validate!(opts, [:user_id, :token])
 
     user_id = Keyword.get(opts, :user_id)
     token = Keyword.get(opts, :token)
     exp = DateTime.utc_now() |> DateTime.add(60, :day)
 
-    PlatformConnectionRepo.create_or_update(user_id, name, %{
-      "access_token_exp" => exp,
-      "access_token" => token
-    })
+    with {:ok, pc, operation_type} <-
+           PlatformConnectionRepo.create_or_update(user_id, name, %{
+             "access_token_exp" => exp,
+             "access_token" => token
+           }) do
+      if operation_type == :created do
+        # When created for the first time we will try to synchronize the library data for this user
+        StartSyncPlatform.call(user_id, name)
+      end
+
+      {:ok, pc}
+    end
   end
 end

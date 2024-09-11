@@ -2,14 +2,20 @@ import { useEffect } from "react";
 
 import { useScreenOptions } from "#root/components/app-screen-layout";
 import { Heading } from "#root/components/ui/heading";
-import { VStack } from "#style/jsx";
+import { Button } from "#root/components/ui/button";
+import { HStack, VStack } from "#style/jsx";
 
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";
+import { tsr } from "#root/services/api";
 
 export function PlaylistsPage() {
   const { setPageTitle } = useScreenOptions();
   const { libraries } = useLibrariesQuery();
+  // FIXME: this only exist for testing, the UX flow needs to be WAY better
+  const { mutateAsync: syncPlatform } = tsr.startSyncPlatformJob.useMutation(
+    {},
+  );
 
   useEffect(() => {
     setPageTitle("Playlists");
@@ -17,6 +23,20 @@ export function PlaylistsPage() {
 
   return (
     <VStack w="full" h="full" p="4" gap="10">
+      <HStack w="full" justifyContent="flex-start">
+        <Button
+          onClick={() =>
+            syncPlatform({ params: { platformName: "applemusic" } })
+          }
+        >
+          Synchronize Apple Music Library
+        </Button>
+        <Button
+          onClick={() => syncPlatform({ params: { platformName: "spotify" } })}
+        >
+          Synchronize Spotify Library
+        </Button>
+      </HStack>
       <VStack
         w="full"
         gap="4"

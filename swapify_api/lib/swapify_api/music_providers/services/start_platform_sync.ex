@@ -1,11 +1,15 @@
 defmodule SwapifyApi.MusicProviders.Services.StartSyncPlatform do
   require Logger
 
+  alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.MusicProviders.Jobs.SyncPlatformJob
   alias SwapifyApi.Tasks.JobRepo
+  alias SwapifyApi.Tasks.Job
 
+  @spec call(String.t(), PlatformConnection.platform_name()) ::
+          {:ok, Job.t()} | {:error, :failed_to_acquire_lock | :job_already_exists | :oban_error}
   def call(user_id, platform_name) do
     with {:ok, pc} <- PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name),
          job_args <-
@@ -34,7 +38,7 @@ defmodule SwapifyApi.MusicProviders.Services.StartSyncPlatform do
 
         {:error, _} ->
           UpdateJobStatus.call(db_job.id, :error)
-          {:error}
+          {:error, :oban_error}
       end
     end
   end

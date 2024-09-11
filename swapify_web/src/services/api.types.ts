@@ -71,6 +71,19 @@ export const APIMetaSchema = z.object({
 });
 export type APIMeta = z.infer<typeof APIMetaSchema>;
 
+export const APIJobStatusSchema = z.enum(["started", "done", "error"]);
+export type APIJobStatus = z.infer<typeof APIJobStatusSchema>;
+
+export const APIJobSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: APIJobStatusSchema,
+  userId: z.string(),
+  insertedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+export type APIJob = z.infer<typeof APIJobSchema>;
+
 // API Payloads
 const APISignupPayloadSchema = z.object({
   username: z.string(),
@@ -164,5 +177,17 @@ export const contract = c.router({
       200: APIResponseTemplate(z.array(APIPlaylistSchema)),
     },
     summary: "Search user libraries",
+  },
+  startSyncPlatformJob: {
+    method: "POST",
+    path: "/api/playlists/sync-platform/:platformName",
+    pathParams: z.object({
+      platformName: APIPlatformNameSchema,
+    }),
+    body: z.undefined(),
+    responses: {
+      200: APIResponseTemplate(APIJobSchema),
+    },
+    summary: "Start a platform synchronization job",
   },
 });

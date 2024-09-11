@@ -32,7 +32,7 @@ defmodule SwapifyApiWeb.IntegrationController do
     session_state = get_session(conn, :spotify_state)
 
     result =
-      Accounts.Services.CreateOrUpdateIntegration.call("spotify",
+      Accounts.Services.CreateOrUpdateIntegration.call(:spotify,
         remote_state: remote_state,
         session_state: session_state,
         code: code,
@@ -75,7 +75,7 @@ defmodule SwapifyApiWeb.IntegrationController do
     user_id = conn.assigns[:user_id]
 
     with {:ok, _} <-
-           Accounts.Services.CreateOrUpdateIntegration.call("applemusic",
+           Accounts.Services.CreateOrUpdateIntegration.call(:applemusic,
              user_id: user_id,
              token: apple_user_token
            ) do

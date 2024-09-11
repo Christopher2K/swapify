@@ -1,6 +1,7 @@
 defmodule SwapifyApiWeb.PlaylistController do
   use SwapifyApiWeb, :controller
 
+  alias SwapifyApi.MusicProviders.Services.StartSyncPlatform
   alias SwapifyApi.MusicProviders.PlaylistRepo
 
   @doc """
@@ -24,5 +25,20 @@ defmodule SwapifyApiWeb.PlaylistController do
       |> put_status(200)
       |> render(:index, playlists: playlists)
     end
+  end
+
+  def start_sync_platform_job(conn, %{"platform_name" => platform_name}) do
+    user_id = conn.assigns[:user_id]
+
+    with {:ok, job} <- StartSyncPlatform.call(user_id, String.to_atom(platform_name)) do
+      conn
+      |> put_status(200)
+      |> render(:start_sync_platform_job, job: job)
+    end
+  end
+
+  def start_sync_playlist_job(conn, %{"playlist_id" => playlist_id}) do
+    # TODO
+    conn |> resp(200, "")
   end
 end

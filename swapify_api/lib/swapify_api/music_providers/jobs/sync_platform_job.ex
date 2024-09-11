@@ -72,7 +72,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         total = response.body["total"]
 
         with {:ok, _} <- SyncPlaylistMetadata.call(:library, :spotify, user_id, total) do
-          :timer.sleep(6000)
           UpdateJobStatus.call(job_id, :done)
         end
 

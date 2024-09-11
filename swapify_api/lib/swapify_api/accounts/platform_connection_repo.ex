@@ -9,7 +9,7 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
   Create if it doesn'texist or update a platform connection data for a given user
   """
   @spec create_or_update(String.t(), String.t(), map()) ::
-          {:ok, PlatformConnection.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, PlatformConnection.t(), :created | :updated} | {:error, Ecto.Changeset.t()}
   def create_or_update(user_id, name, update_changes) do
     mb_pc =
       PlatformConnection.queryable()
@@ -28,11 +28,25 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
           })
         )
         |> Repo.insert()
+        |> case do
+          {:ok, pc} ->
+            {:ok, pc, :created}
+
+          error ->
+            error
+        end
 
       pc ->
         pc
         |> PlatformConnection.update_changeset(update_changes)
         |> Repo.update()
+        |> case do
+          {:ok, pc} ->
+            {:ok, pc, :updated}
+
+          error ->
+            error
+        end
     end
   end
 
