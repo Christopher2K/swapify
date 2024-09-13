@@ -20,13 +20,27 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents do
   def handle_event(
         [:oban, :job, :stop],
         _,
-        %{job: %{worker: "SwapifyApi.MusicProviders.Jobs.SyncPlatformJob", args: args}},
+        %{
+          job: %{worker: "SwapifyApi.MusicProviders.Jobs.SyncPlatformJob", args: args},
+          state: state
+        },
         _
       ) do
-    Logger.info("Sync Platform job finished",
-      user_id: args["user_id"],
-      service: args["service"]
-    )
+    case state do
+      :cancelled ->
+        Logger.info("Sync Library cancelled",
+          user_id: args["user_id"],
+          service: args["service"]
+        )
+
+        UpdateJobStatus.call(args["job_id"], :error)
+
+      _ ->
+        Logger.info("Sync Platform job finished",
+          user_id: args["user_id"],
+          service: args["service"]
+        )
+    end
   end
 
   def handle_event(
@@ -39,7 +53,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents do
         _
       ) do
     if job.attempt == job.max_attempts do
-      Logger.info("Sync Library job cancelled",
+      Logger.info("Sync Library job error (max attempt exceeded)",
         user_id: args["user_id"],
         service: args["service"]
       )
