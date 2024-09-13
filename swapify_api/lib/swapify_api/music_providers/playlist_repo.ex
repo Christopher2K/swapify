@@ -128,7 +128,8 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   @doc """
   Get the latest library playlist for a given user and platform
   """
-  @spec get_user_library(String.t(), String.t()) :: {:ok, Playlist.t()} | {:error, :not_found}
+  @spec get_user_library(String.t(), Playlist.platform_name()) ::
+          {:ok, Playlist.t()} | {:error, :not_found}
   def get_user_library(user_id, platform_name) do
     Playlist.queryable()
     |> Playlist.filter_by(:user_id, user_id)

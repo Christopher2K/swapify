@@ -1,7 +1,7 @@
 defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
   require Logger
 
-  alias SwapifyApi.MusicProviders.Services.StartSyncPlatform
+  alias SwapifyApi.MusicProviders.Services.StartPlatformSync
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
   alias SwapifyApi.Accounts.PlatformConnectionRepo
@@ -41,7 +41,7 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
            }) do
       if operation_type == :created do
         # When created for the first time we will try to synchronize the library data for this user
-        StartSyncPlatform.call(user_id, name)
+        StartPlatformSync.call(user_id, name)
       end
 
       {:ok, pc}
@@ -72,7 +72,7 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
            }) do
       if operation_type == :created do
         # When created for the first time we will try to synchronize the library data for this user
-        StartSyncPlatform.call(user_id, name)
+        StartPlatformSync.call(user_id, name)
       end
 
       {:ok, pc}

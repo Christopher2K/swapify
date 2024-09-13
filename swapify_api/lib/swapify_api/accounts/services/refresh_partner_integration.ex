@@ -14,7 +14,7 @@ defmodule SwapifyApi.Accounts.Services.RefreshPartnerIntegration do
             access_token: access_token,
             expires_at: expires_at
           }} <- Spotify.refresh_access_token(refresh_token),
-         {:ok, updated_pc} <-
+         {:ok, updated_pc, :updated} <-
            PlatformConnectionRepo.create_or_update(user_id, name, %{
              "access_token" => access_token,
              "access_token_exp" => expires_at

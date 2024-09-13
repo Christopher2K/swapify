@@ -12,6 +12,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   - tracks_count -  nil for the first job
   - access_token
   - refresh_token - Optional
+
+  The `job_id` should be added to the jobs args for the job to work
   """
   require Logger
 
@@ -31,6 +33,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.SyncNotification
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
 
   @spotify_limit 50
   @apple_music_limit 100
@@ -45,7 +48,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
          %{
            "platform_name" => platform_name,
            "playlist_id" => playlist_id,
-           "offset" => offset
+           "offset" => offset,
+           "job_id" => job_id
          } = args,
          tracks,
          tracks_total,
@@ -63,26 +67,31 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
     )
     |> case do
       {:ok, _} ->
-        if has_next? do
-          Map.merge(args, %{
-            "offset" => offset + platform_limit,
-            "tracks_total" => tracks_total,
-            "synced_tracks_count" => offset + length(tracks)
-          })
-          |> __MODULE__.new()
-          |> Oban.insert()
+        with {:ok, _} <-
+               (if has_next? do
+                  Map.merge(args, %{
+                    "offset" => offset + platform_limit,
+                    "tracks_total" => tracks_total,
+                    "synced_tracks_count" => offset + length(tracks)
+                  })
+                  |> __MODULE__.new()
+                  |> Oban.insert()
+                else
+                  UpdateJobStatus.call(job_id, :done)
+                end) do
+          Logger.debug("Fetched library items",
+            platform_name: platform_name,
+            has_next: has_next?,
+            total: tracks_total
+          )
         end
 
-        Logger.debug("Fetched library items",
+      {:error, error} ->
+        Logger.error("Failed to update playlist #{inspect(error)}",
           platform_name: platform_name,
-          has_next: has_next?,
-          total: tracks_total
+          error: error
         )
 
-        :ok
-
-      {:error, error} ->
-        Logger.error("Failed to update playlist", platform_name: platform_name, error: error)
         {:error, :database_error}
     end
   end
@@ -104,7 +113,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         save_tracks(args, tracks, total, has_next?, @spotify_limit)
 
       {:error, 401, _} ->
-        case RefreshPartnerIntegration.call(user_id, "spotify", refresh_token) do
+        case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
           {:ok, refreshed_pc} ->
             Logger.info("Restart the job with new credentials", platform_name: "spotify")
 
@@ -114,8 +123,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
             })
             |> __MODULE__.new()
             |> Oban.insert()
-
-            :ok
 
           {:error, _} ->
             RemovePartnerIntegration.call(user_id, :spotify)
@@ -143,6 +150,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         has_next? = response.body["next"] != nil
 
         save_tracks(args, tracks, total, has_next?, @apple_music_limit)
+
+      {:error, 401, _} ->
         RemovePartnerIntegration.call(user_id, :applemusic)
         {:cancel, :authentication_error}
 

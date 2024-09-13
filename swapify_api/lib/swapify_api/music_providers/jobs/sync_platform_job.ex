@@ -87,8 +87,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
             |> __MODULE__.new()
             |> Oban.insert()
 
-            :ok
-
           {:error, _} ->
             RemovePartnerIntegration.call(user_id, :spotify)
             {:cancel, :authentication_error}
