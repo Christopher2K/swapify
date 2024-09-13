@@ -7,5 +7,5 @@ defmodule SwapifyApiWeb.PlaylistJSON do
 
   def start_sync_platform_job(%{job: job}), do: %{"data" => Tasks.JobJSON.show(job)}
 
-  def start_sync_playlist_job(%{job: job}), do: %{"data" => Tasks.JobJSON.show(job)}
+  def start_sync_library_job(%{job: job}), do: %{"data" => Tasks.JobJSON.show(job)}
 end

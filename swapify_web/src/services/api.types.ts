@@ -5,7 +5,6 @@ const APIResponseTemplate = <T extends z.ZodTypeAny>(dataSchema: T) =>
   z.object({
     data: dataSchema,
   });
-
 const APISuccessSchema = z.literal("ok");
 
 const APIErrorTemplate = <T extends z.ZodTypeAny>(dataSchema: T) =>
@@ -189,5 +188,17 @@ export const contract = c.router({
       200: APIResponseTemplate(APIJobSchema),
     },
     summary: "Start a platform synchronization job",
+  },
+  startSyncLibraryJob: {
+    method: "POST",
+    path: "/api/playlists/sync-library/:platformName",
+    pathParams: z.object({
+      platformName: APIPlatformNameSchema,
+    }),
+    body: z.undefined(),
+    responses: {
+      200: APIResponseTemplate(APIJobSchema),
+    },
+    summary: "Start a library synchronization job",
   },
 });

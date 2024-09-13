@@ -44,7 +44,8 @@ defmodule SwapifyApiWeb.Router do
     get "/library", PlaylistController, :search_library
 
     post "/sync-platform/:platform_name", PlaylistController, :start_sync_platform_job
-    post "/sync-playlist/:playlist_id", PlaylistController, :start_sync_playlist_job
+    post "/sync-library/:platform_name", PlaylistController, :start_sync_library_job
+    # post "/sync-playlist/:playlist_id", PlaylistController, :start_sync_playlist_job
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

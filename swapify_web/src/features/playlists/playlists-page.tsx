@@ -16,6 +16,7 @@ export function PlaylistsPage() {
   const { mutateAsync: syncPlatform } = tsr.startSyncPlatformJob.useMutation(
     {},
   );
+  const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
 
   useEffect(() => {
     setPageTitle("Playlists");
@@ -46,7 +47,12 @@ export function PlaylistsPage() {
         <Heading as="h2" size="xl">
           Libraries
         </Heading>
-        <PlaylistsTable playlists={libraries} />
+        <PlaylistsTable
+          playlists={libraries}
+          onSynchronizeItem={(platformName) =>
+            syncLibrary({ params: { platformName } })
+          }
+        />
       </VStack>
 
       <VStack

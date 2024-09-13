@@ -2,18 +2,22 @@ import { PlatformLogo } from "#root/components/platform-logo";
 import { PlaylistStatus } from "#root/components/playlist-status";
 import { Button } from "#root/components/ui/button";
 import { Table } from "#root/components/ui/table";
-import { APIPlaylist } from "#root/services/api.types";
+import { APIPlatformName, APIPlaylist } from "#root/services/api.types";
 import { timeAgo } from "#root/services/time-ago";
 
 import { css } from "#style/css";
 
-import { isLibrary, humanReadableSyncStatus } from "../utils/playlist-utils";
+import { isLibrary } from "../utils/playlist-utils";
 
 type PlaylistsTableProps = {
   playlists?: APIPlaylist[];
+  onSynchronizeItem: (platform: APIPlatformName) => void;
 };
 
-export function PlaylistsTable({ playlists }: PlaylistsTableProps) {
+export function PlaylistsTable({
+  playlists,
+  onSynchronizeItem,
+}: PlaylistsTableProps) {
   return (
     <Table.Root size="sm">
       <Table.Head>
@@ -54,7 +58,12 @@ export function PlaylistsTable({ playlists }: PlaylistsTableProps) {
             </Table.Cell>
             <Table.Cell>{timeAgo.format(new Date(p.updatedAt))}</Table.Cell>
             <Table.Cell>
-              <Button size="xs">Synchronize</Button>
+              <Button
+                size="xs"
+                onClick={() => onSynchronizeItem(p.platformName)}
+              >
+                Synchronize
+              </Button>
             </Table.Cell>
           </Table.Row>
         ))}
