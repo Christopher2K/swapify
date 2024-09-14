@@ -1,13 +1,12 @@
+import { css } from "#style/css";
+import { Box, styled, HStack } from "#style/jsx";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { PlaylistStatus } from "#root/components/playlist-status";
 import { Button } from "#root/components/ui/button";
-import { Table } from "#root/components/ui/table";
 import { APIPlatformName, APIPlaylist } from "#root/services/api.types";
+import { Card } from "#root/components/ui/card";
+import { DefinitionList } from "#root/components/definition-list";
 import { timeAgo } from "#root/services/time-ago";
-
-import { css } from "#style/css";
-
-import { isLibrary } from "../utils/playlist-utils";
 
 type PlaylistsTableProps = {
   playlists?: APIPlaylist[];
@@ -19,55 +18,65 @@ export function PlaylistsTable({
   onSynchronizeItem,
 }: PlaylistsTableProps) {
   return (
-    <Table.Root size="sm">
-      <Table.Head>
-        <Table.Row>
-          <Table.Header>Platform</Table.Header>
-          <Table.Header>Name</Table.Header>
-          <Table.Header>Tracks</Table.Header>
-          <Table.Header>Status</Table.Header>
-          <Table.Header>Last synced</Table.Header>
-          <Table.Header>Actions</Table.Header>
-        </Table.Row>
-      </Table.Head>
-      <Table.Body>
-        {playlists?.map((p) => (
-          <Table.Row key={p.id}>
-            <Table.Cell
-              textAlign="center"
-              fontWeight="medium"
-              className={css({
-                "& svg": {
-                  width: "24px",
-                  height: "auto",
-                },
-              })}
-            >
-              <PlatformLogo platform={p.platformName} />
-            </Table.Cell>
-            <Table.Cell>
-              {p.tracksTotal != undefined
-                ? `${p.tracksTotal} tracks`
-                : "Unknown"}
-            </Table.Cell>
-            <Table.Cell fontWeight="medium">
-              {isLibrary(p) ? "Music Library" : p.name}
-            </Table.Cell>
-            <Table.Cell>
-              <PlaylistStatus syncStatus={p.syncStatus} />
-            </Table.Cell>
-            <Table.Cell>{timeAgo.format(new Date(p.updatedAt))}</Table.Cell>
-            <Table.Cell>
-              <Button
-                size="xs"
-                onClick={() => onSynchronizeItem(p.platformName)}
+    <Box
+      display="grid"
+      gridTemplateColumns={["1fr", undefined, undefined, "1fr 1fr 1fr"]}
+      gap="4"
+      width="full"
+    >
+      {playlists?.map((p) => (
+        <Card.Root key={p.id}>
+          <Card.Header gap="2">
+            <Card.Title>
+              <HStack
+                w="full"
+                justifyContent="flex-start"
+                alignItems="center"
+                flexWrap="wrap"
               >
-                Synchronize
-              </Button>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
+                <PlatformLogo
+                  platform={p.platformName}
+                  className={css({
+                    width: "30px",
+                    height: "auto",
+                    flexShrink: "0",
+                  })}
+                />
+                <styled.span>{p.name ?? "Library"}</styled.span>
+              </HStack>
+            </Card.Title>
+            <Card.Description>
+              <PlaylistStatus syncStatus={p.syncStatus} />
+            </Card.Description>
+          </Card.Header>
+          <Card.Body>
+            <DefinitionList
+              items={[
+                {
+                  title: "Last updated",
+                  value: timeAgo.format(new Date(p.updatedAt)),
+                },
+                {
+                  title: "Tracks synchronized",
+                  value:
+                    p.tracksTotal != undefined
+                      ? `${p.tracksTotal} tracks`
+                      : "Unknown",
+                },
+              ]}
+            />
+          </Card.Body>
+          <Card.Footer gap="3" flexWrap="wrap">
+            <Button
+              flex="1"
+              flexShrink="0"
+              onClick={() => onSynchronizeItem(p.platformName)}
+            >
+              Synchronize
+            </Button>
+          </Card.Footer>
+        </Card.Root>
+      ))}
+    </Box>
   );
 }

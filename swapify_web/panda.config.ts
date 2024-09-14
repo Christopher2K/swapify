@@ -12,4 +12,7 @@ export default defineConfig({
   include: ["./src/**/*.{ts,tsx}"],
   exclude: [],
   outdir: "styled-system",
+  theme: {
+    extend: {},
+  },
 });

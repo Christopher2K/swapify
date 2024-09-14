@@ -105,40 +105,30 @@ export function IntegrationsPage() {
   }, []);
 
   return (
-    <VStack w="full" h="full" p="4">
+    <VStack w="full" h="full" p="4" gap="10">
       <Box
-        bg="accent.1"
         w="full"
-        minH="full"
-        boxShadow="sm"
-        borderRadius="md"
-        p="4"
-        overflow="scroll"
+        display="grid"
+        gridTemplateColumns={["1fr", undefined, undefined, "1fr 1fr 1fr"]}
+        gridAutoRows="1fr"
+        gap="4"
       >
-        <Box
-          w="full"
-          display="grid"
-          gridTemplateColumns={["1fr", undefined, undefined, "1fr 1fr 1fr"]}
-          gridAutoRows="1fr"
-          gap="4"
-        >
-          <IntegrationCard
-            onConnectClick={connectAppleMusic}
-            icon={<PlatformLogo platform="applemusic" />}
-            title="Apple Music"
-            description="Connect your Apple Music account to start transferring your music now!"
-            isLoading={appleMusicButtonLoadingState}
-            isConnected={isAppleMusicConnected}
-          />
-          <IntegrationCard
-            onConnectClick={connectSpotify}
-            icon={<PlatformLogo platform="spotify" />}
-            title="Spotify"
-            description="Connect your Spotify account to start transferring your music now!"
-            isLoading={spotifyButtonLoadingState}
-            isConnected={isSpotifyConnected}
-          />
-        </Box>
+        <IntegrationCard
+          onConnectClick={connectAppleMusic}
+          icon={<PlatformLogo platform="applemusic" />}
+          title="Apple Music"
+          description="Connect your Apple Music account to start transferring your music now!"
+          isLoading={appleMusicButtonLoadingState}
+          isConnected={isAppleMusicConnected}
+        />
+        <IntegrationCard
+          onConnectClick={connectSpotify}
+          icon={<PlatformLogo platform="spotify" />}
+          title="Spotify"
+          description="Connect your Spotify account to start transferring your music now!"
+          isLoading={spotifyButtonLoadingState}
+          isConnected={isSpotifyConnected}
+        />
       </Box>
     </VStack>
   );
