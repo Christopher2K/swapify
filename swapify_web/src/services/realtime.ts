@@ -12,7 +12,6 @@ function connectSocket(token: string) {
     params: {
       token,
     },
-    debug: import.meta.env.DEV,
     logger: (kind, msg, data) => {
       console.debug("[Socket]", kind, msg, data);
     },

@@ -8,10 +8,10 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   - user_id - ID of the user - Useful for renewing / removing tokens
   - playlist_id - ID of the playlist row to update
   - offset - Offset to start the request
-  - synced_tracks_count - nil for the first job
-  - tracks_count -  nil for the first job
+  - tracks_total -  nil for the first job
   - access_token
   - refresh_token - Optional
+  - total_synchronized_on_success - number of track synced if the job succeed
 
   The `job_id` should be added to the jobs args for the job to work
   """
@@ -57,6 +57,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
          platform_limit
        ) do
     new_status = if has_next?, do: :syncing, else: :synced
+    next_offset = offset + platform_limit
+
+    total_tracks_synced_on_success =
+      if next_offset + platform_limit > tracks_total,
+        do: tracks_total,
+        else: next_offset + platform_limit
 
     PlaylistRepo.add_tracks(
       playlist_id,
@@ -70,9 +76,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         with {:ok, _} <-
                (if has_next? do
                   Map.merge(args, %{
-                    "offset" => offset + platform_limit,
+                    "offset" => next_offset,
                     "tracks_total" => tracks_total,
-                    "synced_tracks_count" => offset + length(tracks)
+                    "total_synchronized_on_success" => total_tracks_synced_on_success
                   })
                   |> __MODULE__.new()
                   |> Oban.insert()
@@ -179,8 +185,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
       "access_token" => access_token,
       "refresh_token" => refresh_token,
       "offset" => 0,
-      "synced_tracks_count" => 0,
-      "tracks_count" => 0
+      "tracks_total" => 0,
+      "total_synchronized_on_success" => 0
     }
   end
 
@@ -192,16 +198,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         %{
           "playlist_id" => playlist_id,
           "platform_name" => platform_name,
-          "tracks_count" => tracks_count,
-          "synced_tracks_count" => synced_tracks_count
+          "tracks_total" => tracks_total,
+          "total_synchronized_on_success" => synced_tracks_total
         },
         status
       ),
       do: %SyncNotification{
         playlist_id: playlist_id,
         platform_name: platform_name,
-        tracks_count: tracks_count,
-        sync_count: synced_tracks_count,
+        tracks_total: tracks_total,
+        synced_tracks_total: synced_tracks_total,
         status: status
       }
 

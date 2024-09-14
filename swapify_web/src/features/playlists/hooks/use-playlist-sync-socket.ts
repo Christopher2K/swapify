@@ -23,7 +23,7 @@ type IncomingMessageRecord = {
   };
 };
 
-export function usePlaylistSyncSocket() {
-  const channelName = "playlist_sync";
+export function usePlaylistSyncSocket(userId: string) {
+  const channelName = "playlist_sync:" + userId;
   return useChannel<IncomingMessageRecord, OutgoingMessageRecord>(channelName);
 }

@@ -19,14 +19,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJobEvents do
       user_id: args["user_id"],
       service: args["service"]
     )
-
-    PlaylistSyncChannel.broadcast_sync_progress(
-      args["user_id"],
-      SyncLibraryJob.to_notification(
-        args,
-        if(args["tracks_count"] == ["synced_tracks_count"], do: :synced, else: :syncing)
-      )
-    )
   end
 
   def handle_event(
@@ -59,7 +51,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJobEvents do
           )
         )
 
-      _ ->
+      :success ->
         Logger.info("Sync Library job finished",
           user_id: args["user_id"],
           service: args["service"]
@@ -69,9 +61,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJobEvents do
           args["user_id"],
           SyncLibraryJob.to_notification(
             args,
-            if(args["tracks_count"] == ["synced_tracks_count"], do: :synced, else: :syncing)
+            if(args["tracks_total"] == args["total_synchronized_on_success"],
+              do: :synced,
+              else: :syncing
+            )
           )
         )
+
+      _ ->
+        :ok
     end
   end
 

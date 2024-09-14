@@ -6,13 +6,13 @@ defmodule SwapifyApiWeb.PlaylistSyncChannel do
   alias SwapifyApi.MusicProviders.SyncNotification
 
   @impl true
-  def join("playlist_sync", _payload, socket), do: {:ok, socket}
+  def join("playlist_sync:" <> _user_id, _payload, socket), do: {:ok, socket}
 
   # PUBLIC API
 
   def broadcast_sync_progress(user_id, %SyncNotification{} = notification) do
     case SwapifyApiWeb.Endpoint.broadcast(
-           "user_socket:#{user_id}",
+           "playlist_sync:#{user_id}",
            "status_update",
            notification |> SyncNotification.to_json()
          ) do

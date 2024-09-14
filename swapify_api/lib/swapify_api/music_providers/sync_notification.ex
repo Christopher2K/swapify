@@ -7,16 +7,16 @@ defmodule SwapifyApi.MusicProviders.SyncNotification do
   @type t :: %__MODULE__{
           playlist_id: String.t(),
           platform_name: Playlist.platform_name(),
-          tracks_count: integer(),
-          sync_count: integer(),
+          tracks_total: integer(),
+          synced_tracks_total: integer(),
           status: Playlist.sync_status()
         }
 
-  @enforce_keys [:playlist_id, :platform_name, :tracks_count, :sync_count, :status]
+  @enforce_keys [:playlist_id, :platform_name, :tracks_total, :synced_tracks_total, :status]
   defstruct playlist_id: nil,
             platform_name: nil,
-            tracks_count: nil,
-            sync_count: nil,
+            tracks_total: nil,
+            synced_tracks_total: nil,
             status: nil
 
   def to_json(notification),
