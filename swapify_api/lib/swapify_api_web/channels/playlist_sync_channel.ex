@@ -3,18 +3,22 @@ defmodule SwapifyApiWeb.PlaylistSyncChannel do
 
   use SwapifyApiWeb, :channel
 
-  alias SwapifyApi.MusicProviders.SyncNotification
+  alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApi.Notifications.JobErrorNotification
+  alias SwapifyApi.Utils
 
   @impl true
   def join("playlist_sync:" <> _user_id, _payload, socket), do: {:ok, socket}
 
   # PUBLIC API
 
-  def broadcast_sync_progress(user_id, %SyncNotification{} = notification) do
+  @spec broadcast_sync_progress(String.t(), JobUpdateNotification.t() | JobErrorNotification.t()) ::
+          :ok
+  def broadcast_sync_progress(user_id, notification) do
     case SwapifyApiWeb.Endpoint.broadcast(
            "playlist_sync:#{user_id}",
            "status_update",
-           notification |> SyncNotification.to_json()
+           notification |> Utils.struct_to_json()
          ) do
       :ok ->
         Logger.info("Broadcasted sync progress")

@@ -8,13 +8,22 @@ import { Card } from "#root/components/ui/card";
 import { DefinitionList } from "#root/components/definition-list";
 import { timeAgo } from "#root/services/time-ago";
 
+import type { PlaylistStatusState } from "../types/playlist-sync-status-state";
+
 type PlaylistsTableProps = {
   playlists?: APIPlaylist[];
-  onSynchronizeItem: (platform: APIPlatformName) => void;
+  onSynchronizeItem: (platform: APIPlatformName, id: string) => void;
+  playlistStatuses: Record<
+    APIPlatformName,
+    {
+      [playlistId: string]: PlaylistStatusState | undefined;
+    }
+  >;
 };
 
 export function PlaylistsTable({
   playlists,
+  playlistStatuses,
   onSynchronizeItem,
 }: PlaylistsTableProps) {
   return (
@@ -24,59 +33,77 @@ export function PlaylistsTable({
       gap="4"
       width="full"
     >
-      {playlists?.map((p) => (
-        <Card.Root key={p.id}>
-          <Card.Header gap="2">
-            <Card.Title>
-              <HStack
-                w="full"
-                justifyContent="flex-start"
-                alignItems="center"
-                flexWrap="wrap"
+      {playlists?.map((p) => {
+        const syncItem = playlistStatuses[p.platformName][p.id];
+
+        const status = syncItem?.status ?? p.syncStatus;
+        const lastUpdatedValue =
+          status === "syncing"
+            ? "Syncing..."
+            : timeAgo.format(new Date(p.updatedAt));
+        const tracksSynchronizedValue =
+          status === "syncing"
+            ? syncItem
+              ? `${syncItem.totalSynced} / ${syncItem.total} tracks sync`
+              : "Getting informations..."
+            : p.tracksTotal != undefined && status !== "error"
+              ? `${p.tracksTotal} tracks`
+              : "Unknown";
+
+        const shouldDisableSyncButton = status === "syncing";
+
+        return (
+          <Card.Root key={p.id}>
+            <Card.Header gap="2">
+              <Card.Title>
+                <HStack
+                  w="full"
+                  justifyContent="flex-start"
+                  alignItems="center"
+                  flexWrap="wrap"
+                >
+                  <PlatformLogo
+                    platform={p.platformName}
+                    className={css({
+                      width: "30px",
+                      height: "auto",
+                      flexShrink: "0",
+                    })}
+                  />
+                  <styled.span>{p.name ?? "Library"}</styled.span>
+                </HStack>
+              </Card.Title>
+              <Card.Description>
+                <PlaylistStatus syncStatus={status} />
+              </Card.Description>
+            </Card.Header>
+            <Card.Body>
+              <DefinitionList
+                items={[
+                  {
+                    title: "Last updated",
+                    value: lastUpdatedValue,
+                  },
+                  {
+                    title: "Tracks synchronized",
+                    value: tracksSynchronizedValue,
+                  },
+                ]}
+              />
+            </Card.Body>
+            <Card.Footer gap="3" flexWrap="wrap">
+              <Button
+                flex="1"
+                flexShrink="0"
+                disabled={shouldDisableSyncButton}
+                onClick={() => onSynchronizeItem(p.platformName, p.id)}
               >
-                <PlatformLogo
-                  platform={p.platformName}
-                  className={css({
-                    width: "30px",
-                    height: "auto",
-                    flexShrink: "0",
-                  })}
-                />
-                <styled.span>{p.name ?? "Library"}</styled.span>
-              </HStack>
-            </Card.Title>
-            <Card.Description>
-              <PlaylistStatus syncStatus={p.syncStatus} />
-            </Card.Description>
-          </Card.Header>
-          <Card.Body>
-            <DefinitionList
-              items={[
-                {
-                  title: "Last updated",
-                  value: timeAgo.format(new Date(p.updatedAt)),
-                },
-                {
-                  title: "Tracks synchronized",
-                  value:
-                    p.tracksTotal != undefined
-                      ? `${p.tracksTotal} tracks`
-                      : "Unknown",
-                },
-              ]}
-            />
-          </Card.Body>
-          <Card.Footer gap="3" flexWrap="wrap">
-            <Button
-              flex="1"
-              flexShrink="0"
-              onClick={() => onSynchronizeItem(p.platformName)}
-            >
-              Synchronize
-            </Button>
-          </Card.Footer>
-        </Card.Root>
-      ))}
+                Synchronize
+              </Button>
+            </Card.Footer>
+          </Card.Root>
+        );
+      })}
     </Box>
   );
 }

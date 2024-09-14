@@ -12,3 +12,19 @@ export type OutgoingMessageRecord = Record<
     response: object;
   }
 >;
+
+type APIJobNotification<TAG extends string, DATA> = {
+  name: string;
+  data: DATA;
+  tag: TAG;
+};
+
+export type APIJobErrorNotification<T> = APIJobNotification<
+  "JobErrorNotification",
+  T
+>;
+
+export type APIJobUpdateNotification<T> = APIJobNotification<
+  "JobUpdateNotification",
+  T
+>;

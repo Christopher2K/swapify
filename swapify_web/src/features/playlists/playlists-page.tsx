@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { tsr } from "#root/services/api";
 import { useScreenOptions } from "#root/components/app-screen-layout";
@@ -7,8 +7,13 @@ import { VStack } from "#style/jsx";
 
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";
-import { usePlaylistSyncSocket } from "./hooks/use-playlist-sync-socket";
+import {
+  usePlaylistSyncSocket,
+  PlaylistSyncSocketIncomingMessageRecord,
+} from "./hooks/use-playlist-sync-socket";
 import { useAuthenticatedUser } from "../auth/authentication-provider";
+import type { PlaylistStatusState } from "./types/playlist-sync-status-state";
+import { APIPlatformName } from "#root/services/api.types";
 
 export function PlaylistsPage() {
   const { setPageTitle } = useScreenOptions();
@@ -17,11 +22,73 @@ export function PlaylistsPage() {
   // FIXME: this only exist for testing, the UX flow needs to be WAY better
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
   const { addEventListener } = usePlaylistSyncSocket(id);
+  const [playlistStatuses, setPlaylistStatuses] = useState<
+    Record<
+      APIPlatformName,
+      { [playlistId: string]: PlaylistStatusState | undefined }
+    >
+  >({
+    spotify: {},
+    applemusic: {},
+  });
+
+  function updatePlaylistStatus(
+    msg: PlaylistSyncSocketIncomingMessageRecord["status_update"]["payload"],
+  ) {
+    setPlaylistStatuses((state) => {
+      if (msg.name !== "sync_library") return state;
+
+      switch (msg.tag) {
+        case "JobUpdateNotification":
+          return {
+            ...state,
+            [msg.data.platformName]: {
+              ...state[msg.data.platformName],
+              [msg.data.playlistId]: {
+                status: msg.data.status,
+                total: msg.data.tracksTotal,
+                totalSynced: msg.data.syncedTracksTotal,
+              },
+            },
+          };
+        case "JobErrorNotification":
+          return {
+            ...state,
+            [msg.data.platformName]: {
+              ...state[msg.data.platformName],
+              [msg.data.playlistId]: {
+                totalSynced: 0,
+                status: "error",
+              },
+            },
+          };
+      }
+    });
+  }
+
+  function onSynchronizeRequest(
+    platformName: APIPlatformName,
+    playlistId: string,
+  ) {
+    syncLibrary({ params: { platformName } });
+    setPlaylistStatuses((state) => {
+      return {
+        ...state,
+        [platformName]: {
+          ...state[platformName],
+          [playlistId]: {
+            totalSynced: 0,
+            status: "syncing",
+          },
+        },
+      };
+    });
+  }
 
   useEffect(() => setPageTitle("Playlists"), []);
 
   useEffect(
-    () => addEventListener("status_update", console.log),
+    () => addEventListener("status_update", updatePlaylistStatus),
     [addEventListener],
   );
 
@@ -38,9 +105,8 @@ export function PlaylistsPage() {
         </Heading>
         <PlaylistsTable
           playlists={libraries}
-          onSynchronizeItem={(platformName) =>
-            syncLibrary({ params: { platformName } })
-          }
+          playlistStatuses={playlistStatuses}
+          onSynchronizeItem={onSynchronizeRequest}
         />
       </VStack>
 

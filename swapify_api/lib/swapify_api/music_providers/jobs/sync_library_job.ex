@@ -8,12 +8,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   - user_id - ID of the user - Useful for renewing / removing tokens
   - playlist_id - ID of the playlist row to update
   - offset - Offset to start the request
-  - tracks_total -  nil for the first job
   - access_token
   - refresh_token - Optional
-  - total_synchronized_on_success - number of track synced if the job succeed
 
   The `job_id` should be added to the jobs args for the job to work
+
+  On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   require Logger
 
@@ -32,8 +32,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   alias SwapifyApi.MusicProviders.PlaylistRepo
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.MusicProviders.SyncNotification
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
+  alias SwapifyApi.Notifications.JobUpdateNotification
 
   @spotify_limit 50
   @apple_music_limit 100
@@ -59,11 +59,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
     new_status = if has_next?, do: :syncing, else: :synced
     next_offset = offset + platform_limit
 
-    total_tracks_synced_on_success =
-      if next_offset + platform_limit > tracks_total,
-        do: tracks_total,
-        else: next_offset + platform_limit
-
     PlaylistRepo.add_tracks(
       playlist_id,
       tracks,
@@ -76,9 +71,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         with {:ok, _} <-
                (if has_next? do
                   Map.merge(args, %{
-                    "offset" => next_offset,
-                    "tracks_total" => tracks_total,
-                    "total_synchronized_on_success" => total_tracks_synced_on_success
+                    "offset" => next_offset
                   })
                   |> __MODULE__.new()
                   |> Oban.insert()
@@ -90,6 +83,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
             has_next: has_next?,
             total: tracks_total
           )
+
+          {:ok,
+           notification:
+             JobUpdateNotification.new_library_sync_update(
+               playlist_id,
+               platform_name,
+               tracks_total,
+               offset + length(tracks),
+               if(has_next?, do: :syncing, else: :synced)
+             )}
         end
 
       {:error, error} ->
@@ -129,6 +132,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
             })
             |> __MODULE__.new()
             |> Oban.insert()
+
+            {:cancel, :authentication_renewed}
 
           {:error, _} ->
             RemovePartnerIntegration.call(user_id, :spotify)
@@ -184,32 +189,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
       "playlist_id" => playlist_id,
       "access_token" => access_token,
       "refresh_token" => refresh_token,
-      "offset" => 0,
-      "tracks_total" => 0,
-      "total_synchronized_on_success" => 0
+      "offset" => 0
     }
   end
-
-  @doc """
-  Helper to build the sync notification
-  """
-  @spec to_notification(map(), Playlist.sync_status()) :: SyncNotification.t()
-  def to_notification(
-        %{
-          "playlist_id" => playlist_id,
-          "platform_name" => platform_name,
-          "tracks_total" => tracks_total,
-          "total_synchronized_on_success" => synced_tracks_total
-        },
-        status
-      ),
-      do: %SyncNotification{
-        playlist_id: playlist_id,
-        platform_name: platform_name,
-        tracks_total: tracks_total,
-        synced_tracks_total: synced_tracks_total,
-        status: status
-      }
 
   @impl Oban.Worker
   def perform(%Oban.Job{

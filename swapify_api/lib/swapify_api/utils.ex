@@ -18,4 +18,7 @@ defmodule SwapifyApi.Utils do
     do:
       req_options
       |> Keyword.merge(Application.fetch_env!(:swapify_api, :http_client_opts))
+
+  def struct_to_json(s),
+    do: Map.from_struct(s) |> Recase.Enumerable.convert_keys(&Recase.to_camel/1)
 end
