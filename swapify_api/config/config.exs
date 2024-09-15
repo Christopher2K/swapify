@@ -48,7 +48,7 @@ config :phoenix, :json_library, Jason
 
 config :swapify_api, Oban,
   engine: Oban.Engines.Basic,
-  queues: [sync_library: 50, sync_platform: 50],
+  queues: [sync_library: 50, sync_platform: 50, search_track: 100],
   repo: SwapifyApi.Repo
 
 # Import environment specific config. This must remain at the bottom

@@ -7,6 +7,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
 
   @api_url "https://api.music.apple.com/v1"
   @default_resource_limit 100
+  @default_storefront "us"
 
   defp get_api_url("/" <> _ = path, query_params) do
     uri = URI.parse(@api_url <> path)
@@ -68,6 +69,41 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
       {:error, exception} ->
         Logger.debug("service error: get_user_library/3", error: exception)
         {:error, :service_error}
+    end
+  end
+
+  @spec search_tracks(String.t(), String.t(), list(String.t())) ::
+          {:ok, map(), Req.Response.t()}
+          | {:error, pos_integer(), Req.Response.t()}
+          | {:error, any()}
+  def search_tracks(developer_token, user_token, track_isrc_list) do
+    uri =
+      get_api_url(
+        "/catalog/#{@default_storefront}/songs",
+        [{"filter[isrc]", Enum.join(track_isrc_list, ",")}]
+      )
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{
+          "Authorization" => "Bearer #{developer_token}",
+          "Music-User-Token" => user_token
+        }
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        {:ok, response.body, response}
+
+      {:ok, response} ->
+        {:error, response.status, response}
+
+      error ->
+        error
     end
   end
 end

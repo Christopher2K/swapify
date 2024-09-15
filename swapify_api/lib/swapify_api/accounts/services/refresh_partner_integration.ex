@@ -21,7 +21,7 @@ defmodule SwapifyApi.Accounts.Services.RefreshPartnerIntegration do
            }) do
       {:ok, updated_pc}
     else
-      {:error, _} ->
+      _ ->
         RemovePartnerIntegration.call(user_id, name)
         {:error, :service_error}
     end

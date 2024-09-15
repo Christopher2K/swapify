@@ -36,6 +36,29 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     |> URI.to_string()
   end
 
+  defp handle_api_error(result, uri) do
+    case result do
+      {:ok, %Req.Response{} = response} ->
+        Logger.error("API Service error",
+          service: "spotify",
+          uri: uri,
+          status: response.status,
+          response: response.body
+        )
+
+        {:error, response.status, response}
+
+      {:error, exception} ->
+        Logger.error("Failed to call an API",
+          service: "spotify",
+          uri: uri,
+          error: exception
+        )
+
+        {:error, :service_error}
+    end
+  end
+
   ## AUTH FUNCTIONS
   @spec generate_auth_url(String.t()) :: String.t()
   def generate_auth_url(state) do
@@ -88,12 +111,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
         result = response.body |> Oauth.AccessToken.from_map()
         {:ok, result}
 
-      {:ok, %Req.Response{} = response} ->
-        {:error, response}
-
-      {:error, exception} ->
-        Logger.error(exception)
-        {:error, :service_error}
+      _ ->
+        handle_api_error(result, uri)
     end
   end
 
@@ -130,24 +149,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
         {:ok, result}
 
-      {:ok, response} ->
-        Logger.error("Failed to call an API",
-          service: "spotify",
-          uri: uri,
-          status: response.status,
-          response: response.body
-        )
-
-        {:error, response}
-
-      {:error, exception} ->
-        Logger.error("Failed to call an API",
-          service: "spotify",
-          uri: uri,
-          error: exception
-        )
-
-        {:error, :service_error}
+      _ ->
+        handle_api_error(result, uri)
     end
   end
 
@@ -188,24 +191,41 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
         {:ok, tracks, response}
 
-      {:ok, %Req.Response{} = response} ->
-        Logger.error("API Service error",
-          service: "spotify",
-          uri: uri,
-          status: response.status,
-          response: response.body
-        )
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
 
-        {:error, response.status, response}
+  @spec search_track(String.t(), String.t()) ::
+          {:ok, map(), Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def search_track(token, track_isrc) do
+    uri =
+      get_api_url("/search", [
+        {"offset", "0"},
+        {"limit", "1"},
+        {"type", "track"},
+        {"q", "isrc:#{track_isrc}"}
+      ])
 
-      {:error, exception} ->
-        Logger.error("Failed to call an API",
-          service: "spotify",
-          uri: uri,
-          error: exception
-        )
+    Logger.debug("Call API", service: "spotify", uri: uri)
 
-        {:error, :service_error}
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{"authorization" => "Bearer #{token}"}
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        {:ok, response.body["tracks"]["items"], response}
+
+      _ ->
+        handle_api_error(result, uri)
     end
   end
 end

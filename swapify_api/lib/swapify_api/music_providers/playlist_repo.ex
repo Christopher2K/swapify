@@ -138,4 +138,41 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
+
+  @doc """
+  Get a specific track by its index
+  """
+  @spec get_playlist_track_by_index(String.t(), pos_integer()) ::
+          {:ok, Track.t()} | {:error, :not_found}
+  def get_playlist_track_by_index(playlist_id, index) do
+    Playlist.queryable()
+    |> Playlist.filter_by(:id, playlist_id)
+    |> select([playlist: p], fragment("?[?]", p.tracks, ^Integer.to_string(index)))
+    |> Repo.one()
+    |> case do
+      nil ->
+        {:error, :not_found}
+
+      track ->
+        {:ok, Map.merge(%Track{}, Recase.Enumerable.atomize_keys(track))}
+    end
+  end
+
+  @doc """
+  Get a specific subset of tracks
+  """
+  @spec get_playlist_tracks(String.t(), pos_integer(), pos_integer()) ::
+          {:ok, list(Track.t())}
+  def get_playlist_tracks(playlist_id, offset, limit) do
+    {:ok,
+     Playlist.queryable()
+     |> Playlist.filter_by(:id, playlist_id)
+     |> select([playlist: p], fragment("jsonb_array_elements(?)", p.tracks))
+     |> offset(^offset)
+     |> limit(^limit)
+     |> Repo.all()
+     |> Enum.map(fn track ->
+       Map.merge(%Track{}, Recase.Enumerable.atomize_keys(track))
+     end)}
+  end
 end

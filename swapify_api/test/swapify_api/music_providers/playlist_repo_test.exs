@@ -1,4 +1,5 @@
 defmodule SwapifyApi.PlaylistRepoTest do
+  alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.MusicProviders.Playlist
   use SwapifyApi.DataCase
 
@@ -124,6 +125,64 @@ defmodule SwapifyApi.PlaylistRepoTest do
 
       assert {:ok, %Playlist{} = p} = PlaylistRepo.update_status(playlist.id, :error)
       assert p.sync_status == :error
+    end
+  end
+
+  describe "get_playlist_track_by_index/2" do
+    setup do
+      user = user_fixture()
+      tracks = for _ <- 1..10, do: track_fixture()
+
+      playlist =
+        playlist_fixture(%{
+          user_id: user.id,
+          tracks: tracks,
+          platform_name: :spotify,
+          platform_id: "custom_id"
+        })
+
+      {:ok, playlist: playlist, tracks: tracks}
+    end
+
+    test "it should return the correct track by its index", %{playlist: playlist, tracks: tracks} do
+      assert {:ok, %Track{}} = PlaylistRepo.get_playlist_track_by_index(playlist.id, 0)
+    end
+
+    test "it should return the not found tuple if the track was not found", %{
+      playlist: playlist,
+      tracks: tracks
+    } do
+      assert {:error, :not_found} = PlaylistRepo.get_playlist_track_by_index(playlist.id, 1000)
+    end
+  end
+
+  describe "get_playlist_tracks/3" do
+    setup do
+      user = user_fixture()
+      tracks = for _ <- 1..10, do: track_fixture()
+
+      playlist =
+        playlist_fixture(%{
+          user_id: user.id,
+          tracks: tracks,
+          platform_name: :spotify,
+          platform_id: "custom_id"
+        })
+
+      {:ok, playlist: playlist, tracks: tracks}
+    end
+
+    test "it should return the 3 first tracks", %{playlist: playlist, tracks: tracks} do
+      assert {:ok, result} = PlaylistRepo.get_playlist_tracks(playlist.id, 0, 3)
+      assert length(result) == 3
+    end
+
+    test "it should return an empty array when offset/limit combo of out of bounds", %{
+      playlist: playlist,
+      tracks: tracks
+    } do
+      assert {:ok, result} = PlaylistRepo.get_playlist_tracks(playlist.id, 1000, 1000)
+      assert length(result) == 0
     end
   end
 end
