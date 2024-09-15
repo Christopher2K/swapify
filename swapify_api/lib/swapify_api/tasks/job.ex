@@ -1,9 +1,6 @@
 defmodule SwapifyApi.Tasks.Job do
   use SwapifyApi.Schema
 
-  import Ecto.Changeset
-  import Ecto.Query
-
   alias SwapifyApi.Accounts.User
 
   @type job_status :: :started | :done | :error

@@ -1,8 +1,6 @@
 defmodule SwapifyApi.Accounts.PlatformConnection do
   use SwapifyApi.Schema
 
-  import Ecto.Query
-
   alias SwapifyApi.Accounts.User
 
   @type platform_name :: :spotify | :applemusic

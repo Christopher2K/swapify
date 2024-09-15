@@ -1,8 +1,6 @@
 defmodule SwapifyApi.Accounts.User do
   use SwapifyApi.Schema, query_name: "user"
 
-  import Ecto.Query
-
   alias SwapifyApi.Accounts.PlatformConnection
 
   @type t :: %__MODULE__{

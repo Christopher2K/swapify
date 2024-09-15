@@ -4,8 +4,6 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   require Logger
   use SwapifyApi.Schema
 
-  import Ecto.Query
-
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.MusicProviders.Track
