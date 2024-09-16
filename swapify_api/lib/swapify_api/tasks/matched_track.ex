@@ -1,8 +1,16 @@
 defmodule SwapifyApi.Tasks.MatchedTrack do
   @moduledoc "Business representation of a track found on another platform during a transfer"
+  @derive Jason.Encoder
+
   use Ecto.Schema
 
   import Ecto.Changeset
+
+  @type t :: %__MODULE__{
+          isrc: String.t(),
+          platform_id: String.t(),
+          platform_link: String.t()
+        }
 
   embedded_schema do
     field :isrc, :string

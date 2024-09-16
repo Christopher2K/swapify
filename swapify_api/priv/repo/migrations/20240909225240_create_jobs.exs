@@ -14,7 +14,7 @@ defmodule SwapifyApi.Repo.Migrations.CreateJobs do
             """
 
     create table(:jobs, primary_key: false) do
-      add :id, :binary_id, primary_key: true
+      add :id, :binary_id, primary_key: true, default: fragment("gen_random_uuid()")
       add :name, :string, null: false
       add :status, :job_status, null: false, default: "started"
       add :oban_job_args, :jsonb, null: false
