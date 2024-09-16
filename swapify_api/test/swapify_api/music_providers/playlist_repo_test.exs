@@ -32,10 +32,10 @@ defmodule SwapifyApi.PlaylistRepoTest do
       base_tracks = for _ <- 1..3, do: track_fixture()
 
       playlist_fixture(%{
-        user_id: user.id,
-        tracks: base_tracks,
-        platform_name: :spotify,
-        platform_id: "custom_id"
+        "user_id" => user.id,
+        "tracks" => base_tracks,
+        "platform_name" => :spotify,
+        "platform_id" => "custom_id"
       })
 
       assert {:ok, %Playlist{tracks_total: 1000, name: "updated playlist", sync_status: :synced}} =
@@ -64,10 +64,10 @@ defmodule SwapifyApi.PlaylistRepoTest do
 
       playlist =
         playlist_fixture(%{
-          user_id: user.id,
-          tracks: base_tracks,
-          platform_name: :spotify,
-          platform_id: "custom_id"
+          "user_id" => user.id,
+          "tracks" => base_tracks,
+          "platform_name" => :spotify,
+          "platform_id" => "custom_id"
         })
 
       assert {:ok, %Playlist{} = p} =
@@ -90,10 +90,10 @@ defmodule SwapifyApi.PlaylistRepoTest do
 
       playlist =
         playlist_fixture(%{
-          user_id: user.id,
-          tracks: base_tracks,
-          platform_name: :spotify,
-          platform_id: "custom_id"
+          "user_id" => user.id,
+          "tracks" => base_tracks,
+          "platform_name" => :spotify,
+          "platform_id" => "custom_id"
         })
 
       assert {:ok, %Playlist{} = p} =
@@ -119,8 +119,8 @@ defmodule SwapifyApi.PlaylistRepoTest do
     } do
       playlist =
         playlist_fixture(%{
-          user_id: user.id,
-          sync_status: :synced
+          "user_id" => user.id,
+          "sync_status" => :synced
         })
 
       assert {:ok, %Playlist{} = p} = PlaylistRepo.update_status(playlist.id, :error)
@@ -135,10 +135,10 @@ defmodule SwapifyApi.PlaylistRepoTest do
 
       playlist =
         playlist_fixture(%{
-          user_id: user.id,
-          tracks: tracks,
-          platform_name: :spotify,
-          platform_id: "custom_id"
+          "user_id" => user.id,
+          "tracks" => tracks,
+          "platform_name" => :spotify,
+          "platform_id" => "custom_id"
         })
 
       {:ok, playlist: playlist, tracks: tracks}
@@ -163,10 +163,10 @@ defmodule SwapifyApi.PlaylistRepoTest do
 
       playlist =
         playlist_fixture(%{
-          user_id: user.id,
-          tracks: tracks,
-          platform_name: :spotify,
-          platform_id: "custom_id"
+          "user_id" => user.id,
+          "tracks" => tracks,
+          "platform_name" => :spotify,
+          "platform_id" => "custom_id"
         })
 
       {:ok, playlist: playlist, tracks: tracks}

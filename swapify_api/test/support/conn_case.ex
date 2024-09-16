@@ -42,7 +42,16 @@ defmodule SwapifyApiWeb.ConnCase do
 
       conn =
         Phoenix.ConnTest.build_conn()
-        |> Plug.Conn.put_req_header("authorization", "Bearer " <> access)
+        |> Plug.Session.call(
+          Plug.Session.init(
+            store: :cookie,
+            key: "_swapify_api_key",
+            signing_salt: "zNobAVSf",
+            same_site: "Lax"
+          )
+        )
+        |> Plug.Conn.fetch_session()
+        |> Plug.Conn.put_session(:access_token, access)
 
       {:ok, conn: conn, access_token: access, refresh_token: refresh, user: user}
     else

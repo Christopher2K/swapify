@@ -5,16 +5,18 @@ defmodule SwapifyApi.MusicProvidersFixtures do
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Track
 
+  import SwapifyApi.ValuesFixtures
+
   def playlist_fixture(attrs \\ %{}) do
     attrs =
       attrs
       |> Enum.into(%{
-        user_id: Faker.UUID.v4(),
-        name: Faker.Internet.user_name(),
-        platform_name: "spotify",
-        platform_id: Faker.UUID.v4(),
-        tracks_total: 0,
-        sync_status: :syncing
+        "user_id" => Faker.UUID.v4(),
+        "name" => Faker.Internet.user_name(),
+        "platform_name" => random_platform_name(),
+        "platform_id" => Faker.UUID.v4(),
+        "tracks_total" => 0,
+        "sync_status" => random_playlist_status()
       })
 
     {:ok, playlist} =
