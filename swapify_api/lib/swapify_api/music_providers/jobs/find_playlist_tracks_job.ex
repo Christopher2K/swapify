@@ -3,6 +3,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   Find for all the tracks in a given playlist
   user_id - User starting the search
   playlist_id - The id we should use to look for the track
+  transfer_id - the transfer this find job belongs to and must update
   offset - The current track to look for in the playlist
   target_platform - The platform to look up the track on
   unsaved_tracks - The tracks that are waiting to be saved in the DB
@@ -11,6 +12,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   """
 
   require Logger
+  alias SwapifyApi.Tasks.TransferRepo
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
@@ -19,16 +21,39 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
+  alias SwapifyApi.Tasks.MatchedTrack
 
   use Oban.Worker,
     queue: :search_track,
     max_attempts: 6
+
+  @unsaved_threshold 50
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
   defp handle_error({:error, 427, _response}), do: {:error, :rate_limit}
 
   defp handle_error({:error, _, _}), do: {:error, :http_error}
+
+  defp process_match_results(matched_tracks, transfer_id, should_force_update? \\ false) do
+    should_update? = should_force_update? || length(matched_tracks) >= @unsaved_threshold
+
+    if should_update? do
+      with mt_list <-
+             Enum.map(matched_tracks, fn mt ->
+               %MatchedTrack{
+                 isrc: mt["isrc"],
+                 platform_id: mt["platform_id"],
+                 platform_link: mt["platform_link"]
+               }
+             end),
+           {:ok, _} = TransferRepo.add_matched_tracks(transfer_id, mt_list) do
+        {:ok, []}
+      end
+    else
+      {:ok, matched_tracks}
+    end
+  end
 
   def search_track(
         "spotify",
@@ -38,7 +63,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           "offset" => offset,
           "unsaved_tracks" => unsaved_tracks,
           "access_token" => access_token,
-          "refresh_token" => refresh_token
+          "refresh_token" => refresh_token,
+          "transfer_id" => transfer_id
         } = args
       ) do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
@@ -49,28 +75,34 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         |> Oban.insert()
 
       {:ok, %Track{isrc: isrc}} ->
-        # 3. If it does exist, make a request to the corresponding platform API
         case Spotify.search_track(access_token, isrc) do
-          {:ok, data, _} ->
+          {:ok, [match_result | _], _} ->
+            dbg(match_result)
+
             updated_unsaved_tracks =
-              case data do
-                [raw_track] ->
-                  [
-                    %{
-                      "target_platform_id" => raw_track["id"],
-                      "isrc" => isrc
-                    }
-                    | unsaved_tracks
-                  ]
+              [
+                %{
+                  "platform_link" => match_result["href"],
+                  "platform_id" => match_result["id"],
+                  "isrc" => isrc
+                }
+                | unsaved_tracks
+              ]
+              |> process_match_results(transfer_id)
 
-                _ ->
-                  unsaved_tracks
-              end
+            with {:ok, tracks} <- updated_unsaved_tracks do
+              Map.merge(args, %{
+                "offset" => offset + 1,
+                "unsaved_tracks" => tracks
+              })
+              |> __MODULE__.new()
+              |> Oban.insert()
+            end
 
-            # TODO: 4. If we reach a thresold, save in the DB and start the new job with the next offset with an empty array
-            # TODO: 5. If not, add the item to the array and proceed to the next job
-
-            Map.merge(args, %{"offset" => offset + 1, "unsaved_tracks" => updated_unsaved_tracks})
+          {:ok, [], _} ->
+            Map.merge(args, %{
+              "offset" => offset + 1
+            })
             |> __MODULE__.new()
             |> Oban.insert()
 
@@ -98,8 +130,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         end
 
       {:error, :not_found} ->
-        # 2. If not exisiting, the job is done, save what we have in the array
-        :ok
+        process_match_results(unsaved_tracks, transfer_id, true)
     end
   end
 
@@ -110,15 +141,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           "offset" => offset,
           "unsaved_tracks" => unsaved_tracks,
           "access_token" => access_token,
-          "user_id" => user_id
+          "user_id" => user_id,
+          "transfer_id" => transfer_id
         } = args
       ) do
     search_limit = 25
 
     case PlaylistRepo.get_playlist_tracks(playlist_id, offset, search_limit) do
       {:ok, []} ->
-        # Save the remaining tracks
-        :ok
+        process_match_results(unsaved_tracks, transfer_id, true)
 
       {:ok, track_list} ->
         developer_token = AppleMusicTokenWorker.get()
@@ -139,7 +170,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                     [track_match | _] ->
                       [
                         %{
-                          "target_platform_id" => track_match["id"],
+                          "platform_link" => track_match["href"],
+                          "platform_id" => track_match["id"],
                           "isrc" => isrc
                         }
                         | acc
@@ -151,15 +183,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                 end)
               )
 
-            # TODO: 4. If we reach a thresold, save in the DB and start the new job with the next offset with an empty array
-            # TODO: 5. If not, add the item to the array and proceed to the next job
-
-            Map.merge(args, %{
-              "offset" => offset + search_limit,
-              "unsaved_tracks" => updated_unsaved_tracks
-            })
-            |> __MODULE__.new()
-            |> Oban.insert()
+            with {:ok, updated_unsaved_tracks} <-
+                   process_match_results(updated_unsaved_tracks, transfer_id) do
+              Map.merge(args, %{
+                "offset" => offset + search_limit,
+                "unsaved_tracks" => updated_unsaved_tracks
+              })
+              |> __MODULE__.new()
+              |> Oban.insert()
+            end
 
           {:error, 401, _} ->
             RemovePartnerIntegration.call(user_id, :spotify)
@@ -168,21 +200,25 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           error ->
             handle_error(error)
         end
-
-      {:error, :not_found} ->
-        # 2. If not exisiting, the job is done, save what we have in the array
-        :ok
     end
   end
 
   @doc """
   Helper to build the base args map
   """
-  @spec args(String.t(), Playlist.platform_name(), String.t(), String.t(), String.t() | nil) ::
+  @spec args(
+          String.t(),
+          Playlist.platform_name(),
+          String.t(),
+          String.t(),
+          String.t(),
+          String.t() | nil
+        ) ::
           map()
   def args(
         playlist_id,
         target_platform,
+        transfer_id,
         user_id,
         access_token,
         refresh_token \\ nil
@@ -191,6 +227,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       "target_platform" => target_platform,
       "user_id" => user_id,
       "playlist_id" => playlist_id,
+      "transfer_id" => transfer_id,
       "access_token" => access_token,
       "refresh_token" => refresh_token,
       "offset" => 0,
