@@ -2,10 +2,10 @@ defmodule SwapifyApi.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
-  require Logger
+  alias SwapifyApi.Tasks.TaskEventHandler
 
-  alias SwapifyApi.MusicProviders.Jobs.SyncLibraryJobEvents
-  alias SwapifyApi.MusicProviders.Jobs.SyncPlatformJobEvents
+  require Logger
+  require TaskEventHandler
 
   use Application
 
@@ -46,35 +46,7 @@ defmodule SwapifyApi.Application do
     # Careful are this thing will literally LEAK some secrets
     # :ok = Oban.Telemetry.attach_default_logger()
 
-    :ok = setup_oban_job_telemetry("sync_library", &SyncLibraryJobEvents.handle_event/4)
-    :ok = setup_oban_job_telemetry("sync_platform", &SyncPlatformJobEvents.handle_event/4)
-
-    :ok
-  end
-
-  defp setup_oban_job_telemetry(job_name, callback) do
-    with :ok <-
-           :telemetry.attach(
-             "#{job_name}-oban-job-started",
-             [:oban, :job, :start],
-             callback,
-             []
-           ),
-         :ok <-
-           :telemetry.attach(
-             "#{job_name}-oban-job-stop",
-             [:oban, :job, :stop],
-             callback,
-             []
-           ),
-         :ok <-
-           :telemetry.attach(
-             "#{job_name}-oban-job-exceptions",
-             [:oban, :job, :exception],
-             callback,
-             []
-           ) do
-      :ok
-    end
+    :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.SyncPlatformJob")
+    :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.SyncLibraryJob")
   end
 end

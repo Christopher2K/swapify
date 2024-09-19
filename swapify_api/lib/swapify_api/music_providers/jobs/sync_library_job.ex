@@ -15,6 +15,22 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
+  alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
+  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
+  alias SwapifyApi.MusicProviders.AppleMusic
+  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
+  alias SwapifyApi.MusicProviders.Playlist
+  alias SwapifyApi.MusicProviders.PlaylistRepo
+  alias SwapifyApi.MusicProviders.Services.MarkPlaylistTransferAsFailed
+  alias SwapifyApi.MusicProviders.Spotify
+  alias SwapifyApi.Notifications.JobErrorNotification
+  alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
+  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Utils
+  alias SwapifyApiWeb.PlaylistSyncChannel
+
   require Logger
 
   use Oban.Worker,
@@ -25,15 +41,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
       states: [:available, :scheduled, :executing, :retryable]
     ]
 
-  alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
-  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
-  alias SwapifyApi.MusicProviders.AppleMusic
-  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
-  alias SwapifyApi.MusicProviders.PlaylistRepo
-  alias SwapifyApi.MusicProviders.Playlist
-  alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.Tasks.Services.UpdateJobStatus
-  alias SwapifyApi.Notifications.JobUpdateNotification
+  use TaskEventHandler, job_module: Utils.get_module_name(__MODULE__)
 
   @spotify_limit 50
   @apple_music_limit 100
@@ -198,5 +206,81 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         args: args
       }) do
     fetch_tracks(args)
+  end
+
+  # EVENT HANDLERS
+
+  handle :started do
+    Logger.info("Sync Library job started",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :success do
+    {:ok, notification: notification} = result
+
+    PlaylistSyncChannel.broadcast_sync_progress(
+      job_args["user_id"],
+      notification
+    )
+
+    Logger.info("Sync Library job finished",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :error do
+    Logger.info("Sync Library job error",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :failure do
+    handle_playlist_sync_error(job_args)
+
+    Logger.info("Sync Library job failure (max attempt exceeded)",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :cancelled do
+    handle_playlist_sync_error(job_args)
+
+    Logger.info("Sync Library job cancelled",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :catch_all do
+    :ok
+  end
+
+  defp handle_playlist_sync_error(%{
+         "user_id" => user_id,
+         "playlist_id" => playlist_id,
+         "job_id" => job_id,
+         "platform_name" => platform_name
+       }) do
+    PlaylistSyncChannel.broadcast_sync_progress(
+      user_id,
+      JobErrorNotification.new_library_sync_error(
+        playlist_id,
+        platform_name
+      )
+    )
+
+    Task.await_many([
+      Task.async(fn ->
+        MarkPlaylistTransferAsFailed.call(playlist_id)
+      end),
+      Task.async(fn ->
+        UpdateJobStatus.call(job_id, :error)
+      end)
+    ])
   end
 end

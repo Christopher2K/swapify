@@ -11,16 +11,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   The `job_id` should be added to the jobs args for the job to work
   """
-  require Logger
-
-  use Oban.Worker,
-    queue: :sync_platform,
-    max_attempts: 6,
-    unique: [
-      keys: [:platform_name, :user_id, :access_token],
-      states: [:available, :scheduled, :executing, :retryable]
-    ]
-
+  alias SwapifyApi.Utils
   alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
   alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
   alias SwapifyApi.MusicProviders.Services.SyncPlaylistMetadata
@@ -29,6 +20,19 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
+  alias SwapifyApi.Tasks.TaskEventHandler
+
+  require Logger
+
+  use Oban.Worker,
+    queue: :sync_platform,
+    max_attempts: 2,
+    unique: [
+      keys: [:platform_name, :user_id, :access_token],
+      states: [:available, :scheduled, :executing, :retryable]
+    ]
+
+  use TaskEventHandler, job_module: Utils.get_module_name(__MODULE__)
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
@@ -151,4 +155,49 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   #         } = args
   #     }) do
   # end
+
+  # EVENTS HANDLER
+
+  handle :started do
+    Logger.info("Sync Platform job started",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :cancelled do
+    Logger.info("Sync Platform cancelled",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+
+    UpdateJobStatus.call(job_args["job_id"], :error)
+  end
+
+  handle :success do
+    Logger.info("Sync Platform job finished",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :failure do
+    Logger.info("Sync Platform job failure(max attempt exceeded)",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+
+    UpdateJobStatus.call(job_args["job_id"], :error)
+  end
+
+  handle :error do
+    Logger.info("Sync Library job error",
+      user_id: job_args["user_id"],
+      service: job_args["service"]
+    )
+  end
+
+  handle :catch_all do
+    :ok
+  end
 end

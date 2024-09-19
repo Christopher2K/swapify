@@ -21,4 +21,16 @@ defmodule SwapifyApi.Utils do
 
   def struct_to_json(s),
     do: Map.from_struct(s) |> Recase.Enumerable.convert_keys(&Recase.to_camel/1)
+
+  @spec get_module_name(atom()) :: String.t()
+  def get_module_name(module_name) do
+    module_name
+    |> Atom.to_string()
+    |> String.split(".")
+    |> case do
+      ["Elixir" | rest] -> rest
+      fragments -> fragments
+    end
+    |> Enum.join(".")
+  end
 end
