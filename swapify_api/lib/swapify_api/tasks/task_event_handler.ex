@@ -28,7 +28,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
             %{job: %{worker: @jobname, args: var!(job_args)}},
             _
           ) do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end
@@ -46,7 +48,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
             _
           )
           when state != :cancelled do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end
@@ -62,7 +66,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
             },
             _
           ) do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end
@@ -78,7 +84,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
             _
           )
           when job.attempt == job.max_attempts do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end
@@ -92,7 +100,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
             _
           )
           when job.attempt < job.max_attempts do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end
@@ -100,7 +110,9 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
   defmacro handle(:catch_all, do: block) do
     quote do
       def handle_event(_, _, _, _) do
-        unquote(block)
+        Task.start(fn ->
+          unquote(block)
+        end)
       end
     end
   end

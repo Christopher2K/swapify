@@ -2,7 +2,7 @@ defmodule SwapifyApi.Tasks.Transfer do
   @moduledoc "Business a representation of a playlist transfer"
   use SwapifyApi.Schema
 
-  alias Hex.API.User
+  alias SwapifyApi.Accounts.User
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Tasks.Job

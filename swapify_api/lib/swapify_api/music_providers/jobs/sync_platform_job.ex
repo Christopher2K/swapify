@@ -161,14 +161,14 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   handle :started do
     Logger.info("Sync Platform job started",
       user_id: job_args["user_id"],
-      service: job_args["service"]
+      service: job_args["platform_name"]
     )
   end
 
   handle :cancelled do
     Logger.info("Sync Platform cancelled",
       user_id: job_args["user_id"],
-      service: job_args["service"]
+      service: job_args["platform_name"]
     )
 
     UpdateJobStatus.call(job_args["job_id"], :error)
@@ -177,14 +177,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   handle :success do
     Logger.info("Sync Platform job finished",
       user_id: job_args["user_id"],
-      service: job_args["service"]
+      service: job_args["platform_name"],
+      result: inspect(result)
     )
   end
 
   handle :failure do
     Logger.info("Sync Platform job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
-      service: job_args["service"]
+      service: job_args["platform_name"]
     )
 
     UpdateJobStatus.call(job_args["job_id"], :error)
@@ -193,7 +194,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   handle :error do
     Logger.info("Sync Library job error",
       user_id: job_args["user_id"],
-      service: job_args["service"]
+      service: job_args["platform_name"]
     )
   end
 

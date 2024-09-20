@@ -10,8 +10,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   access_token - Access token to reach the search service
   refresh_token (optional)
   """
-
-  require Logger
+  alias SwapifyApi.Utils
   alias SwapifyApi.Tasks.TransferRepo
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.Playlist
@@ -22,10 +21,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Tasks.Services.UpdateJobStatus
+
+  require Logger
 
   use Oban.Worker,
-    queue: :search_track,
+    queue: :search_tracks,
     max_attempts: 6
+
+  use TaskEventHandler, job_module: Utils.get_module_name(__MODULE__)
 
   @unsaved_threshold 50
 
@@ -64,7 +69,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           "unsaved_tracks" => unsaved_tracks,
           "access_token" => access_token,
           "refresh_token" => refresh_token,
-          "transfer_id" => transfer_id
+          "transfer_id" => transfer_id,
+          "job_id" => job_id
         } = args
       ) do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
@@ -77,8 +83,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:ok, %Track{isrc: isrc}} ->
         case Spotify.search_track(access_token, isrc) do
           {:ok, [match_result | _], _} ->
-            dbg(match_result)
-
             updated_unsaved_tracks =
               [
                 %{
@@ -131,6 +135,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
       {:error, :not_found} ->
         process_match_results(unsaved_tracks, transfer_id, true)
+
+        UpdateJobStatus.call(job_id, :done)
     end
   end
 
@@ -142,7 +148,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           "unsaved_tracks" => unsaved_tracks,
           "access_token" => access_token,
           "user_id" => user_id,
-          "transfer_id" => transfer_id
+          "transfer_id" => transfer_id,
+          "job_id" => job_id
         } = args
       ) do
     search_limit = 25
@@ -150,6 +157,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     case PlaylistRepo.get_playlist_tracks(playlist_id, offset, search_limit) do
       {:ok, []} ->
         process_match_results(unsaved_tracks, transfer_id, true)
+
+        UpdateJobStatus.call(job_id, :done)
 
       {:ok, track_list} ->
         developer_token = AppleMusicTokenWorker.get()
@@ -240,5 +249,48 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         args: args
       }) do
     search_track(args["target_platform"], args)
+  end
+
+  handle :started do
+    Logger.info("FindPlaylistTracks job started",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+  end
+
+  handle :cancelled do
+    Logger.info("FindPlaylistTracks job cancelled",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+
+    UpdateJobStatus.call(job_args["job_id"], :error)
+  end
+
+  handle :success do
+    Logger.info("FindPlaylistTracks job finished",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+  end
+
+  handle :failure do
+    Logger.info("FindPlaylistTracks job failure(max attempt exceeded)",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+
+    UpdateJobStatus.call(job_args["job_id"], :error)
+  end
+
+  handle :error do
+    Logger.info("FindPlaylistTracks job error",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+  end
+
+  handle :catch_all do
+    :ok
   end
 end
