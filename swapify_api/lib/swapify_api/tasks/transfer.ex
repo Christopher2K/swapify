@@ -24,6 +24,8 @@ defmodule SwapifyApi.Tasks.Transfer do
           updated_at: DateTime.t()
         }
 
+  @type transfer_step :: :matching | :pre_transfer | :transfer
+
   schema "transfers" do
     field :destination, Ecto.Enum, values: [:spotify, :applemusic]
 
@@ -66,4 +68,73 @@ defmodule SwapifyApi.Tasks.Transfer do
 
   def order_asc(queryable, :inserted_at),
     do: queryable |> order_by(asc: :inserted_at)
+
+  def include(queryable, :matching_job),
+    do:
+      queryable
+      |> join(
+        :left,
+        [transfer: t],
+        matching_job in Job,
+        on: t.matching_step_job_id == matching_job.id,
+        as: :matching_job
+      )
+
+  def include(queryable, :pre_transfer_job),
+    do:
+      queryable
+      |> join(
+        :left,
+        [transfer: t],
+        pre_transfer_job in Job,
+        on: t.pre_transfer_step_job_id == pre_transfer_job.id,
+        as: :pre_transfer_job
+      )
+
+  def include(queryable, :transfer_job),
+    do:
+      queryable
+      |> join(
+        :left,
+        [transfer: t],
+        transfer_job in Job,
+        on: t.transfer_step_job_id == transfer_job.id,
+        as: :transfer_job
+      )
+
+  def step(queryable, :matching, job_status),
+    do:
+      queryable
+      |> where(
+        [transfer: t, matching_job: mj],
+        not is_nil(t.matching_step_job_id) and
+          mj.status == ^job_status and
+          is_nil(t.pre_transfer_step_job_id) and
+          is_nil(t.transfer_step_job_id)
+      )
+
+  def step(queryable, :pre_transfer, job_status),
+    do:
+      queryable
+      |> where(
+        [transfer: t, matching_job: mj, pre_transfer_job: ptj],
+        not is_nil(t.matching_step_job_id) and
+          mj.status == :done and
+          not is_nil(t.pre_transfer_step_job_id) and
+          ptj.status == ^job_status and
+          is_nil(t.transfer_step_job_id)
+      )
+
+  def step(queryable, :transfer, job_status),
+    do:
+      queryable
+      |> where(
+        [transfer: t, matching_job: mj, pre_transfer_job: ptj, transfer_job: tj],
+        not is_nil(t.matching_step_job_id) and
+          mj.status == :done and
+          not is_nil(t.pre_transfer_step_job_id) and
+          ptj.status == :done and
+          not is_nil(t.transfer_step_job_id) and
+          tj.status == ^job_status
+      )
 end

@@ -144,13 +144,12 @@ defmodule SwapifyApi.PlaylistRepoTest do
       {:ok, playlist: playlist, tracks: tracks}
     end
 
-    test "it should return the correct track by its index", %{playlist: playlist, tracks: tracks} do
+    test "it should return the correct track by its index", %{playlist: playlist} do
       assert {:ok, %Track{}} = PlaylistRepo.get_playlist_track_by_index(playlist.id, 0)
     end
 
     test "it should return the not found tuple if the track was not found", %{
-      playlist: playlist,
-      tracks: tracks
+      playlist: playlist
     } do
       assert {:error, :not_found} = PlaylistRepo.get_playlist_track_by_index(playlist.id, 1000)
     end
@@ -172,14 +171,13 @@ defmodule SwapifyApi.PlaylistRepoTest do
       {:ok, playlist: playlist, tracks: tracks}
     end
 
-    test "it should return the 3 first tracks", %{playlist: playlist, tracks: tracks} do
+    test "it should return the 3 first tracks", %{playlist: playlist} do
       assert {:ok, result} = PlaylistRepo.get_playlist_tracks(playlist.id, 0, 3)
       assert length(result) == 3
     end
 
     test "it should return an empty array when offset/limit combo of out of bounds", %{
-      playlist: playlist,
-      tracks: tracks
+      playlist: playlist
     } do
       assert {:ok, result} = PlaylistRepo.get_playlist_tracks(playlist.id, 1000, 1000)
       assert length(result) == 0

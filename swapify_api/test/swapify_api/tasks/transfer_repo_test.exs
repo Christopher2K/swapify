@@ -7,7 +7,6 @@ defmodule SwapifyApi.TransferRepoTest do
 
   import SwapifyApi.AccountsFixtures
   import SwapifyApi.MusicProvidersFixtures
-  import SwapifyApi.ValuesFixtures
   import SwapifyApi.TasksFixtures
 
   describe "create_or_update/3" do
@@ -80,6 +79,144 @@ defmodule SwapifyApi.TransferRepoTest do
                TransferRepo.update(transfer, %{
                  "matching_step_job_id" => job_id
                })
+    end
+  end
+
+  describe "get_tranfer_by_step_and_id/2" do
+    setup do
+      user = user_fixture()
+      playlist = playlist_fixture(%{"user_id" => user.id})
+      {:ok, user: user, playlist: playlist}
+    end
+
+    test "it should return a transfer having a matching job done and other jobs not done", %{
+      user: user,
+      playlist: playlist
+    } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:ok, %Transfer{id: ^transfer_id}} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching)
+    end
+
+    test "it should fail when trying to get a transfer in a matching state while the matching job is not done",
+         %{
+           user: user,
+           playlist: playlist
+         } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:error, :not_found} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching)
+    end
+
+    test "it should return a transfer having a matching job done and the pre transfer done", %{
+      user: user,
+      playlist: playlist
+    } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "pre_transfer_step_job_id" => pre_transfer_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:ok, %Transfer{id: ^transfer_id}} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :pre_transfer)
+    end
+
+    test "it should fail when trying to get a transfer in `pre_transfer` state without having the pre_transfer step done",
+         %{
+           user: user,
+           playlist: playlist
+         } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "pre_transfer_step_job_id" => pre_transfer_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:error, :not_found} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :pre_transfer)
+    end
+
+    test "it should return a transfer having a matching job done, the pre transfer done, and the transfer done",
+         %{
+           user: user,
+           playlist: playlist
+         } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "pre_transfer_step_job_id" => pre_transfer_job.id,
+          "transfer_step_job_id" => transfer_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:ok, %Transfer{id: ^transfer_id}} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :transfer)
+    end
+
+    test "it should fail when trying to get a transfer in a complete state without having the transfer step done",
+         %{
+           user: user,
+           playlist: playlist
+         } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "pre_transfer_step_job_id" => pre_transfer_job.id,
+          "transfer_step_job_id" => transfer_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      transfer_id = transfer.id
+
+      {:error, :not_found} =
+        TransferRepo.get_transfer_by_step_and_id(transfer_id, :transfer)
     end
   end
 end

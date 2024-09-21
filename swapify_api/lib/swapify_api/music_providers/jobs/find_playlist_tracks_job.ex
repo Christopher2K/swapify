@@ -268,6 +268,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   end
 
   handle :success do
+    _result = result
+
     Logger.info("FindPlaylistTracks job finished",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]

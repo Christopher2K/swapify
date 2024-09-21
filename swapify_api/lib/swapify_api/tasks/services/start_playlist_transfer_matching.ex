@@ -1,5 +1,7 @@
-defmodule SwapifyApi.Tasks.Services.StartPlaylistTransfer do
-  @moduledoc "Start a playlist transfer"
+defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatching do
+  @moduledoc """
+  Start a playlist transfer first step: matching job
+  """
 
   alias SwapifyApi.MusicProviders.PlaylistRepo
   alias SwapifyApi.Accounts.PlatformConnection
