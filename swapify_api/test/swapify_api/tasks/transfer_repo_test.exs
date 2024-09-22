@@ -64,6 +64,23 @@ defmodule SwapifyApi.TransferRepoTest do
     end
   end
 
+  describe "add_not_found_tracks/2" do
+    setup do
+      user = user_fixture()
+      playlist = playlist_fixture(%{"user_id" => user.id})
+      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      {:ok, user: user, playlist: playlist, transfer: transfer}
+    end
+
+    test "it should add tracks to the not_found_tracks json array", %{transfer: transfer} do
+      tracks = 1..5 |> Enum.map(fn _ -> track_fixture() end)
+
+      assert {:ok, _} = TransferRepo.add_not_found_tracks(transfer.id, tracks)
+      updated_transfer = Repo.reload(transfer)
+      assert length(updated_transfer.not_found_tracks) == 5
+    end
+  end
+
   describe "update/2" do
     setup do
       user = user_fixture()
@@ -128,63 +145,18 @@ defmodule SwapifyApi.TransferRepoTest do
         TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching)
     end
 
-    test "it should return a transfer having a matching job done and the pre transfer done", %{
-      user: user,
-      playlist: playlist
-    } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-
-      transfer =
-        transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "pre_transfer_step_job_id" => pre_transfer_job.id,
-          "source_playlist_id" => playlist.id
-        })
-
-      transfer_id = transfer.id
-
-      {:ok, %Transfer{id: ^transfer_id}} =
-        TransferRepo.get_transfer_by_step_and_id(transfer_id, :pre_transfer)
-    end
-
-    test "it should fail when trying to get a transfer in `pre_transfer` state without having the pre_transfer step done",
+    test "it should return a transfer having a matching job done and the transfer done",
          %{
            user: user,
            playlist: playlist
          } do
       matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
-
-      transfer =
-        transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "pre_transfer_step_job_id" => pre_transfer_job.id,
-          "source_playlist_id" => playlist.id
-        })
-
-      transfer_id = transfer.id
-
-      {:error, :not_found} =
-        TransferRepo.get_transfer_by_step_and_id(transfer_id, :pre_transfer)
-    end
-
-    test "it should return a transfer having a matching job done, the pre transfer done, and the transfer done",
-         %{
-           user: user,
-           playlist: playlist
-         } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
       transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
 
       transfer =
         transfer_fixture(%{
           "user_id" => user.id,
           "matching_step_job_id" => matching_job.id,
-          "pre_transfer_step_job_id" => pre_transfer_job.id,
           "transfer_step_job_id" => transfer_job.id,
           "source_playlist_id" => playlist.id
         })
@@ -201,14 +173,12 @@ defmodule SwapifyApi.TransferRepoTest do
            playlist: playlist
          } do
       matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      pre_transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
       transfer_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
 
       transfer =
         transfer_fixture(%{
           "user_id" => user.id,
           "matching_step_job_id" => matching_job.id,
-          "pre_transfer_step_job_id" => pre_transfer_job.id,
           "transfer_step_job_id" => transfer_job.id,
           "source_playlist_id" => playlist.id
         })

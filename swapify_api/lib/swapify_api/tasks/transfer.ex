@@ -2,9 +2,10 @@ defmodule SwapifyApi.Tasks.Transfer do
   @moduledoc "Business a representation of a playlist transfer"
   use SwapifyApi.Schema
 
+  alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.MusicProviders.Playlist
-  alias SwapifyApi.Accounts.PlatformConnection
+  alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Tasks.Job
   alias SwapifyApi.Tasks.MatchedTrack
 
@@ -13,29 +14,28 @@ defmodule SwapifyApi.Tasks.Transfer do
           destination: PlatformConnection.platform_name(),
           matching_step_job: Job.t() | nil,
           matching_step_job_id: String.t() | nil,
-          pre_transfer_step_job: Job.t() | nil,
-          pre_transfer_step_job_id: String.t() | nil,
           transfer_step_job: Job.t() | nil,
           transfer_step_job_id: String.t() | nil,
           source_playlist: Playlist.t() | nil,
           source_playlist_id: String.t() | nil,
-          matched_tracks: MatchedTrack.t(),
+          matched_tracks: list(MatchedTrack.t()),
+          not_found_tracks: list(Track.t()),
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
 
-  @type transfer_step :: :matching | :pre_transfer | :transfer
+  @type transfer_step :: :matching | :transfer
 
   schema "transfers" do
     field :destination, Ecto.Enum, values: [:spotify, :applemusic]
 
     belongs_to :matching_step_job, Job
-    belongs_to :pre_transfer_step_job, Job
     belongs_to :transfer_step_job, Job
     belongs_to :source_playlist, Playlist
     belongs_to :user, User
 
     embeds_many :matched_tracks, MatchedTrack, on_replace: :delete
+    embeds_many :not_found_tracks, Track, on_replace: :delete
 
     timestamps(type: :utc_datetime)
   end
@@ -46,7 +46,6 @@ defmodule SwapifyApi.Tasks.Transfer do
       |> cast(attrs, [
         :destination,
         :matching_step_job_id,
-        :pre_transfer_step_job_id,
         :transfer_step_job_id,
         :user_id,
         :source_playlist_id
@@ -80,17 +79,6 @@ defmodule SwapifyApi.Tasks.Transfer do
         as: :matching_job
       )
 
-  def include(queryable, :pre_transfer_job),
-    do:
-      queryable
-      |> join(
-        :left,
-        [transfer: t],
-        pre_transfer_job in Job,
-        on: t.pre_transfer_step_job_id == pre_transfer_job.id,
-        as: :pre_transfer_job
-      )
-
   def include(queryable, :transfer_job),
     do:
       queryable
@@ -109,19 +97,6 @@ defmodule SwapifyApi.Tasks.Transfer do
         [transfer: t, matching_job: mj],
         not is_nil(t.matching_step_job_id) and
           mj.status == ^job_status and
-          is_nil(t.pre_transfer_step_job_id) and
-          is_nil(t.transfer_step_job_id)
-      )
-
-  def step(queryable, :pre_transfer, job_status),
-    do:
-      queryable
-      |> where(
-        [transfer: t, matching_job: mj, pre_transfer_job: ptj],
-        not is_nil(t.matching_step_job_id) and
-          mj.status == :done and
-          not is_nil(t.pre_transfer_step_job_id) and
-          ptj.status == ^job_status and
           is_nil(t.transfer_step_job_id)
       )
 
@@ -129,11 +104,9 @@ defmodule SwapifyApi.Tasks.Transfer do
     do:
       queryable
       |> where(
-        [transfer: t, matching_job: mj, pre_transfer_job: ptj, transfer_job: tj],
+        [transfer: t, matching_job: mj, transfer_job: tj],
         not is_nil(t.matching_step_job_id) and
           mj.status == :done and
-          not is_nil(t.pre_transfer_step_job_id) and
-          ptj.status == :done and
           not is_nil(t.transfer_step_job_id) and
           tj.status == ^job_status
       )

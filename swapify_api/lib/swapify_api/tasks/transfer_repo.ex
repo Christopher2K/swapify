@@ -2,10 +2,11 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   @doc "Transfer table repository"
   import Ecto.Query
 
-  alias SwapifyApi.Utils
-  alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Repo
+  alias SwapifyApi.Tasks.MatchedTrack
   alias SwapifyApi.Tasks.Transfer
+  alias SwapifyApi.Utils
 
   @spec create(map()) :: {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()}
   def create(args),
@@ -23,6 +24,25 @@ defmodule SwapifyApi.Tasks.TransferRepo do
         set: [
           matched_tracks: fragment("? || ?", t.matched_tracks, ^matched_tracks)
         ]
+      ]
+    )
+    |> Repo.update_all([])
+    |> case do
+      {1, _} ->
+        {:ok, nil}
+
+      {_, _} ->
+        {:error, :not_found}
+    end
+  end
+
+  @spec add_not_found_tracks(String.t(), list(Track.t())) :: {:ok, nil} | {:error, :not_found}
+  def add_not_found_tracks(transfer_id, tracks) do
+    Transfer.queryable()
+    |> Transfer.filter_by(:id, transfer_id)
+    |> Ecto.Query.update([transfer: t],
+      set: [
+        not_found_tracks: fragment("? || ?", t.not_found_tracks, ^tracks)
       ]
     )
     |> Repo.update_all([])
@@ -54,20 +74,9 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Utils.from_nullable_to_tuple()
   end
 
-  def get_transfer_by_step_and_id(transfer_id, :pre_transfer) do
-    Transfer.queryable()
-    |> Transfer.include(:matching_job)
-    |> Transfer.include(:pre_transfer_job)
-    |> Transfer.filter_by(:id, transfer_id)
-    |> Transfer.step(:pre_transfer, :done)
-    |> Repo.one()
-    |> Utils.from_nullable_to_tuple()
-  end
-
   def get_transfer_by_step_and_id(transfer_id, :transfer) do
     Transfer.queryable()
     |> Transfer.include(:matching_job)
-    |> Transfer.include(:pre_transfer_job)
     |> Transfer.include(:transfer_job)
     |> Transfer.filter_by(:id, transfer_id)
     |> Transfer.step(:transfer, :done)

@@ -200,13 +200,80 @@ defmodule SwapifyApi.MusicProviders.Spotify do
           {:ok, map(), Req.Response.t()}
           | {:error, atom()}
           | {:error, pos_integer(), Req.Response.t()}
-  def search_track(token, track_isrc) do
+
+  def search_track(token, %{
+        "isrc" => isrc,
+        "name" => name,
+        "artist" => artist,
+        "album" => album
+      })
+      when is_nil(isrc) do
+    search_track_by_infos(token, %{
+      "name" => name,
+      "artist" => artist,
+      "album" => album
+    })
+  end
+
+  def search_track(token, %{
+        "isrc" => isrc,
+        "name" => name,
+        "artist" => artist,
+        "album" => album
+      })
+      when not is_nil(isrc) do
+    case search_track_by_isrc(token, isrc) do
+      {:ok, [], _} ->
+        search_track_by_infos(token, %{
+          "name" => name,
+          "artist" => artist,
+          "album" => album
+        })
+
+      result ->
+        result
+    end
+  end
+
+  defp search_track_by_isrc(token, isrc) do
     uri =
       get_api_url("/search", [
         {"offset", "0"},
         {"limit", "1"},
         {"type", "track"},
-        {"q", "isrc:#{track_isrc}"}
+        {"q", "isrc:#{isrc}"}
+      ])
+
+    Logger.debug("Call API", service: "spotify", uri: uri)
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{"authorization" => "Bearer #{token}"}
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        {:ok, response.body["tracks"]["items"], response}
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
+  defp search_track_by_infos(token, %{
+         "name" => name,
+         "album" => album
+       }) do
+    uri =
+      get_api_url("/search", [
+        {"offset", "0"},
+        {"limit", "1"},
+        {"type", "track"},
+        {"q", "album:#{album} track:#{name}"}
       ])
 
     Logger.debug("Call API", service: "spotify", uri: uri)

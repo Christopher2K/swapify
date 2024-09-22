@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatching do
+defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatchingStep do
   @moduledoc """
   Start a playlist transfer first step: matching job
   """
