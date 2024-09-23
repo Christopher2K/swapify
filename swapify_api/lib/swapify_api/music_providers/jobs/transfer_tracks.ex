@@ -18,7 +18,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Tasks.TransferRepo
@@ -93,20 +92,45 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
     end
   end
 
-  # def transfer(
-  #       "applemusic",
-  #       %{
-  #         "playlist_id" => playlist_id,
-  #         "offset" => offset,
-  #         "unsaved_tracks" => unsaved_tracks,
-  #         "unsaved_not_found_tracks" => unsaved_not_found_tracks,
-  #         "access_token" => access_token,
-  #         "user_id" => user_id,
-  #         "transfer_id" => transfer_id,
-  #         "job_id" => job_id
-  #       } = args
-  #     ) do
-  # end
+  def transfer(
+        "applemusic",
+        %{
+          "user_id" => user_id,
+          "offset" => offset,
+          "access_token" => access_token,
+          "transfer_id" => transfer_id,
+          "job_id" => job_id,
+          "is_library" => true
+        } = args
+      ) do
+    case TransferRepo.get_matched_track_by_index(transfer_id, offset) do
+      {:error, :not_found} ->
+        UpdateJobStatus.call(job_id, :done)
+
+      {:ok, matched_track} ->
+        developer_token = AppleMusicTokenWorker.get()
+
+        case AppleMusic.add_track_to_library(
+               developer_token,
+               access_token,
+               matched_track.platform_id
+             ) do
+          {:ok, _} ->
+            Map.merge(args, %{
+              "offset" => offset + 1
+            })
+            |> __MODULE__.new()
+            |> Oban.insert()
+        end
+
+      {:error, 401, _} ->
+        RemovePartnerIntegration.call(user_id, :spotify)
+        {:cancel, :authentication_error}
+
+      error ->
+        handle_error(error)
+    end
+  end
 
   @doc """
   Helper to build the base args map

@@ -256,7 +256,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
             with {:ok, updated_unsaved_tracks} <-
                    process_match_results(updated_unsaved_tracks, transfer_id),
                  {:ok, updated_unsaved_not_found_tracks} <-
-                   process_match_results(updated_unsaved_not_found_tracks, transfer_id) do
+                   process_error_results(updated_unsaved_not_found_tracks, transfer_id) do
               Map.merge(args, %{
                 "offset" => offset + search_limit,
                 "unsaved_tracks" => updated_unsaved_tracks,

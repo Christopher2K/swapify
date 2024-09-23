@@ -136,7 +136,9 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
         url: uri,
         headers: %{
           "Authorization" => "Bearer #{developer_token}",
-          "Music-User-Token" => user_token
+          "Music-User-Token" => user_token,
+          "Content-Type" => "application/json",
+          "Content-Length" => 0
         }
       ]
       |> Utils.prepare_request()
