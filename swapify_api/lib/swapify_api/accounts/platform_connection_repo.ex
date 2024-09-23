@@ -67,7 +67,7 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
     |> Repo.all()
   end
 
-  @spec get_by_user_id_and_platform(String.t(), String.t()) ::
+  @spec get_by_user_id_and_platform(String.t(), PlatformConnection.platform_name()) ::
           {:ok, PlatformConnection.t()} | {:error, :not_found}
   def get_by_user_id_and_platform(user_id, platform_name) do
     PlatformConnection.queryable()
