@@ -19,20 +19,43 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
     |> URI.to_string()
   end
 
+  defp handle_api_error(result, uri) do
+    case result do
+      {:ok, %Req.Response{} = response} ->
+        Logger.error("API Service error",
+          service: "applemusic",
+          uri: uri,
+          status: response.status,
+          response: response.body
+        )
+
+        {:error, response.status, response}
+
+      {:error, exception} ->
+        Logger.error("Failed to call an API",
+          service: "applemusic",
+          uri: uri,
+          error: exception
+        )
+
+        {:error, :service_error}
+    end
+  end
+
   ## RESOURCES FUNCTIONS
   @spec get_user_library(String.t(), String.t(), pos_integer(), pos_integer()) ::
           {:ok, list(), Req.Response.t()}
           | {:error, atom()}
           | {:error, pos_integer(), Req.Response.t()}
   def get_user_library(developer_token, user_token, offset \\ 0, limit \\ @default_resource_limit) do
-    Logger.debug("start: get_user_library/3", offset: offset, limit: limit)
-
     uri =
       get_api_url("/me/library/songs", [
         {"limit", limit |> Integer.to_string()},
         {"offset", offset |> Integer.to_string()},
         {"include", "catalog"}
       ])
+
+    Logger.debug("Call API", service: "applemusic", uri: uri)
 
     result =
       [
@@ -48,8 +71,6 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
 
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
-        Logger.debug("success: get_user_library/3 - response: #{response.status}")
-
         tracks =
           response.body["data"]
           |> Enum.map(fn user_lib_item ->
@@ -58,17 +79,8 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
 
         {:ok, tracks, response}
 
-      {:ok, %Req.Response{status: 401} = response} ->
-        Logger.debug("error: get_user_library/3 - response: #{response.status}")
-        {:error, 401, response}
-
-      {:ok, %Req.Response{status: 429} = response} ->
-        Logger.debug("error: get_user_library/3 - response: #{response.status}")
-        {:error, 429, response}
-
-      {:error, exception} ->
-        Logger.debug("service error: get_user_library/3", error: exception)
-        {:error, :service_error}
+      _ ->
+        handle_api_error(result, uri)
     end
   end
 
@@ -82,6 +94,8 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
         "/catalog/#{@default_storefront}/songs",
         [{"filter[isrc]", Enum.join(track_isrc_list, ",")}]
       )
+
+    Logger.debug("Call API", service: "applemusic", uri: uri)
 
     result =
       [
@@ -99,11 +113,41 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
       {:ok, %Req.Response{status: 200} = response} ->
         {:ok, response.body, response}
 
-      {:ok, response} ->
-        {:error, response.status, response}
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
 
-      error ->
-        error
+  @spec add_track_to_library(String.t(), String.t(), String.t()) ::
+          {:ok, Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def add_track_to_library(developer_token, user_token, track_id) do
+    uri =
+      get_api_url("/me/library", [
+        {"ids[songs]", track_id}
+      ])
+
+    Logger.debug("Call API", service: "applemusic", uri: uri)
+
+    result =
+      [
+        method: :post,
+        url: uri,
+        headers: %{
+          "Authorization" => "Bearer #{developer_token}",
+          "Music-User-Token" => user_token
+        }
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 202} = response} ->
+        {:ok, response}
+
+      _ ->
+        handle_api_error(result, uri)
     end
   end
 end

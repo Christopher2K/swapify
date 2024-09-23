@@ -26,7 +26,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   defp get_client_secret(),
     do: Application.fetch_env!(:swapify_api, __MODULE__)[:client_secret]
 
-  defp get_api_url("/" <> _ = path, query_params) do
+  defp get_api_url("/" <> _ = path, query_params \\ []) do
     uri = URI.parse(@api_url <> path)
 
     query_params
@@ -290,6 +290,34 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
         {:ok, response.body["tracks"]["items"], response}
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
+  @spec add_tracks_to_library(String.t(), list(String.t())) ::
+          {:ok, Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def add_tracks_to_library(token, track_ids) do
+    uri = get_api_url("/me/tracks")
+
+    Logger.debug("Call API", service: "spotify", uri: uri)
+
+    result =
+      [
+        method: :put,
+        url: uri,
+        headers: %{"authorization" => "Bearer #{token}"},
+        json: %{"ids" => track_ids}
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = resp} ->
+        {:ok, resp}
 
       _ ->
         handle_api_error(result, uri)
