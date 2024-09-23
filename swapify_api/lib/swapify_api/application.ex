@@ -49,5 +49,6 @@ defmodule SwapifyApi.Application do
     :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.SyncPlatformJob")
     :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.SyncLibraryJob")
     :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob")
+    :ok = TaskEventHandler.register("SwapifyApi.MusicProviders.Jobs.TransferTracksJob")
   end
 end

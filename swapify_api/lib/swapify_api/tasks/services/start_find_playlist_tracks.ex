@@ -22,7 +22,7 @@ defmodule SwapifyApi.Tasks.Services.StartFindPlaylistTracks do
            ),
          {:ok, db_job} <-
            JobRepo.create(%{
-             "name" => "search_track",
+             "name" => "search_tracks",
              "status" => :started,
              "user_id" => user_id,
              "oban_job_args" =>

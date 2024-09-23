@@ -62,25 +62,76 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Repo.update(returning: true)
   end
 
-  @spec get_transfer_by_step_and_id(String.t(), Transfer.transfer_step()) ::
+  @spec get_transfer_by_step_and_id(String.t(), Transfer.transfer_step(), Keyword.t()) ::
           {:ok, Transfer.t()} | {:error, :not_found}
 
-  def get_transfer_by_step_and_id(transfer_id, :matching) do
+  def get_transfer_by_step_and_id(transfer_id, step, opts \\ [])
+
+  def get_transfer_by_step_and_id(transfer_id, :matching, opts) do
     Transfer.queryable()
     |> Transfer.include(:matching_job)
     |> Transfer.filter_by(:id, transfer_id)
     |> Transfer.step(:matching, :done)
+    |> handle_tranfer_inclusions(Keyword.get(opts, :includes, []))
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
 
-  def get_transfer_by_step_and_id(transfer_id, :transfer) do
+  def get_transfer_by_step_and_id(transfer_id, :transfer, opts) do
     Transfer.queryable()
     |> Transfer.include(:matching_job)
     |> Transfer.include(:transfer_job)
     |> Transfer.filter_by(:id, transfer_id)
     |> Transfer.step(:transfer, :done)
+    |> handle_tranfer_inclusions(Keyword.get(opts, :includes, []))
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
+  end
+
+  defp handle_tranfer_inclusions(query, includes),
+    do:
+      includes
+      |> Enum.reduce(query, fn include, q ->
+        case include do
+          :source_playlist -> preload(q, [], [:source_playlist])
+          _ -> q
+        end
+      end)
+
+  @doc """
+  Get a specific track by its index
+  """
+  @spec get_matched_track_by_index(String.t(), pos_integer()) ::
+          {:ok, MatchedTrack.t()} | {:error, :not_found}
+  def get_matched_track_by_index(transfer_id, index) do
+    Transfer.queryable()
+    |> Transfer.filter_by(:id, transfer_id)
+    |> select([transfer: t], fragment("?[?]", t.matched_tracks, ^Integer.to_string(index)))
+    |> Repo.one()
+    |> case do
+      nil ->
+        {:error, :not_found}
+
+      track ->
+        {:ok, Map.merge(%MatchedTrack{}, Recase.Enumerable.atomize_keys(track))}
+    end
+  end
+
+  @doc """
+  Get a specific subset of matched tracks
+  """
+  @spec get_matched_tracks(String.t(), pos_integer(), pos_integer()) ::
+          {:ok, list(MatchedTrack.t())}
+  def get_matched_tracks(transfer_id, offset, limit) do
+    {:ok,
+     Transfer.queryable()
+     |> Transfer.filter_by(:id, transfer_id)
+     |> select([transfer: t], fragment("jsonb_array_elements(?)", t.matched_tracks))
+     |> offset(^offset)
+     |> limit(^limit)
+     |> Repo.all()
+     |> Enum.map(fn track ->
+       Map.merge(%MatchedTrack{}, Recase.Enumerable.atomize_keys(track))
+     end)}
   end
 end

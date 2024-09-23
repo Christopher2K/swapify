@@ -1,10 +1,10 @@
 defmodule SwapifyApi.TransferRepoTest do
+  alias SwapifyApi.MusicProviders.Playlist
   use SwapifyApi.DataCase
 
   alias SwapifyApi.Tasks.Transfer
   alias SwapifyApi.Tasks.TransferRepo
   alias SwapifyApi.Repo
-
   import SwapifyApi.AccountsFixtures
   import SwapifyApi.MusicProvidersFixtures
   import SwapifyApi.TasksFixtures
@@ -187,6 +187,29 @@ defmodule SwapifyApi.TransferRepoTest do
 
       {:error, :not_found} =
         TransferRepo.get_transfer_by_step_and_id(transfer_id, :transfer)
+    end
+
+    test "it should include the playlist in the transfer returned", %{
+      user: user,
+      playlist: playlist
+    } do
+      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+
+      transfer =
+        transfer_fixture(%{
+          "user_id" => user.id,
+          "matching_step_job_id" => matching_job.id,
+          "transfer_step_job_id" => transfer_job.id,
+          "source_playlist_id" => playlist.id
+        })
+
+      {:ok, transfer} =
+        TransferRepo.get_transfer_by_step_and_id(transfer.id, :transfer,
+          includes: [:source_playlist]
+        )
+
+      assert %Playlist{} = transfer.source_playlist
     end
   end
 end

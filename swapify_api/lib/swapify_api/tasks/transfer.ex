@@ -68,6 +68,17 @@ defmodule SwapifyApi.Tasks.Transfer do
   def order_asc(queryable, :inserted_at),
     do: queryable |> order_by(asc: :inserted_at)
 
+  def include(queryable, :source_playlist),
+    do:
+      queryable
+      |> join(
+        :left,
+        [transfer: t],
+        playlist in Playlist,
+        on: t.source_playlist_id == playlist.id,
+        as: :source_playlist
+      )
+
   def include(queryable, :matching_job),
     do:
       queryable
