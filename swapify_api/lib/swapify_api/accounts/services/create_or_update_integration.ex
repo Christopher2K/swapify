@@ -1,6 +1,8 @@
 defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
   require Logger
 
+  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
+  alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.Services.StartPlatformSync
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
@@ -33,11 +35,13 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
 
     with {:ok} <- Oauth.check_state(session_state, remote_state),
          {:ok, access_token_data} <- Spotify.request_access_token(code),
+         {:ok, spotify_user, _} <- Spotify.get_user(access_token_data.access_token) |> dbg,
          {:ok, pc, operation_type} <-
            PlatformConnectionRepo.create_or_update(user_id, name, %{
              "access_token_exp" => access_token_data.expires_at,
              "access_token" => access_token_data.access_token,
-             "refresh_token" => access_token_data.refresh_token
+             "refresh_token" => access_token_data.refresh_token,
+             "country_code" => spotify_user["country"]
            }) do
       if operation_type == :created do
         # When created for the first time we will try to synchronize the library data for this user
@@ -65,8 +69,11 @@ defmodule SwapifyApi.Accounts.Services.CreateOrUpdateIntegration do
     token = Keyword.get(opts, :token)
     exp = DateTime.utc_now() |> DateTime.add(60, :day)
 
-    with {:ok, pc, operation_type} <-
+    with dev_token <- AppleMusicTokenWorker.get(),
+         {:ok, storefront, _} <- AppleMusic.get_storefront(dev_token, token),
+         {:ok, pc, operation_type} <-
            PlatformConnectionRepo.create_or_update(user_id, name, %{
+             "country_code" => storefront["id"],
              "access_token_exp" => exp,
              "access_token" => token
            }) do

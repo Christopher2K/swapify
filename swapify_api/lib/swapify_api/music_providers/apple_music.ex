@@ -10,7 +10,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   @default_resource_limit 100
   @default_storefront "us"
 
-  defp get_api_url("/" <> _ = path, query_params) do
+  defp get_api_url("/" <> _ = path, query_params \\ []) do
     uri = URI.parse(@api_url <> path)
 
     query_params
@@ -44,6 +44,34 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   end
 
   ## RESOURCES FUNCTIONS
+  @spec get_storefront(String.t(), String.t()) ::
+          {:ok, map() | nil, Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def get_storefront(developer_token, user_token) do
+    uri = get_api_url("/me/storefront")
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{
+          "Authorization" => "Bearer #{developer_token}",
+          "Music-User-Token" => user_token
+        }
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        {:ok, Enum.at(response.body["data"], 0), response}
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
   @spec get_user_library(String.t(), String.t(), pos_integer(), pos_integer()) ::
           {:ok, list(), Req.Response.t()}
           | {:error, atom()}

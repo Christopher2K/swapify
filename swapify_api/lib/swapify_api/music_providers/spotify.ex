@@ -17,7 +17,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
                           "playlist-modify-private",
                           "playlist-modify-public",
                           "user-library-read",
-                          "user-library-modify"
+                          "user-library-modify",
+                          "user-read-private"
                         ]
                         |> Enum.join(" ")
   @redirect_uri "http://localhost:4000/api/integrations/spotify/callback"
@@ -156,6 +157,37 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   ## RESOURCES FUNCTIONS
+
+  @doc """
+  See https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
+  """
+  @spec get_user(String.t()) ::
+          {:ok, map(), Req.Response.t()}
+          | {:error, atom()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def get_user(token) do
+    uri = get_api_url("/me")
+
+    Logger.debug("Call API", service: "spotify", uri: uri)
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{"authorization" => "Bearer #{token}"}
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        {:ok, response.body, response}
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
   @spec get_user_library(String.t(), pos_integer(), pos_integer()) ::
           {:ok, list(), Req.Response.t()}
           | {:error, atom()}

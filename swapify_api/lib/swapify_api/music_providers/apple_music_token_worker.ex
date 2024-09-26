@@ -11,6 +11,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusicTokenWorker do
     GenServer.start_link(__MODULE__, [], name: args[:name])
   end
 
+  @spec get() :: String.t()
   def get() do
     GenServer.call(SwapifyApi.AppleMusicWorker, :get)
   end
