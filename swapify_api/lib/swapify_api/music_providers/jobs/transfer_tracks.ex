@@ -121,14 +121,14 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
             })
             |> __MODULE__.new()
             |> Oban.insert()
+
+          {:error, 401, _} ->
+            RemovePartnerIntegration.call(user_id, :spotify)
+            {:cancel, :authentication_error}
+
+          error ->
+            handle_error(error)
         end
-
-      {:error, 401, _} ->
-        RemovePartnerIntegration.call(user_id, :spotify)
-        {:cancel, :authentication_error}
-
-      error ->
-        handle_error(error)
     end
   end
 
