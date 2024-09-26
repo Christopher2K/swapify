@@ -23,4 +23,13 @@ defmodule SwapifyApi.Tasks.MatchedTrack do
       matched_tracks
       |> cast(attrs, [:isrc, :platform_id, :platform_link])
       |> validate_required([:isrc, :platform_id, :platform_link])
+
+  @doc "Convert a matched track to a string keyed map"
+  @spec to_map(t()) :: map()
+  def to_map(matched_track),
+    do: %{
+      "isrc" => matched_track.isrc,
+      "platform_id" => matched_track.platform_id,
+      "platform_link" => matched_track.platform_link
+    }
 end

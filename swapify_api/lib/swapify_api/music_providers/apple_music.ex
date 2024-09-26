@@ -180,16 +180,16 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
         case response.body["meta"]["filters"]["isrc"][isrc] do
-          [] ->
-            {:ok, nil, response}
-
-          [%{"id" => id, "href" => href}] ->
+          [%{"id" => id, "href" => href} | _] ->
             {:ok,
              %MatchedTrack{
                isrc: isrc,
                platform_id: id,
                platform_link: href
              }, response}
+
+          _ ->
+            {:ok, nil, response}
         end
 
       _ ->
@@ -210,6 +210,9 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
           {"types", "songs"},
           {"term",
            [name, artist, album]
+           |> Enum.map(fn term ->
+             String.replace(term, ~r/[\p{P}\p{S}]/, "")
+           end)
            |> Enum.map(fn term -> String.replace(term, " ", "+") end)
            |> Enum.join("+")}
         ]

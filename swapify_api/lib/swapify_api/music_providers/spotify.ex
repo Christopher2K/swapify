@@ -2,6 +2,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   @moduledoc "Interface to talk to Spotify"
   require Logger
 
+  alias SwapifyApi.Tasks.MatchedTrack
   alias SwapifyApi.Utils
   alias SwapifyApi.Oauth
   alias SwapifyApi.MusicProviders.Track
@@ -197,38 +198,30 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec search_track(String.t(), String.t()) ::
-          {:ok, map(), Req.Response.t()}
+          {:ok, MatchedTrack.t() | nil, Req.Response.t()}
           | {:error, atom()}
           | {:error, pos_integer(), Req.Response.t()}
 
-  def search_track(token, %{
-        "isrc" => isrc,
-        "name" => name,
-        "artist" => artist,
-        "album" => album
-      })
+  def search_track(
+        token,
+        %{
+          "isrc" => isrc
+        } = args
+      )
       when is_nil(isrc) do
-    search_track_by_infos(token, %{
-      "name" => name,
-      "artist" => artist,
-      "album" => album
-    })
+    search_track_by_infos(token, args)
   end
 
-  def search_track(token, %{
-        "isrc" => isrc,
-        "name" => name,
-        "artist" => artist,
-        "album" => album
-      })
+  def search_track(
+        token,
+        %{
+          "isrc" => isrc
+        } = args
+      )
       when not is_nil(isrc) do
     case search_track_by_isrc(token, isrc) do
       {:ok, [], _} ->
-        search_track_by_infos(token, %{
-          "name" => name,
-          "artist" => artist,
-          "album" => album
-        })
+        search_track_by_infos(token, args)
 
       result ->
         result
@@ -257,7 +250,18 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
-        {:ok, response.body["tracks"]["items"], response}
+        case response.body["tracks"]["items"] do
+          [] ->
+            {:ok, nil, response}
+
+          [track | _] ->
+            {:ok,
+             %MatchedTrack{
+               platform_link: track["href"],
+               platform_id: track["id"],
+               isrc: isrc
+             }, response}
+        end
 
       _ ->
         handle_api_error(result, uri)
@@ -266,7 +270,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   defp search_track_by_infos(token, %{
          "name" => name,
-         "album" => album
+         "album" => album,
+         "isrc" => isrc
        }) do
     uri =
       get_api_url("/search", [
@@ -289,7 +294,18 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
-        {:ok, response.body["tracks"]["items"], response}
+        case response.body["tracks"]["items"] do
+          [] ->
+            {:ok, nil, response}
+
+          [track | _] ->
+            {:ok,
+             %MatchedTrack{
+               platform_link: track["href"],
+               platform_id: track["id"],
+               isrc: isrc
+             }, response}
+        end
 
       _ ->
         handle_api_error(result, uri)

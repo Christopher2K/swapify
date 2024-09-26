@@ -40,7 +40,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   defp handle_error({:error, 427, _response}), do: {:error, :rate_limit}
 
-  defp handle_error({:error, _, _}), do: {:error, :http_error}
+  defp handle_error({:error, code, response}),
+    do: {:error, %{reason: :http_error, code: code, body: response.body}}
 
   defp process_match_results(matched_tracks, transfer_id, should_force_update? \\ false) do
     should_update? = should_force_update? || length(matched_tracks) >= @unsaved_threshold
@@ -98,53 +99,41 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         } = args
       ) do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
-      {:ok, %Track{isrc: isrc} = track} when is_nil(isrc) ->
-        with {:ok, updated_unsaved_not_found_tracks} <-
-               [Track.to_map(track) | unsaved_not_found_tracks]
-               |> process_error_results(transfer_id) do
-          Map.merge(args, %{
-            "offset" => offset + 1,
-            "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
-          })
-          |> __MODULE__.new()
-          |> Oban.insert()
+      {:error, :not_found} ->
+        with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
+             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true) do
+          UpdateJobStatus.call(job_id, :done)
         end
 
-      {:ok, %Track{isrc: isrc} = track} ->
+      {:ok, track} ->
         case Spotify.search_track(access_token, %{
-               "isrc" => isrc,
+               "isrc" => track.isrc,
                "name" => track.name,
                "album" => track.album,
                "artist" => Enum.at(track.artists, 0)
              }) do
-          {:ok, [match_result | _], _} ->
-            updated_unsaved_tracks =
-              [
-                %{
-                  "platform_link" => match_result["href"],
-                  "platform_id" => match_result["id"],
-                  "isrc" => isrc
-                }
-                | unsaved_tracks
-              ]
-              |> process_match_results(transfer_id)
-
-            with {:ok, tracks} <- updated_unsaved_tracks do
-              Map.merge(args, %{
-                "offset" => offset + 1,
-                "unsaved_tracks" => tracks
-              })
-              |> __MODULE__.new()
-              |> Oban.insert()
-            end
-
-          {:ok, [], _} ->
+          {:ok, nil, _} ->
             with {:ok, updated_unsaved_not_found_tracks} <-
                    [Track.to_map(track) | unsaved_not_found_tracks]
                    |> process_error_results(transfer_id) do
               Map.merge(args, %{
                 "offset" => offset + 1,
                 "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
+              })
+              |> __MODULE__.new()
+              |> Oban.insert()
+            end
+
+          {:ok, matched_track, _} ->
+            with {:ok, tracks} <-
+                   [
+                     MatchedTrack.to_map(matched_track)
+                     | unsaved_tracks
+                   ]
+                   |> process_match_results(transfer_id) do
+              Map.merge(args, %{
+                "offset" => offset + 1,
+                "unsaved_tracks" => tracks
               })
               |> __MODULE__.new()
               |> Oban.insert()
@@ -172,12 +161,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           error ->
             handle_error(error)
         end
-
-      {:error, :not_found} ->
-        with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
-             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true) do
-          UpdateJobStatus.call(job_id, :done)
-        end
     end
   end
 
@@ -194,73 +177,43 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           "job_id" => job_id
         } = args
       ) do
-    search_limit = 25
-
-    case PlaylistRepo.get_playlist_tracks(playlist_id, offset, search_limit) do
-      {:ok, []} ->
+    case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
+      {:error, :not_found} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true) do
           UpdateJobStatus.call(job_id, :done)
         end
 
-      {:ok, track_list} ->
+      {:ok, track} ->
         developer_token = AppleMusicTokenWorker.get()
 
-        {isrc_list, tracks_with_missing_isrc} =
-          Enum.reduce(track_list, {[], []}, fn track, {isrc_list, tracks_with_missing_isrc} ->
-            if track.isrc != nil,
-              do: {[track.isrc | isrc_list], tracks_with_missing_isrc},
-              else: {isrc_list, [track |> Track.to_map() | tracks_with_missing_isrc]}
-          end)
+        search_args = %{
+          "album" => track.album,
+          "artist" => track.artists |> Enum.at(0),
+          "name" => track.name,
+          "isrc" => track.isrc
+        }
 
-        case AppleMusic.search_tracks(developer_token, access_token, isrc_list) do
-          {:ok, data, _} ->
-            {matched_list, not_found_list} =
-              Enum.reduce(isrc_list, {[], []}, fn isrc, {matched_list, not_found_list} ->
-                case data["meta"]["filters"]["isrc"][isrc] do
-                  [track_match | _] ->
-                    {[
-                       %{
-                         "platform_link" => track_match["href"],
-                         "platform_id" => track_match["id"],
-                         "isrc" => isrc
-                       }
-                       | matched_list
-                     ], not_found_list}
-
-                  _ ->
-                    {matched_list,
-                     [
-                       # Sure to have a match here!
-                       track_list
-                       |> Enum.find(fn track -> track.isrc == isrc end)
-                       |> Track.to_map()
-                       | not_found_list
-                     ]}
-                end
-              end)
-
-            updated_unsaved_tracks =
-              Enum.concat(
-                unsaved_tracks,
-                matched_list
-              )
-
-            updated_unsaved_not_found_tracks =
-              Enum.concat([
-                unsaved_not_found_tracks,
-                tracks_with_missing_isrc,
-                not_found_list
-              ])
-
-            with {:ok, updated_unsaved_tracks} <-
-                   process_match_results(updated_unsaved_tracks, transfer_id),
-                 {:ok, updated_unsaved_not_found_tracks} <-
-                   process_error_results(updated_unsaved_not_found_tracks, transfer_id) do
+        case AppleMusic.search_track(developer_token, access_token, search_args) do
+          {:ok, nil, _} ->
+            with {:ok, updated_unsaved_not_found_tracks} <-
+                   [Track.to_map(track) | unsaved_not_found_tracks]
+                   |> process_error_results(transfer_id) do
               Map.merge(args, %{
-                "offset" => offset + search_limit,
-                "unsaved_tracks" => updated_unsaved_tracks,
+                "offset" => offset + 1,
                 "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
+              })
+              |> __MODULE__.new()
+              |> Oban.insert()
+            end
+
+          {:ok, matched_track, _} ->
+            with {:ok, updated_unsaved_tracks} <-
+                   [MatchedTrack.to_map(matched_track) | unsaved_tracks]
+                   |> process_match_results(transfer_id) do
+              Map.merge(args, %{
+                "offset" => offset + 1,
+                "unsaved_tracks" => updated_unsaved_tracks
               })
               |> __MODULE__.new()
               |> Oban.insert()
