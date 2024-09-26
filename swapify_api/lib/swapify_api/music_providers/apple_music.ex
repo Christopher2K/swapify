@@ -2,6 +2,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   @moduledoc "Interfact to talk to Apple Music"
   require Logger
 
+  alias SwapifyApi.Tasks.MatchedTrack
   alias SwapifyApi.Utils
   alias SwapifyApi.MusicProviders.Track
 
@@ -112,6 +113,142 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
     case result do
       {:ok, %Req.Response{status: 200} = response} ->
         {:ok, response.body, response}
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
+  @doc """
+  Search for one track on Apple Music
+  Try a isrc match first, fallback on classic search when isrc is missing / not found
+  Args map is expected to contain string keys:
+  - "isrc"
+  - "name"
+  - "artist"
+  - "album"
+  """
+  @spec search_track(String.t(), String.t(), map()) ::
+          {:ok, MatchedTrack.t(), Req.Response.t()}
+          | {:ok, nil, Req.Response.t()}
+          | {:error, pos_integer(), Req.Response.t()}
+  def search_track(
+        developer_token,
+        user_token,
+        %{
+          "isrc" => isrc
+        } = args
+      )
+      when is_nil(isrc) do
+    search_track_by_info(developer_token, user_token, args)
+  end
+
+  def search_track(
+        developer_token,
+        user_token,
+        args
+      ) do
+    case search_track_by_isrc(developer_token, user_token, args) do
+      {:ok, nil, _} -> search_track_by_info(developer_token, user_token, args)
+      result -> result
+    end
+  end
+
+  defp search_track_by_isrc(developer_token, user_token, %{
+         "isrc" => isrc
+       }) do
+    uri =
+      get_api_url(
+        "/catalog/#{@default_storefront}/songs",
+        [{"filter[isrc]", isrc}]
+      )
+
+    Logger.debug("Call API", service: "applemusic", uri: uri)
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{
+          "Authorization" => "Bearer #{developer_token}",
+          "Music-User-Token" => user_token
+        }
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        case response.body["meta"]["filters"]["isrc"][isrc] do
+          [] ->
+            {:ok, nil, response}
+
+          [%{"id" => id, "href" => href}] ->
+            {:ok,
+             %MatchedTrack{
+               isrc: isrc,
+               platform_id: id,
+               platform_link: href
+             }, response}
+        end
+
+      _ ->
+        handle_api_error(result, uri)
+    end
+  end
+
+  defp search_track_by_info(developer_token, user_token, %{
+         "name" => name,
+         "artist" => artist,
+         "album" => album,
+         "isrc" => isrc
+       }) do
+    uri =
+      get_api_url(
+        "/catalog/#{@default_storefront}/search",
+        [
+          {"types", "songs"},
+          {"term",
+           [name, artist, album]
+           |> Enum.map(fn term -> String.replace(term, " ", "+") end)
+           |> Enum.join("+")}
+        ]
+      )
+
+    Logger.debug("Call API", service: "applemusic", uri: uri)
+
+    result =
+      [
+        method: :get,
+        url: uri,
+        headers: %{
+          "Authorization" => "Bearer #{developer_token}",
+          "Music-User-Token" => user_token
+        }
+      ]
+      |> Utils.prepare_request()
+      |> Req.request()
+
+    case result do
+      {:ok, %Req.Response{status: 200} = response} ->
+        case response.body["results"]["songs"]["data"] do
+          [
+            %{
+              "id" => id,
+              "href" => href
+            }
+            | _
+          ] ->
+            {:ok,
+             %MatchedTrack{
+               isrc: isrc,
+               platform_id: id,
+               platform_link: href
+             }, response}
+
+          _ ->
+            {:ok, nil, response}
+        end
 
       _ ->
         handle_api_error(result, uri)
