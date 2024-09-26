@@ -50,9 +50,9 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
 # different ports.
 
 # Enable dev routes for dashboard and mailbox
-config :swapify_api, dev_routes: true
-
 config :swapify_api,
+  dev_routes: true,
+  api_url: "http://localhost:4000",
   app_url: "http://localhost:5173",
   cookie_domain: "localhost"
 

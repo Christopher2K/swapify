@@ -33,4 +33,6 @@ defmodule SwapifyApi.Utils do
     end
     |> Enum.join(".")
   end
+
+  def get_app_url("/" <> _path = path), do: Application.fetch_env!(:swapify_api, :app_url) <> path
 end

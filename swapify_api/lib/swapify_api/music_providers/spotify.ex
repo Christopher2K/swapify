@@ -21,7 +21,11 @@ defmodule SwapifyApi.MusicProviders.Spotify do
                           "user-read-private"
                         ]
                         |> Enum.join(" ")
-  @redirect_uri "http://localhost:4000/api/integrations/spotify/callback"
+
+  defp get_redirect_uri(),
+    do:
+      Application.fetch_env!(:swapify_api, :api_url) <>
+        "/api/integrations/spotify/callback"
 
   defp get_client_id(), do: Application.fetch_env!(:swapify_api, __MODULE__)[:client_id]
 
@@ -69,7 +73,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     query_params = [
       {"client_id", client_id},
       {"response_type", "code"},
-      {"redirect_uri", @redirect_uri},
+      {"redirect_uri", get_redirect_uri()},
       {"scope", @authentication_scope},
       {"state", state}
     ]
@@ -88,7 +92,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   def request_access_token(authorization_code) do
     body = %{
       "grant_type" => "authorization_code",
-      "redirect_uri" => @redirect_uri,
+      "redirect_uri" => get_redirect_uri(),
       "code" => authorization_code
     }
 

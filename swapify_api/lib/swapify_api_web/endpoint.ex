@@ -13,7 +13,7 @@ defmodule SwapifyApiWeb.Endpoint do
   ]
 
   @allowed_origins [
-    "http://localhost:5173"
+    Application.compile_env!(:swapify_api, :app_url)
   ]
 
   @allowed_headers [

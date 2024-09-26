@@ -2,6 +2,7 @@ defmodule SwapifyApiWeb.IntegrationController do
   use SwapifyApiWeb, :controller
 
   require Logger
+  alias SwapifyApi.Utils
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.AppleMusicDeveloperToken
   alias SwapifyApi.Accounts.PlatformConnectionRepo
@@ -43,14 +44,14 @@ defmodule SwapifyApiWeb.IntegrationController do
       {:ok, _} ->
         conn
         |> delete_session(:spotify_state)
-        |> redirect(external: "http://localhost:5173/integrations/spotify?result=success")
+        |> redirect(external: Utils.get_app_url("/integrations/spotify?result=success"))
 
       {:error, error} ->
         conn
         |> delete_session(:spotify_state)
         |> redirect(
           external:
-            "http://localhost:5173/integrations/spotify?result=error&error=#{Atom.to_string(error)}"
+            Utils.get_app_url("/integrations/spotify?result=error&error=#{Atom.to_string(error)}")
         )
     end
   end
@@ -59,7 +60,7 @@ defmodule SwapifyApiWeb.IntegrationController do
     conn
     |> delete_session(:spotify_state)
     |> redirect(
-      external: "http://localhost:5173/integration/spotify?result=error&error=service_error"
+      external: Utils.get_app_url("/integrations/spotify?result=error&error=service_error")
     )
   end
 

@@ -9,13 +9,14 @@ import Config
 
 config :swapify_api,
   ecto_repos: [SwapifyApi.Repo],
-  generators: [timestamp_type: :utc_datetime, binary_id: true]
+  generators: [timestamp_type: :utc_datetime, binary_id: true],
+  api_url: "https://api.swapify.live",
+  app_url: "https://swapify.live",
+  cookie_domain: ".swapify.live"
 
 config :swapify_api, SwapifyApi.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
 config :swapify_api,
-  app_url: "https://swapify.live",
-  cookie_domain: ".swapify.live",
   http_client_opts: []
 
 # Configures the endpoint
