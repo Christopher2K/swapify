@@ -100,6 +100,9 @@ export function PlaylistsPage() {
         justifyContent="flex-start"
         alignItems="flex-start"
       >
+        <Heading as="h2" size="lg">
+          Your music libraries
+        </Heading>
         <PlaylistsTable
           playlists={libraries}
           playlistStatuses={playlistStatuses}
@@ -113,8 +116,8 @@ export function PlaylistsPage() {
         justifyContent="flex-start"
         alignItems="flex-start"
       >
-        <Heading as="h2" size="xl">
-          Playlists
+        <Heading as="h2" size="lg">
+          Your library playlists
         </Heading>
         <p>Coming soon...</p>
       </VStack>

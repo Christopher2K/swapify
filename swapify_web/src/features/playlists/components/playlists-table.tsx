@@ -1,8 +1,11 @@
+import { Link as RouterLink } from "@tanstack/react-router";
+
 import { css } from "#style/css";
 import { Box, styled, HStack } from "#style/jsx";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { PlaylistStatus } from "#root/components/playlist-status";
 import { Button } from "#root/components/ui/button";
+import { Text } from "#root/components/ui/text";
 import { APIPlatformName, APIPlaylist } from "#root/services/api.types";
 import { Card } from "#root/components/ui/card";
 import { DefinitionList } from "#root/components/definition-list";
@@ -26,6 +29,17 @@ export function PlaylistsTable({
   playlistStatuses,
   onSynchronizeItem,
 }: PlaylistsTableProps) {
+  if (playlists?.length === 0) {
+    return (
+      <Box>
+        <Text>
+          No playlist here yet. Try to connect a platform first{" "}
+          <RouterLink to="/integrations">here!</RouterLink>
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <Box
       display="grid"
