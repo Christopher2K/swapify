@@ -100,9 +100,6 @@ export function PlaylistsPage() {
         justifyContent="flex-start"
         alignItems="flex-start"
       >
-        <Heading as="h2" size="xl">
-          Libraries
-        </Heading>
         <PlaylistsTable
           playlists={libraries}
           playlistStatuses={playlistStatuses}

@@ -47,7 +47,6 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
         justifyContent="flex-start"
         alignItems="flex-start"
         w="full"
-        bg="tomato"
         gap="0"
         position="relative"
       >
@@ -68,39 +67,40 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
           transitionTimingFunction="ease-in-out"
           transitionDuration="fast"
         >
-          <HStack
-            position="sticky"
-            top="0"
-            borderBottom="thin"
-            borderStyle="solid"
-            borderColor="accent.4"
-            w="full"
-            gap="4"
-            bg="accent.1"
-            px="4"
-            height="16"
-            boxShadow="sm"
-            zIndex="banner"
-          >
-            <Button
-              display={["block", "none"]}
-              variant="outline"
-              onClick={() => setIsSidebarMobileOpen(true)}
+          <Box w="full" maxW="1100px" mx="auto">
+            <HStack
+              position="sticky"
+              top="0"
+              w="full"
+              gap="4"
+              px="4"
+              height="16"
+              bg="accent.1"
+              zIndex="banner"
             >
-              <Logs />
-            </Button>
-            <Heading>{pageTitle}</Heading>
-          </HStack>
-          <Box
-            position="relative"
-            minH="100%"
-            flex={1}
-            alignItems="stretch"
-            width="full"
-            bg="accent.2"
-          >
-            <Box position="absolute" height="full" width="full" zIndex="1">
-              {children}
+              <Button
+                display={["block", "none"]}
+                variant="outline"
+                onClick={() => setIsSidebarMobileOpen(true)}
+              >
+                <Logs />
+              </Button>
+              <Heading as="h1" size="xl">
+                {pageTitle}
+              </Heading>
+            </HStack>
+
+            <Box
+              position="relative"
+              minH="100%"
+              flex={1}
+              alignItems="stretch"
+              width="full"
+              bg="accent.1"
+            >
+              <Box position="absolute" height="full" width="full" zIndex="1">
+                {children}
+              </Box>
             </Box>
           </Box>
         </VStack>

@@ -70,7 +70,7 @@ export function IntegrationsPage() {
   }
 
   useEffect(() => {
-    setPageTitle("Integrations");
+    setPageTitle("Music platforms");
 
     function handleMessage(event: MessageEvent) {
       if (event.data?.integration === "applemusic") {
