@@ -85,7 +85,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
               >
                 <Logs />
               </Button>
-              <Heading as="h1" size="xl">
+              <Heading as="h1" size="2xl">
                 {pageTitle}
               </Heading>
             </HStack>
