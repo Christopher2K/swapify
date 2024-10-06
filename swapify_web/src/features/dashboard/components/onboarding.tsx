@@ -1,80 +1,105 @@
-import { ChevronDownIcon } from "lucide-react";
+import type { ReactNode, PropsWithChildren } from "react";
+import { FolderSync, Music2Icon, RefreshCcw } from "lucide-react";
 
-import { styled, VStack } from "#style/jsx";
-import { Card } from "#root/components/ui/card";
+import { HStack, Stack, VStack } from "#style/jsx";
+import { css } from "#style/css";
+import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
-import { Accordion } from "#root/components/ui/accordion";
+import { Badge } from "#root/components/ui/badge";
 import { useAppleMusicConnect } from "#root/features/integrations/hooks/use-apple-music-connect";
 import { useSpotifyConnect } from "#root/features/integrations/hooks/use-spotify-connect";
+import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
+import { PlatformLogo } from "#root/components/platform-logo";
+import { tsr } from "#root/services/api";
+import { APIPlatformName } from "#root/services/api.types";
+import { usePlaylistSyncSocket } from "#root/features/playlists/hooks/use-playlist-sync-socket";
 
 import { PlatformButton } from "./platform-button";
-import {
-  OnboardingStepSchema,
-  OnboardingStepSchemaType,
-  getTitle,
-} from "./onboarding.types";
-import { PlatformLogo } from "#root/components/platform-logo";
 
 export function Onboarding() {
   return (
-    <Card.Root maxW="lg" w="full" alignSelf="center">
-      <Card.Body py="4" px="10">
-        <Accordion.Root
-          multiple
-          defaultValue={Object.values(OnboardingStepSchema.enum)}
-          border="none"
-        >
-          {Object.values(OnboardingStepSchema.enum).map((value, index) => (
-            <Step key={value} index={index + 1} step={value} />
-          ))}
-        </Accordion.Root>
-      </Card.Body>
-    </Card.Root>
+    <VStack
+      width="full"
+      justifyContent="flex-start"
+      alignItems="flex-start"
+      gap="4"
+    >
+      <IntegrationStep />
+      <SynchronizationStep />
+      <TransferStep />
+    </VStack>
   );
 }
 
-type StepProps = {
-  index: number;
-  step: OnboardingStepSchemaType;
-};
-function Step({ index, step }: StepProps) {
-  const trigger = (
-    <Accordion.ItemTrigger fontSize="md">
-      <styled.span>
-        <styled.span display="inline-block" mr="2">
-          {index}.
-        </styled.span>
-        {getTitle(step)}
-      </styled.span>
-      <Accordion.ItemIndicator>
-        <ChevronDownIcon />
-      </Accordion.ItemIndicator>
-    </Accordion.ItemTrigger>
-  );
-
-  const getContent = () => {
-    switch (step) {
-      case "PLATFORM":
-        return <PlatformStep />;
-      case "SYNC_LIB":
-        return <SynchronizeStep />;
-      case "READY":
-        return null;
-    }
-  };
-
+export type StepProps = PropsWithChildren<{
+  title: string;
+  subtitle: string;
+  icon: ReactNode;
+  status?: "done" | "in_progress";
+}>;
+const Step = ({ children, title, icon, subtitle, status }: StepProps) => {
   return (
-    <Accordion.Item value={step}>
-      {trigger}
-      <Accordion.ItemContent>{getContent()}</Accordion.ItemContent>
-    </Accordion.Item>
-  );
-}
+    <VStack
+      w="100%"
+      gap="4"
+      justifyContent="flex-start"
+      alignItems="flex-start"
+    >
+      <HStack justifyContent="flex-start" alignItems="center">
+        <Heading as="h2" textStyle="lg">
+          {title}
+        </Heading>
+        {status && (
+          <Badge
+            variant="solid"
+            backgroundColor={status === "done" ? "green" : "blue.10"}
+          >
+            {status === "done" ? "Completed" : "In progress"}
+          </Badge>
+        )}
+      </HStack>
 
-const PlatformStep = () => {
+      <HStack
+        w="full"
+        gap="4"
+        justifyContent="flex-start"
+        alignItems={status === "done" ? "center" : "flex-start"}
+      >
+        <Stack
+          width="12"
+          height="12"
+          backgroundColor="gray.12"
+          borderRadius="md"
+          justifyContent="center"
+          alignItems="center"
+          flexShrink={0}
+          className={css({
+            "& > svg": {
+              stroke: "gray.1",
+            },
+          })}
+        >
+          {icon}
+        </Stack>
+        <VStack
+          width="full"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+        >
+          <Text fontSize="md" fontWeight="medium">
+            {subtitle}
+          </Text>
+          {status === "done" ? null : children}
+        </VStack>
+      </HStack>
+    </VStack>
+  );
+};
+
+const IntegrationStep = () => {
   const {
     connect: appleMusicConnect,
-    isConnected: isAppleMusisConnected,
+    isConnected: isAppleMusicConnected,
     isLoading: isAppleMusicLoading,
   } = useAppleMusicConnect();
 
@@ -84,40 +109,106 @@ const PlatformStep = () => {
     isLoading: isSpotifyLoading,
   } = useSpotifyConnect();
 
+  const isDone = isAppleMusicConnected && isSpotifyConnected;
+
   return (
-    <VStack gap="5">
-      <VStack w="full">
-        <Text>
+    <Step
+      title="Step 1"
+      subtitle="Connect to your music platforms"
+      icon={<Music2Icon />}
+      status={isDone ? "done" : undefined}
+    >
+      <VStack
+        justifyContent="flex-start"
+        alignItems={isDone ? "center" : "flex-start"}
+      >
+        <Text color="gray.9">
           Swapify needs access to at least 2 music platforms before transfering
-          your library and your playlists.
+          your library and your playlists. It sounds scary but no worries, it's
+          super simple. For now, we support Apple Music and Spotify.
         </Text>
-        <Text>
-          It sounds scary but no worries, it's super simple. For now, we support
-          Apple Music and Spotify.
-        </Text>
-      </VStack>
+        <HStack width="full" flexWrap="wrap" py="4">
+          <PlatformButton
+            icon={<PlatformLogo platform="applemusic" />}
+            label={
+              isAppleMusicConnected
+                ? "Connected to Apple Music"
+                : "Connect to Apple Music"
+            }
+            onClick={appleMusicConnect}
+            isDone={isAppleMusicConnected}
+            isLoading={isAppleMusicLoading}
+          />
 
-      <VStack width="full">
-        <PlatformButton
-          icon={<PlatformLogo platform="applemusic" />}
-          label="Connect to Apple Music"
-          onClick={appleMusicConnect}
-          isConnected={isAppleMusisConnected}
-          isLoading={isAppleMusicLoading}
-        />
-
-        <PlatformButton
-          icon={<PlatformLogo platform="spotify" />}
-          label="Connect to Spotify"
-          onClick={spotifyConnect}
-          isConnected={isSpotifyConnected}
-          isLoading={isSpotifyLoading}
-        />
+          <PlatformButton
+            icon={<PlatformLogo platform="spotify" />}
+            label={
+              isSpotifyConnected ? "Connected to Spotify" : "Connect to Spotify"
+            }
+            onClick={spotifyConnect}
+            isDone={isSpotifyConnected}
+            isLoading={isSpotifyLoading}
+          />
+        </HStack>
       </VStack>
-    </VStack>
+    </Step>
   );
 };
 
-const SynchronizeStep = () => {
-  return <VStack></VStack>;
+// This is is considered as done when at least one playlist as been synchronized
+const SynchronizationStep = () => {
+  const { libraries, refetch: refetchLibraries } = useLibrariesQuery();
+  const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
+  const { addEventListener } = usePlaylistSyncSocket();
+
+  const isDone = libraries?.some((lib) => lib.syncStatus === "synced");
+  const isLoading = libraries?.some((lib) => lib.syncStatus === "syncing");
+
+  async function handleSyncLibrary(platformName: APIPlatformName) {
+    try {
+      await syncLibrary({ params: { platformName } });
+      await refetchLibraries();
+      // TODO: toast success
+    } catch (e) {
+      // TODO: error toast
+    }
+  }
+
+  return (
+    <Step
+      title="Step 2"
+      subtitle="Synchronize your libraries"
+      icon={<RefreshCcw />}
+      status={isDone ? "done" : isLoading ? "in_progress" : undefined}
+    >
+      <VStack justifyContent="flex-start" alignItems="flex-start">
+        <Text color="gray.9">
+          Now that we have access to your platforms, synchronize the library
+          you'd like to transfer to other platforms. This will allow our system
+          to know about the tracks
+        </Text>
+
+        <HStack width="full" flexWrap="wrap">
+          {libraries?.map((lib) => (
+            <PlatformButton
+              key={lib.id}
+              icon={<PlatformLogo platform={lib.platformName} />}
+              label={`Synchronize your ${lib.platformName}`}
+              isDone={lib.syncStatus === "synced"}
+              isLoading={lib.syncStatus === "syncing"}
+              onClick={() => handleSyncLibrary(lib.platformName)}
+            />
+          ))}
+        </HStack>
+      </VStack>
+    </Step>
+  );
+};
+
+const TransferStep = () => {
+  return (
+    <Step title="Step 3" subtitle="Start a transfer" icon={<FolderSync />}>
+      Transfer step
+    </Step>
+  );
 };

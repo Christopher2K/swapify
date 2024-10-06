@@ -7,6 +7,7 @@ import type {
   APIJobUpdateNotification,
   APIJobErrorNotification,
 } from "#root/services/realtime.types";
+import { useAuthenticatedUser } from "#root/features/auth/authentication-provider";
 
 export type APISyncPlaylistError = APIJobErrorNotification<{
   playlistId: string;
@@ -29,8 +30,9 @@ export type PlaylistSyncSocketIncomingMessageRecord = {
   };
 };
 
-export function usePlaylistSyncSocket(userId: string) {
-  const channelName = "playlist_sync:" + userId;
+export function usePlaylistSyncSocket() {
+  const user = useAuthenticatedUser();
+  const channelName = "playlist_sync:" + user.id;
   return useChannel<
     PlaylistSyncSocketIncomingMessageRecord,
     PlaylistSyncSocketOutgoingMessageRecord

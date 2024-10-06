@@ -5,15 +5,14 @@ import {
   useEffect,
   createContext,
 } from "react";
-import { XIcon, Logs } from "lucide-react";
+import { Logs } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 
 import { HStack, VStack, Box } from "#style/jsx";
 
 import { Button } from "./ui/button";
 import { Text } from "./ui/text";
 import { Sidebar } from "./sidebar";
-import { Heading } from "./ui/heading";
-import { useRouter } from "@tanstack/react-router";
 
 type ScreenOptionsContextType = {
   setPageTitle: (title: string) => void;
@@ -82,72 +81,12 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
             height="100%"
             overflow="auto"
           >
-            {children}
+            <Box maxWidth="1200px" w="full" mx="auto">
+              {children}
+            </Box>
           </Box>
         </HStack>
       </VStack>
     </ScreenOptionsContext.Provider>
   );
 }
-
-// {/* <HStack */}
-// {/*   as="main" */}
-// {/*   justifyContent="flex-start" */}
-// {/*   alignItems="flex-start" */}
-// {/*   w="full" */}
-// {/*   gap="0" */}
-// {/*   position="relative" */}
-// {/* > */}
-// {/*   <VStack */}
-// {/*     flex="1" */}
-// {/*     w="full" */}
-// {/*     minH="100svh" */}
-// {/*     gap="0" */}
-// {/*     pl={[undefined, "300px"]} */}
-// {/*     justifyContent="flex-start" */}
-// {/*     alignItems="flex-start" */}
-// {/*     transition="all" */}
-// {/*     transitionTimingFunction="ease-in-out" */}
-// {/*     transitionDuration="fast" */}
-// {/*   > */}
-// {/*     <Box w="full" maxW="1100px" mx="auto"> */}
-// {/*       <HStack */}
-// {/*         position="sticky" */}
-// {/*         top="0" */}
-// {/*         w="full" */}
-// {/*         gap="4" */}
-// {/*         px="4" */}
-// {/*         height="16" */}
-// {/*         bg="accent.1" */}
-// {/*         zIndex="banner" */}
-// {/*       > */}
-// {/*         <Button */}
-// {/*           display={["block", "none"]} */}
-// {/*           variant="outline" */}
-// {/*           onClick={() => setIsSidebarMobileOpen(true)} */}
-// {/*         > */}
-// {/*           <Logs /> */}
-// {/*         </Button> */}
-// {/*         <Heading as="h1" size="2xl"> */}
-// {/*           {pageTitle} */}
-// {/*         </Heading> */}
-// {/*       </HStack> */}
-// {/**/}
-// {/*       <Box */}
-// {/*         position="relative" */}
-// {/*         minH="100%" */}
-// {/*         flex={1} */}
-// {/*         alignItems="stretch" */}
-// {/*         width="full" */}
-// {/*         bg="accent.1" */}
-// {/*       > */}
-// {/*         <Box */}
-// {/*           position="absolute" */}
-// {/*           height="full" */}
-// {/*           width="full" */}
-// {/*           zIndex="1" */}
-// {/*         ></Box> */}
-// {/*       </Box> */}
-// {/*     </Box> */}
-// {/*   </VStack> */}
-// {/* </HStack> */}

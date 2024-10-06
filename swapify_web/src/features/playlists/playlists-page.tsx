@@ -11,17 +11,14 @@ import {
   usePlaylistSyncSocket,
   PlaylistSyncSocketIncomingMessageRecord,
 } from "./hooks/use-playlist-sync-socket";
-import { useAuthenticatedUser } from "../auth/authentication-provider";
 import type { PlaylistStatusState } from "./types/playlist-sync-status-state";
 import { APIPlatformName } from "#root/services/api.types";
 
 export function PlaylistsPage() {
   const { setPageTitle } = useScreenOptions();
   const { libraries } = useLibrariesQuery();
-  const { id } = useAuthenticatedUser();
-  // FIXME: this only exist for testing, the UX flow needs to be WAY better
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
-  const { addEventListener } = usePlaylistSyncSocket(id);
+  const { addEventListener } = usePlaylistSyncSocket();
   const [playlistStatuses, setPlaylistStatuses] = useState<
     Record<
       APIPlatformName,

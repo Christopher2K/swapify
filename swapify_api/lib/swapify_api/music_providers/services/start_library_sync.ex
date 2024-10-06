@@ -27,7 +27,8 @@ defmodule SwapifyApi.MusicProviders.Services.StartLibrarySync do
              "user_id" => user_id,
              "oban_job_args" =>
                Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }) do
+           }),
+         {:ok, _} <- PlaylistRepo.update_status(playlist.id, :syncing) do
       case Map.merge(job_args, %{"job_id" => db_job.id})
            |> SyncLibraryJob.new()
            |> Oban.insert() do
