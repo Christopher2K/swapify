@@ -3,10 +3,8 @@ import { useEffect, useState } from "react";
 import { tsr } from "#root/services/api";
 import { Heading } from "#root/components/ui/heading";
 import { VStack } from "#style/jsx";
-import {
-  useJobUpdateSocket,
-  JobUpdateSocketIncomingMessageRecord,
-} from "#root/features/job/hooks/use-job-update-socket";
+import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
+import type { JobUpdateSocketIncomingMessageRecord } from "#root/features/job/hooks/use-job-update-socket";
 
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";
@@ -16,7 +14,7 @@ import { APIPlatformName } from "#root/services/api.types";
 export function PlaylistsPage() {
   const { libraries } = useLibrariesQuery();
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
-  const { addEventListener } = useJobUpdateSocket();
+  const { addJobUpdateEventListener } = useJobUpdateContext();
   const [playlistStatuses, setPlaylistStatuses] = useState<
     Record<
       APIPlatformName,
@@ -81,7 +79,7 @@ export function PlaylistsPage() {
   }
 
   useEffect(
-    () => addEventListener("job_update", updatePlaylistStatus),
+    () => addJobUpdateEventListener("job_update", updatePlaylistStatus),
     [addEventListener],
   );
 

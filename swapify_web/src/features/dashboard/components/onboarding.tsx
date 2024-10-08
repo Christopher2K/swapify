@@ -12,35 +12,37 @@ import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-
 import { PlatformLogo } from "#root/components/platform-logo";
 import { tsr } from "#root/services/api";
 import { APIPlatformName } from "#root/services/api.types";
-import { useJobUpdateSocket } from "#root/features/job/hooks/use-job-update-socket";
+import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
 
 import { PlatformButton } from "./platform-button";
 
 export function Onboarding() {
-  const { addEventListener } = useJobUpdateSocket();
+  const { addJobUpdateEventListener } = useJobUpdateContext();
   const { refetch: refetchLibraries } = useLibrariesQuery();
 
-  useEffect(() => {
-    return addEventListener("job_update", (payload) => {
-      if (payload.tag === "JobUpdateNotification") {
-        switch (payload.name) {
-          // When platform sync is done, refetch the libraries
-          case "sync_platform":
-            return refetchLibraries();
-          case "sync_library":
-            if (payload.data.status === "synced") {
+  useEffect(
+    () =>
+      addJobUpdateEventListener("job_update", (payload) => {
+        if (payload.tag === "JobUpdateNotification") {
+          switch (payload.name) {
+            // When platform sync is done, refetch the libraries
+            case "sync_platform":
               return refetchLibraries();
-            }
-            return;
-          default:
-            return;
+            case "sync_library":
+              if (payload.data.status === "synced") {
+                return refetchLibraries();
+              }
+              return;
+            default:
+              return;
+          }
+        } else {
+          // Handle error here
+          return;
         }
-      } else {
-        // Handle error here
-        return;
-      }
-    });
-  }, []);
+      }),
+    [],
+  );
 
   return (
     <VStack
