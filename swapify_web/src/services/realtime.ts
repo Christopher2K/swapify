@@ -67,6 +67,8 @@ export function useChannel<
     });
   }
 
+  // TODO: Remove the subscription id from the subscription map
+  // When the `off` callback is fired
   function addEventListener<T extends Extract<keyof IN, string>>(
     message: T,
     callback: (payload: IN[T]["payload"], channel: Channel) => void,

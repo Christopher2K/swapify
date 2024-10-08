@@ -3,7 +3,6 @@ defmodule SwapifyApiWeb.UserSocket do
 
   alias SwapifyApi.Accounts.Services.ValidateSocketToken
 
-  channel "playlist_sync:*", SwapifyApiWeb.PlaylistSyncChannel
   channel "job_update:*", SwapifyApiWeb.JobUpdateChannel
 
   @impl true

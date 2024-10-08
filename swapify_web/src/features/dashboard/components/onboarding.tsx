@@ -15,6 +15,7 @@ import { APIPlatformName } from "#root/services/api.types";
 import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
 
 import { PlatformButton } from "./platform-button";
+import { onJobUpdate } from "#root/features/job/utils/on-job-update";
 
 export function Onboarding() {
   const { addJobUpdateEventListener } = useJobUpdateContext();
@@ -22,25 +23,23 @@ export function Onboarding() {
 
   useEffect(
     () =>
-      addJobUpdateEventListener("job_update", (payload) => {
-        if (payload.tag === "JobUpdateNotification") {
-          switch (payload.name) {
-            // When platform sync is done, refetch the libraries
-            case "sync_platform":
-              return refetchLibraries();
-            case "sync_library":
-              if (payload.data.status === "synced") {
-                return refetchLibraries();
-              }
-              return;
-            default:
-              return;
+      addJobUpdateEventListener(
+        "job_update",
+        onJobUpdate("sync_platform", () => refetchLibraries()),
+      ),
+    [],
+  );
+
+  useEffect(
+    () =>
+      addJobUpdateEventListener(
+        "job_update",
+        onJobUpdate("sync_library", (payload) => {
+          if (payload.data.status === "synced") {
+            return refetchLibraries();
           }
-        } else {
-          // Handle error here
-          return;
-        }
-      }),
+        }),
+      ),
     [],
   );
 
