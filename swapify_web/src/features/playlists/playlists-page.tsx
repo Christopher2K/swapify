@@ -4,13 +4,13 @@ import { tsr } from "#root/services/api";
 import { useScreenOptions } from "#root/components/app-screen-layout";
 import { Heading } from "#root/components/ui/heading";
 import { VStack } from "#style/jsx";
+import {
+  useJobUpdateSocket,
+  JobUpdateSocketIncomingMessageRecord,
+} from "#root/features/job/hooks/use-job-update-socket";
 
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";
-import {
-  usePlaylistSyncSocket,
-  PlaylistSyncSocketIncomingMessageRecord,
-} from "./hooks/use-playlist-sync-socket";
 import type { PlaylistStatusState } from "./types/playlist-sync-status-state";
 import { APIPlatformName } from "#root/services/api.types";
 
@@ -18,7 +18,7 @@ export function PlaylistsPage() {
   const { setPageTitle } = useScreenOptions();
   const { libraries } = useLibrariesQuery();
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
-  const { addEventListener } = usePlaylistSyncSocket();
+  const { addEventListener } = useJobUpdateSocket();
   const [playlistStatuses, setPlaylistStatuses] = useState<
     Record<
       APIPlatformName,
@@ -30,7 +30,7 @@ export function PlaylistsPage() {
   });
 
   function updatePlaylistStatus(
-    msg: PlaylistSyncSocketIncomingMessageRecord["status_update"]["payload"],
+    msg: JobUpdateSocketIncomingMessageRecord["job_update"]["payload"],
   ) {
     setPlaylistStatuses((state) => {
       if (msg.name !== "sync_library") return state;
@@ -85,7 +85,7 @@ export function PlaylistsPage() {
   useEffect(() => setPageTitle("Playlists"), []);
 
   useEffect(
-    () => addEventListener("status_update", updatePlaylistStatus),
+    () => addEventListener("job_update", updatePlaylistStatus),
     [addEventListener],
   );
 

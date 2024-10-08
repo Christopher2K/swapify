@@ -4,7 +4,7 @@ defmodule SwapifyApiWeb.UserSocket do
   alias SwapifyApi.Accounts.Services.ValidateSocketToken
 
   channel "playlist_sync:*", SwapifyApiWeb.PlaylistSyncChannel
-  channel "platform_sync:*", SwapifyApiWeb.PlatformSyncChannel
+  channel "job_update:*", SwapifyApiWeb.JobUpdateChannel
 
   @impl true
   def connect(%{"token" => token}, socket, _connect_info) do

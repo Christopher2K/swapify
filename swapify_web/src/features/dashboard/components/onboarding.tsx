@@ -1,4 +1,4 @@
-import type { ReactNode, PropsWithChildren } from "react";
+import { ReactNode, PropsWithChildren, useEffect } from "react";
 import { FolderSync, Music2Icon, RefreshCcw } from "lucide-react";
 
 import { HStack, Stack, VStack } from "#style/jsx";
@@ -13,10 +13,31 @@ import { PlatformLogo } from "#root/components/platform-logo";
 import { tsr } from "#root/services/api";
 import { APIPlatformName } from "#root/services/api.types";
 import { usePlaylistSyncSocket } from "#root/features/playlists/hooks/use-playlist-sync-socket";
+import { useJobUpdateSocket } from "#root/features/job/hooks/use-job-update-socket";
 
 import { PlatformButton } from "./platform-button";
 
 export function Onboarding() {
+  const { addEventListener } = useJobUpdateSocket();
+  const { refetch } = useLibrariesQuery();
+
+  useEffect(() => {
+    return addEventListener("job_update", (payload) => {
+      if (payload.tag === "JobUpdateNotification") {
+        switch (payload.name) {
+          // When platform sync is done, refetch the libraries
+          case "sync_platform":
+            return refetch();
+          default:
+            return;
+        }
+      } else {
+        // Handle error here
+        return;
+      }
+    });
+  }, []);
+
   return (
     <VStack
       width="full"
@@ -159,7 +180,6 @@ const IntegrationStep = () => {
 const SynchronizationStep = () => {
   const { libraries, refetch: refetchLibraries } = useLibrariesQuery();
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
-  const { addEventListener } = usePlaylistSyncSocket();
 
   const isDone = libraries?.some((lib) => lib.syncStatus === "synced");
   const isLoading = libraries?.some((lib) => lib.syncStatus === "syncing");

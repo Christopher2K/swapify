@@ -13,18 +13,18 @@ export type OutgoingMessageRecord = Record<
   }
 >;
 
-type APIJobNotification<TAG extends string, DATA> = {
-  name: string;
+type APIJobNotification<TAG extends string, NAME extends string, DATA> = {
+  name: NAME;
   data: DATA;
   tag: TAG;
 };
 
-export type APIJobErrorNotification<T> = APIJobNotification<
-  "JobErrorNotification",
-  T
->;
+export type APIJobErrorNotification<
+  NAME extends string,
+  T,
+> = APIJobNotification<"JobErrorNotification", NAME, T>;
 
-export type APIJobUpdateNotification<T> = APIJobNotification<
-  "JobUpdateNotification",
-  T
->;
+export type APIJobUpdateNotification<
+  NAME extends string,
+  T,
+> = APIJobNotification<"JobUpdateNotification", NAME, T>;
