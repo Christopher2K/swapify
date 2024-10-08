@@ -1,7 +1,3 @@
-import { useEffect } from "react";
-
-import { useScreenOptions } from "#root/components/app-screen-layout";
-
 import { VStack, Box } from "#style/jsx";
 
 import { PlatformLogo } from "#root/components/platform-logo";
@@ -11,8 +7,6 @@ import { useAppleMusicConnect } from "./hooks/use-apple-music-connect";
 import { useSpotifyConnect } from "./hooks/use-spotify-connect";
 
 export function IntegrationsPage() {
-  const { setPageTitle } = useScreenOptions();
-
   const {
     connect: connectToAppleMusic,
     isLoading: isAppleMusicLoading,
@@ -24,10 +18,6 @@ export function IntegrationsPage() {
     isLoading: isSpotifyLoading,
     isConnected: isSpotifyConnected,
   } = useSpotifyConnect();
-
-  useEffect(() => {
-    setPageTitle("Music platforms");
-  }, []);
 
   return (
     <VStack w="full" h="full" p="4" gap="10">

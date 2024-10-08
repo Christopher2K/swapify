@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { tsr } from "#root/services/api";
-import { useScreenOptions } from "#root/components/app-screen-layout";
 import { Heading } from "#root/components/ui/heading";
 import { VStack } from "#style/jsx";
 import {
@@ -15,7 +14,6 @@ import type { PlaylistStatusState } from "./types/playlist-sync-status-state";
 import { APIPlatformName } from "#root/services/api.types";
 
 export function PlaylistsPage() {
-  const { setPageTitle } = useScreenOptions();
   const { libraries } = useLibrariesQuery();
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
   const { addEventListener } = useJobUpdateSocket();
@@ -81,8 +79,6 @@ export function PlaylistsPage() {
       };
     });
   }
-
-  useEffect(() => setPageTitle("Playlists"), []);
 
   useEffect(
     () => addEventListener("job_update", updatePlaylistStatus),
