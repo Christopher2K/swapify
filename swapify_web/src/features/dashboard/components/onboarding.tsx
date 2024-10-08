@@ -12,14 +12,13 @@ import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-
 import { PlatformLogo } from "#root/components/platform-logo";
 import { tsr } from "#root/services/api";
 import { APIPlatformName } from "#root/services/api.types";
-import { usePlaylistSyncSocket } from "#root/features/playlists/hooks/use-playlist-sync-socket";
 import { useJobUpdateSocket } from "#root/features/job/hooks/use-job-update-socket";
 
 import { PlatformButton } from "./platform-button";
 
 export function Onboarding() {
   const { addEventListener } = useJobUpdateSocket();
-  const { refetch } = useLibrariesQuery();
+  const { refetch: refetchLibraries } = useLibrariesQuery();
 
   useEffect(() => {
     return addEventListener("job_update", (payload) => {
@@ -27,7 +26,12 @@ export function Onboarding() {
         switch (payload.name) {
           // When platform sync is done, refetch the libraries
           case "sync_platform":
-            return refetch();
+            return refetchLibraries();
+          case "sync_library":
+            if (payload.data.status === "synced") {
+              return refetchLibraries();
+            }
+            return;
           default:
             return;
         }
