@@ -2,12 +2,14 @@ import { PropsWithChildren } from "react";
 import { z } from "zod";
 import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
 
-import { vstack } from "#style/patterns";
+import { css } from "#style/css";
+import { styled } from "#style/jsx";
+import { hstack, vstack } from "#style/patterns";
 
 import { Button } from "./ui/button";
-import { Alert } from "./ui/alert";
 
 import { TextField, PasswordField } from "./textfield";
+import { SelectField } from "./select-field";
 import { ThemedAlert } from "./themed-alert";
 
 export const PasswordSchema = createUniqueFieldSchema(
@@ -20,13 +22,26 @@ export const UncheckedPasswordSchema = createUniqueFieldSchema(
   "password",
 );
 
+export const SelectSchema = createUniqueFieldSchema(z.string(), "select");
+
 const mapping = [
   [z.string(), TextField] as const,
   [PasswordSchema, PasswordField] as const,
+  [SelectSchema, SelectField] as const,
 ] as const;
+
+const defaultFormItemsContainerClassName = css({
+  w: "full",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  gap: "6",
+});
 
 type SchemaFormContainerProps = PropsWithChildren<{
   id?: string;
+  formItemsContainerClassName?: string;
   submitText?: string;
   isLoading?: boolean;
   hideSubmitButton?: boolean;
@@ -40,6 +55,7 @@ export function SchemaFormContainer({
   hideSubmitButton = false,
   globalError,
   onSubmit,
+  formItemsContainerClassName = defaultFormItemsContainerClassName,
   children,
 }: SchemaFormContainerProps) {
   return (
@@ -49,12 +65,13 @@ export function SchemaFormContainer({
       className={vstack({
         w: "full",
         gap: "6",
+        containerType: "inline-size",
       })}
     >
       {globalError && (
         <ThemedAlert title="Error" description={globalError} severity="error" />
       )}
-      {children}
+      <div className={formItemsContainerClassName}>{children}</div>
       {!hideSubmitButton && (
         <Button loading={isLoading} type="submit" w="full" size="xl">
           {submitText}

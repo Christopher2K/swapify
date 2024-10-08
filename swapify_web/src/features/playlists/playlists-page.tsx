@@ -4,15 +4,19 @@ import { tsr } from "#root/services/api";
 import { Heading } from "#root/components/ui/heading";
 import { VStack } from "#style/jsx";
 import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
-import type { JobUpdateSocketIncomingMessageRecord } from "#root/features/job/hooks/use-job-update-socket";
+import type {
+  APISyncPlaylistError,
+  APISyncPlaylistUpdate,
+} from "#root/features/job/hooks/use-job-update-socket";
 
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";
 import type { PlaylistStatusState } from "./types/playlist-sync-status-state";
 import { APIPlatformName } from "#root/services/api.types";
+import { onJobUpdate } from "../job/utils/on-job-update";
 
 export function PlaylistsPage() {
-  const { libraries } = useLibrariesQuery();
+  const { libraries, refetch: refetchLibraries } = useLibrariesQuery();
   const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
   const { addJobUpdateEventListener } = useJobUpdateContext();
   const [playlistStatuses, setPlaylistStatuses] = useState<
@@ -24,40 +28,6 @@ export function PlaylistsPage() {
     spotify: {},
     applemusic: {},
   });
-
-  function updatePlaylistStatus(
-    msg: JobUpdateSocketIncomingMessageRecord["job_update"]["payload"],
-  ) {
-    setPlaylistStatuses((state) => {
-      if (msg.name !== "sync_library") return state;
-
-      switch (msg.tag) {
-        case "JobUpdateNotification":
-          return {
-            ...state,
-            [msg.data.platformName]: {
-              ...state[msg.data.platformName],
-              [msg.data.playlistId]: {
-                status: msg.data.status,
-                total: msg.data.tracksTotal,
-                totalSynced: msg.data.syncedTracksTotal,
-              },
-            },
-          };
-        case "JobErrorNotification":
-          return {
-            ...state,
-            [msg.data.platformName]: {
-              ...state[msg.data.platformName],
-              [msg.data.playlistId]: {
-                totalSynced: 0,
-                status: "error",
-              },
-            },
-          };
-      }
-    });
-  }
 
   function onSynchronizeRequest(
     platformName: APIPlatformName,
@@ -78,9 +48,49 @@ export function PlaylistsPage() {
     });
   }
 
+  function onSyncLibraryError(msg: APISyncPlaylistError) {
+    setPlaylistStatuses((state) => {
+      return {
+        ...state,
+        [msg.data.platformName]: {
+          ...state[msg.data.platformName],
+          [msg.data.playlistId]: {
+            totalSynced: 0,
+            status: "error",
+          },
+        },
+      };
+    });
+  }
+
+  function onSyncLibraryUpdate(msg: APISyncPlaylistUpdate) {
+    setPlaylistStatuses((state) => {
+      if (msg.data.status === "synced") {
+        refetchLibraries();
+      }
+
+      return {
+        ...state,
+        [msg.data.platformName]: {
+          ...state[msg.data.platformName],
+          [msg.data.playlistId]: {
+            status: msg.data.status,
+            total: msg.data.tracksTotal,
+            totalSynced: msg.data.syncedTracksTotal,
+          },
+        },
+      };
+    });
+  }
+
   useEffect(
-    () => addJobUpdateEventListener("job_update", updatePlaylistStatus),
-    [addEventListener],
+    () =>
+      addJobUpdateEventListener(
+        "job_update",
+        onJobUpdate("sync_library", onSyncLibraryUpdate, onSyncLibraryError),
+      ),
+
+    [],
   );
 
   return (

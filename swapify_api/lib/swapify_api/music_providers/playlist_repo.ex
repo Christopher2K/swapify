@@ -116,12 +116,27 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   end
 
   @doc "Get all the user libraries"
-  @spec get_user_libraries(String.t()) :: {:ok, list(Playlist.t())}
-  def get_user_libraries(user_id) do
+  @spec get_user_libraries(String.t(), Playlist.platform_name(), list(Playlist.sync_status())) ::
+          {:ok, list(Playlist.t())}
+  def get_user_libraries(user_id, platform_name \\ nil, statuses \\ []) do
     {:ok,
      Playlist.queryable()
      |> Playlist.filter_by(:user_id, user_id)
      |> Playlist.is_library(true)
+     |> then(fn query ->
+       if platform_name do
+         Playlist.filter_by(query, :platform_name, platform_name)
+       else
+         query
+       end
+     end)
+     |> then(fn query ->
+       if length(statuses) > 0 do
+         Playlist.filter_by(query, :sync_status, statuses)
+       else
+         query
+       end
+     end)
      |> Repo.all()}
   end
 

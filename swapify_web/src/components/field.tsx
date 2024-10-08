@@ -19,7 +19,7 @@ export function Field({
   return (
     <BaseField.Root w="full" invalid={Boolean(error)}>
       {label && <BaseField.Label htmlFor={htmlFor}>{label}</BaseField.Label>}
-      <BaseField.Input asChild>{children}</BaseField.Input>
+      {children}
       {helperText && <BaseField.HelperText>{helperText}</BaseField.HelperText>}
       {error && <BaseField.ErrorText>{error}</BaseField.ErrorText>}
     </BaseField.Root>

@@ -63,7 +63,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
             height="100%"
             overflow="auto"
           >
-            <Box maxWidth="1200px" w="full" mx="auto">
+            <Box maxWidth="1100px" w="full" mx="auto">
               {children}
             </Box>
           </Box>

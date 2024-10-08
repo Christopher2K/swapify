@@ -5,7 +5,6 @@ import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
 import { Card } from "#root/components/ui/card";
 import { VStack } from "#style/jsx";
-import { tsr } from "#root/services/api";
 import { ThemedAlert } from "#root/components/themed-alert";
 
 import {
@@ -13,6 +12,7 @@ import {
   useSignInForm,
   SignInFormData,
 } from "./components/sign-in-form";
+import { useSignInMutation } from "./hooks/use-sign-in-mutation";
 
 export function PageSignin() {
   const { justSignedUp } = useSearch({
@@ -20,24 +20,23 @@ export function PageSignin() {
   });
   const form = useSignInForm();
   const navigate = useNavigate();
-  const { mutateAsync: signInAsync, isPending } = tsr.signinUser.useMutation({
-    onSuccess: () => {
+  const { signInAsync, isPending } = useSignInMutation();
+
+  async function handleSubmit(data: SignInFormData) {
+    try {
+      await signInAsync({ body: data });
       navigate({ to: "/" });
-    },
-    onError: (error) => {
+    } catch (error) {
       if (error == null) return;
       if (isFetchError(error)) return;
+      // @ts-expect-error
       if (error.status === 401) {
         form.setError("root", {
           type: "manual",
           message: "Invalid email or password",
         });
       }
-    },
-  });
-
-  function handleSubmit(data: SignInFormData) {
-    signInAsync({ body: data });
+    }
   }
 
   return (

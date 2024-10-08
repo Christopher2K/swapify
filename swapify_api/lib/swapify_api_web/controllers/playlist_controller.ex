@@ -8,20 +8,13 @@ defmodule SwapifyApiWeb.PlaylistController do
   @doc """
   Get user libraries for all or a given platform
   """
-  def search_library(conn, %{"platform_name" => platform_name}) do
+  def search_library(conn, params) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, playlist} <- PlaylistRepo.get_user_library(user_id, platform_name) do
-      conn
-      |> put_status(200)
-      |> render(:index, playlist: playlist)
-    end
-  end
+    status = Map.values(params["status"] || %{})
+    platform_name = params["platform_name"]
 
-  def search_library(conn, _) do
-    user_id = conn.assigns[:user_id]
-
-    with {:ok, playlists} <- PlaylistRepo.get_user_libraries(user_id) do
+    with {:ok, playlists} <- PlaylistRepo.get_user_libraries(user_id, platform_name, status) do
       conn
       |> put_status(200)
       |> render(:index, playlists: playlists)

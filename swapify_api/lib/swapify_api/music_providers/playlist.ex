@@ -81,6 +81,12 @@ defmodule SwapifyApi.MusicProviders.Playlist do
   def filter_by(queryable, :user_id, value),
     do: where(queryable, [playlist: p], p.user_id == ^value)
 
+  def filter_by(queryable, :sync_status, value) when is_list(value),
+    do: where(queryable, [playlist: p], p.sync_status in ^value)
+
+  def filter_by(queryable, :sync_status, value),
+    do: where(queryable, [playlist: p], p.sync_status == ^value)
+
   def is_library(queryable, true),
     do:
       where(

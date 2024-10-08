@@ -3,6 +3,7 @@ defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatchingStep do
   Start a playlist transfer first step: matching job
   """
 
+  alias SwapifyApi.Tasks.Transfer
   alias SwapifyApi.MusicProviders.PlaylistRepo
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Tasks.TransferRepo
@@ -13,7 +14,7 @@ defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatchingStep do
           String.t(),
           PlatformConnection.platform_name()
         ) ::
-          {:ok}
+          {:ok, Transfer.t()}
   def call(
         user_id,
         playlist_id,
@@ -27,9 +28,8 @@ defmodule SwapifyApi.Tasks.Services.StartPlaylistTransferMatchingStep do
              "user_id" => user_id
            }),
          {:ok, job} <-
-           StartFindPlaylistTracks.call(user_id, destination, playlist.id, transfer.id),
-         {:ok} <- TransferRepo.update(transfer, %{"matching_step_job_id" => job.id}) do
-      {:ok}
+           StartFindPlaylistTracks.call(user_id, destination, playlist.id, transfer.id) do
+      TransferRepo.update(transfer, %{"matching_step_job_id" => job.id})
     else
       error -> error
     end

@@ -2,6 +2,7 @@ import { RefCallBack } from "react-hook-form";
 import { useDescription, useTsController } from "@ts-react/form";
 
 import { Field } from "./field";
+import { Field as BaseField } from "./ui/field";
 import { Input, type InputProps } from "./ui/input";
 
 export type TextFieldBaseProps = InputProps & {
@@ -24,7 +25,9 @@ export function TextFieldBase({
       htmlFor={props.id}
       helperText={helperText}
     >
-      <Input ref={innerRef} {...props} />
+      <BaseField.Input asChild>
+        <Input ref={innerRef} {...props} />
+      </BaseField.Input>
     </Field>
   );
 }

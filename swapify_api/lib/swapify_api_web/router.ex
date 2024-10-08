@@ -45,7 +45,17 @@ defmodule SwapifyApiWeb.Router do
 
     post "/sync-platform/:platform_name", PlaylistController, :start_sync_platform_job
     post "/sync-library/:platform_name", PlaylistController, :start_sync_library_job
-    # post "/sync-playlist/:playlist_id", PlaylistController, :start_sync_playlist_job
+  end
+
+  scope "/api/transfers", SwapifyApiWeb do
+    pipe_through :api_protected
+
+    get "/", TransferController, :index
+    post "/", TransferController, :start_transfer
+
+    get "/:transfer_id", TransferController, :get_transfer
+    put "/:transfer_id/confirm", TransferController, :confirm_transfer
+    put "/:transfer_id/cancel", TransferController, :cancel_transfer
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

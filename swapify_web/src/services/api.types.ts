@@ -171,6 +171,7 @@ export const contract = c.router({
     path: "/api/playlists/library",
     query: z.object({
       platform: z.string().optional(),
+      status: z.array(APIPlaylistSyncStatusSchema).optional(),
     }),
     responses: {
       200: APIResponseTemplate(z.array(APIPlaylistSchema)),
