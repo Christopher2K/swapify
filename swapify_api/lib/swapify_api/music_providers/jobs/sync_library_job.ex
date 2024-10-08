@@ -26,10 +26,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
-  alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Utils
-  alias SwapifyApiWeb.PlaylistSyncChannel
+  alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
 
@@ -220,7 +219,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   handle :success do
     {:ok, notification: notification} = result
 
-    PlaylistSyncChannel.broadcast_sync_progress(
+    JobUpdateChannel.broadcast_job_progress(
       job_args["user_id"],
       notification
     )
@@ -266,7 +265,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
          "job_id" => job_id,
          "platform_name" => platform_name
        }) do
-    PlaylistSyncChannel.broadcast_sync_progress(
+    JobUpdateChannel.broadcast_job_progress(
       user_id,
       JobErrorNotification.new_library_sync_error(
         playlist_id,

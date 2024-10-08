@@ -1,15 +1,20 @@
 defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   @moduledoc """
   Find for all the tracks in a given playlist
-  user_id - User starting the search
-  playlist_id - The id we should use to look for the track
-  transfer_id - the transfer this find job belongs to and must update
-  offset - The current track to look for in the playlist
-  target_platform - The platform to look up the track on
-  unsaved_tracks - The tracks that are waiting to be saved in the DB
-  unsaved_not_found_tracks - The tracks that could not be found but yet hasn't been synced to the DB
-  access_token - Access token to reach the search service
-  refresh_token (optional)
+
+  Job arguments:
+  - user_id - User starting the search
+  - playlist_id - The id we should use to look for the track
+  - transfer_id - the transfer this find job belongs to and must update
+  - offset - The current track to look for in the playlist
+  - target_platform - The platform to look up the track on
+  - unsaved_tracks - The tracks that are waiting to be saved in the DB
+  - unsaved_not_found_tracks - The tracks that could not be found but yet hasn't been synced to the DB
+  - access_token - Access token to reach the search service
+  - refresh_token (optional)
+
+
+  On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Utils
   alias SwapifyApi.Tasks.TransferRepo
@@ -25,6 +30,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.MusicProviders.Track
+  alias SwapifyApi.Notifications.JobErrorNotification
+  alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
 
@@ -101,8 +109,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
       {:error, :not_found} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
-             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true) do
-          UpdateJobStatus.call(job_id, :done)
+             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
+             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok,
+           notification:
+             JobUpdateNotification.new_search_tracks_update(
+               playlist_id,
+               "spotify",
+               offset,
+               :done
+             )}
         end
 
       {:ok, track} ->
@@ -115,13 +131,22 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           {:ok, nil, _} ->
             with {:ok, updated_unsaved_not_found_tracks} <-
                    [Track.to_map(track) | unsaved_not_found_tracks]
-                   |> process_error_results(transfer_id) do
-              Map.merge(args, %{
-                "offset" => offset + 1,
-                "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
-              })
-              |> __MODULE__.new()
-              |> Oban.insert()
+                   |> process_error_results(transfer_id),
+                 {:ok, _} <-
+                   Map.merge(args, %{
+                     "offset" => offset + 1,
+                     "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
+                   })
+                   |> __MODULE__.new()
+                   |> Oban.insert() do
+              {:ok,
+               notification:
+                 JobUpdateNotification.new_search_tracks_update(
+                   playlist_id,
+                   "spotify",
+                   offset,
+                   :started
+                 )}
             end
 
           {:ok, matched_track, _} ->
@@ -130,13 +155,22 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                      MatchedTrack.to_map(matched_track)
                      | unsaved_tracks
                    ]
-                   |> process_match_results(transfer_id) do
-              Map.merge(args, %{
-                "offset" => offset + 1,
-                "unsaved_tracks" => tracks
-              })
-              |> __MODULE__.new()
-              |> Oban.insert()
+                   |> process_match_results(transfer_id),
+                 {:ok, _} <-
+                   Map.merge(args, %{
+                     "offset" => offset + 1,
+                     "unsaved_tracks" => tracks
+                   })
+                   |> __MODULE__.new()
+                   |> Oban.insert() do
+              {:ok,
+               notification:
+                 JobUpdateNotification.new_search_tracks_update(
+                   playlist_id,
+                   "spotify",
+                   offset,
+                   :started
+                 )}
             end
 
           {:error, 401, _} ->
@@ -180,8 +214,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
       {:error, :not_found} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
-             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true) do
-          UpdateJobStatus.call(job_id, :done)
+             {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
+             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok,
+           notification:
+             JobUpdateNotification.new_search_tracks_update(
+               playlist_id,
+               "applemusic",
+               offset,
+               :done
+             )}
         end
 
       {:ok, track} ->
@@ -198,25 +240,43 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           {:ok, nil, _} ->
             with {:ok, updated_unsaved_not_found_tracks} <-
                    [Track.to_map(track) | unsaved_not_found_tracks]
-                   |> process_error_results(transfer_id) do
-              Map.merge(args, %{
-                "offset" => offset + 1,
-                "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
-              })
-              |> __MODULE__.new()
-              |> Oban.insert()
+                   |> process_error_results(transfer_id),
+                 {:ok, _} <-
+                   Map.merge(args, %{
+                     "offset" => offset + 1,
+                     "unsaved_not_found_tracks" => updated_unsaved_not_found_tracks
+                   })
+                   |> __MODULE__.new()
+                   |> Oban.insert() do
+              {:ok,
+               notification:
+                 JobUpdateNotification.new_search_tracks_update(
+                   playlist_id,
+                   "applemusic",
+                   offset,
+                   :started
+                 )}
             end
 
           {:ok, matched_track, _} ->
             with {:ok, updated_unsaved_tracks} <-
                    [MatchedTrack.to_map(matched_track) | unsaved_tracks]
-                   |> process_match_results(transfer_id) do
-              Map.merge(args, %{
-                "offset" => offset + 1,
-                "unsaved_tracks" => updated_unsaved_tracks
-              })
-              |> __MODULE__.new()
-              |> Oban.insert()
+                   |> process_match_results(transfer_id),
+                 {:ok, _} <-
+                   Map.merge(args, %{
+                     "offset" => offset + 1,
+                     "unsaved_tracks" => updated_unsaved_tracks
+                   })
+                   |> __MODULE__.new()
+                   |> Oban.insert() do
+              {:ok,
+               notification:
+                 JobUpdateNotification.new_search_tracks_update(
+                   playlist_id,
+                   "applemusic",
+                   offset,
+                   :started
+                 )}
             end
 
           {:error, 401, _} ->
@@ -276,17 +336,13 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     )
   end
 
-  handle :cancelled do
-    Logger.info("FindPlaylistTracks job cancelled",
-      user_id: job_args["user_id"],
-      service: job_args["platform_name"]
-    )
-
-    UpdateJobStatus.call(job_args["job_id"], :error)
-  end
-
   handle :success do
-    _result = result
+    {:ok, notification: notification} = result
+
+    JobUpdateChannel.broadcast_job_progress(
+      job_args["user_id"],
+      notification
+    )
 
     Logger.info("FindPlaylistTracks job finished",
       user_id: job_args["user_id"],
@@ -294,13 +350,22 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     )
   end
 
+  handle :cancelled do
+    handle_playlist_sync_error(job_args)
+
+    Logger.info("FindPlaylistTracks job cancelled",
+      user_id: job_args["user_id"],
+      service: job_args["platform_name"]
+    )
+  end
+
   handle :failure do
+    handle_playlist_sync_error(job_args)
+
     Logger.info("FindPlaylistTracks job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
     )
-
-    UpdateJobStatus.call(job_args["job_id"], :error)
   end
 
   handle :error do
@@ -312,5 +377,24 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   handle :catch_all do
     :ok
+  end
+
+  defp handle_playlist_sync_error(%{
+         "user_id" => user_id,
+         "playlist_id" => playlist_id,
+         "job_id" => job_id,
+         "platform_name" => platform_name
+       }) do
+    JobUpdateChannel.broadcast_job_progress(
+      user_id,
+      JobErrorNotification.new_search_tracks_error(
+        playlist_id,
+        platform_name
+      )
+    )
+
+    Task.async(fn ->
+      UpdateJobStatus.call(job_id, :error)
+    end)
   end
 end

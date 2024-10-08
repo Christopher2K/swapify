@@ -10,6 +10,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   - offset
 
   The `job_id` should be added to the jobs args for the job to work
+
+  On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Utils
   alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
@@ -21,12 +23,15 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Notifications.JobErrorNotification
+  alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
 
   use Oban.Worker,
     queue: :sync_platform,
-    max_attempts: 2,
+    max_attempts: 6,
     unique: [
       keys: [:platform_name, :user_id, :access_token],
       states: [:available, :scheduled, :executing, :retryable]
@@ -75,8 +80,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
       {:ok, _tracks, response} ->
         total = response.body["total"]
 
-        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :spotify, user_id, total) do
-          UpdateJobStatus.call(job_id, :done)
+        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :spotify, user_id, total),
+             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok, notification: JobUpdateNotification.new_platform_sync_update("spotify", :done)}
         end
 
       {:error, 401, _} ->
@@ -117,8 +123,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
       {:ok, _tracks, response} ->
         total = response.body["meta"]["total"]
 
-        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :applemusic, user_id, total) do
-          UpdateJobStatus.call(job_id, :done)
+        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :applemusic, user_id, total),
+             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok, notification: JobUpdateNotification.new_platform_sync_update("applemusic", :done)}
         end
 
       {:error, 401, _} ->
@@ -130,32 +137,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
     end
   end
 
-  # @impl Oban.Worker
-  # def perform(%Oban.Job{
-  #       args:
-  #         %{
-  #           "platform_name" => :spotify,
-  #           "user_id" => user_id,
-  #           "access_token" => access_token,
-  #           "refresh_token" => refresh_token,
-  #           "should_sync_library" => false
-  #         } = args
-  #     }) do
-  # end
-  #
-  # @impl Oban.Worker
-  # def perform(%Oban.Job{
-  #       args:
-  #         %{
-  #           "platform_name" => :applemusic,
-  #           "user_id" => user_id,
-  #           "access_token" => access_token,
-  #           "refresh_token" => refresh_token,
-  #           "should_sync_library" => false
-  #         } = args
-  #     }) do
-  # end
-
   # EVENTS HANDLER
 
   handle :started do
@@ -166,6 +147,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   end
 
   handle :cancelled do
+    handle_platform_job_error(job_args)
+
     Logger.info("Sync Platform cancelled",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
@@ -175,6 +158,10 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   end
 
   handle :success do
+    {:ok, notification: notification} = result
+
+    JobUpdateChannel.broadcast_job_progress(job_args["user_id"], notification)
+
     Logger.info("Sync Platform job finished",
       user_id: job_args["user_id"],
       service: job_args["platform_name"],
@@ -183,12 +170,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   end
 
   handle :failure do
+    handle_platform_job_error(job_args)
+
     Logger.info("Sync Platform job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
     )
-
-    UpdateJobStatus.call(job_args["job_id"], :error)
   end
 
   handle :error do
@@ -200,5 +187,20 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   handle :catch_all do
     :ok
+  end
+
+  defp handle_platform_job_error(%{
+         "job_id" => job_id,
+         "user_id" => user_id,
+         "platform_name" => platform_name
+       }) do
+    JobUpdateChannel.broadcast_job_progress(
+      user_id,
+      JobErrorNotification.new_platform_sync_error(platform_name)
+    )
+
+    Task.async(fn ->
+      UpdateJobStatus.call(job_id, :error)
+    end)
   end
 end

@@ -10,7 +10,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   access_token - Access token to reach the search service
   refresh_token (optional)
 
-  job_id is needed for this job to work
+  The `job_id` is needed for this job to work
+  On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
   alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
@@ -22,6 +23,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Tasks.TransferRepo
   alias SwapifyApi.Utils
+  alias SwapifyApi.Notifications.JobErrorNotification
+  alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
 
@@ -53,19 +57,37 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_tracks(transfer_id, offset, @spotify_add_limit) do
       {:ok, []} ->
-        UpdateJobStatus.call(job_id, :done)
+        with {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok,
+           notification:
+             JobUpdateNotification.new_transfer_tracks_update(
+               transfer_id,
+               "spotify",
+               offset,
+               :done
+             )}
+        end
 
       {:ok, tracks} ->
         with {:ok, _} <-
                Spotify.add_tracks_to_library(
                  access_token,
                  Enum.map(tracks, fn mt -> mt.platform_id end)
-               ) do
-          Map.merge(args, %{
-            "offset" => offset + @spotify_add_limit
-          })
-          |> __MODULE__.new()
-          |> Oban.insert()
+               ),
+             {:ok, _} <-
+               Map.merge(args, %{
+                 "offset" => offset + @spotify_add_limit
+               })
+               |> __MODULE__.new()
+               |> Oban.insert() do
+          {:ok,
+           notification:
+             JobUpdateNotification.new_transfer_tracks_update(
+               transfer_id,
+               "spotify",
+               offset,
+               :started
+             )}
         else
           {:error, 401, _} ->
             case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
@@ -105,7 +127,16 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_track_by_index(transfer_id, offset) do
       {:error, :not_found} ->
-        UpdateJobStatus.call(job_id, :done)
+        with {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+          {:ok,
+           notification:
+             JobUpdateNotification.new_transfer_tracks_update(
+               transfer_id,
+               "applemusic",
+               offset,
+               :done
+             )}
+        end
 
       {:ok, matched_track} ->
         developer_token = AppleMusicTokenWorker.get()
@@ -116,11 +147,21 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
                matched_track.platform_id
              ) do
           {:ok, _} ->
-            Map.merge(args, %{
-              "offset" => offset + 1
-            })
-            |> __MODULE__.new()
-            |> Oban.insert()
+            with {:ok, _} <-
+                   Map.merge(args, %{
+                     "offset" => offset + 1
+                   })
+                   |> __MODULE__.new()
+                   |> Oban.insert() do
+              {:ok,
+               notification:
+                 JobUpdateNotification.new_transfer_tracks_update(
+                   transfer_id,
+                   "applemusic",
+                   offset,
+                   :started
+                 )}
+            end
 
           {:error, 401, _} ->
             RemovePartnerIntegration.call(user_id, :spotify)
@@ -178,6 +219,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   end
 
   handle :cancelled do
+    handle_transfer_tracks_error(job_args)
+
     Logger.info("TransferTracks job cancelled",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
@@ -187,7 +230,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   end
 
   handle :success do
-    _result = result
+    {:ok, notification: notification} = result
 
     Logger.info("TransferTracks job finished",
       user_id: job_args["user_id"],
@@ -196,12 +239,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   end
 
   handle :failure do
+    handle_transfer_tracks_error(job_args)
+
     Logger.info("TransferTracks job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
     )
-
-    UpdateJobStatus.call(job_args["job_id"], :error)
   end
 
   handle :error do
@@ -213,5 +256,20 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
 
   handle :catch_all do
     :ok
+  end
+
+  defp handle_transfer_tracks_error(%{
+         "user_id" => user_id,
+         "job_id" => job_id,
+         "transfer_id" => transfer_id
+       }) do
+    JobUpdateChannel.broadcast_job_progress(
+      user_id,
+      JobErrorNotification.new_transfer_tracks_error(transfer_id)
+    )
+
+    Task.async(fn ->
+      UpdateJobStatus.call(job_id, :error)
+    end)
   end
 end
