@@ -42,6 +42,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
     |> URI.to_string()
   end
 
+  @spec handle_api_error({:ok, Req.Response.t()} | {:error, any()}, String.t()) ::
+          SwapifyApi.Errors.t()
   defp handle_api_error(result, uri) do
     case result do
       {:ok, %Req.Response{} = response} ->
@@ -52,7 +54,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
           response: response.body
         )
 
-        {:error, response.status, response}
+        SwapifyApi.Errors.http_service_error(response.status)
 
       {:error, exception} ->
         Logger.error("Failed to call an API",
@@ -88,7 +90,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec request_access_token(String.t()) ::
-          {:ok, Oauth.AccessToken.t()} | {:error, Req.Response.t() | atom()}
+          {:ok, Oauth.AccessToken.t()} | SwapifyApi.Errors.t()
   def request_access_token(authorization_code) do
     body = %{
       "grant_type" => "authorization_code",
@@ -124,7 +126,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
 
   @doc "Refresh the access token of a user"
   @spec refresh_access_token(String.t()) ::
-          {:ok, Oauth.AccessToken.t()} | {:error, Req.Response.t() | atom()}
+          {:ok, Oauth.AccessToken.t()} | SwapifyApi.Errors.t()
   def refresh_access_token(refresh_token) do
     uri = @account_url <> "/api/token"
     client_id = get_client_id()
@@ -166,9 +168,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   See https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile
   """
   @spec get_user(String.t()) ::
-          {:ok, map(), Req.Response.t()}
-          | {:error, atom()}
-          | {:error, pos_integer(), Req.Response.t()}
+          {:ok, map(), Req.Response.t()} | SwapifyApi.Errors.t()
   def get_user(token) do
     uri = get_api_url("/me")
 
@@ -193,9 +193,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec get_user_library(String.t(), pos_integer(), pos_integer()) ::
-          {:ok, list(), Req.Response.t()}
-          | {:error, atom()}
-          | {:error, pos_integer(), Req.Response.t()}
+          {:ok, list(), Req.Response.t()} | SwapifyApi.Errors.t()
   def get_user_library(
         token,
         offset \\ 0,
@@ -234,9 +232,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec search_track(String.t(), String.t()) ::
-          {:ok, MatchedTrack.t() | nil, Req.Response.t()}
-          | {:error, atom()}
-          | {:error, pos_integer(), Req.Response.t()}
+          {:ok, MatchedTrack.t() | nil, Req.Response.t()} | SwapifyApi.Errors.t()
 
   def search_track(
         token,
@@ -349,9 +345,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   end
 
   @spec add_tracks_to_library(String.t(), list(String.t())) ::
-          {:ok, Req.Response.t()}
-          | {:error, atom()}
-          | {:error, pos_integer(), Req.Response.t()}
+          {:ok, Req.Response.t()} | SwapifyApi.Errors.t()
   def add_tracks_to_library(token, track_ids) do
     uri = get_api_url("/me/tracks")
 

@@ -39,9 +39,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
-  defp handle_error({:error, 427, _response}), do: {:error, :rate_limit}
-
-  defp handle_error({:error, _, _}), do: {:error, :http_error}
+  defp handle_error({:error, :"427"}), do: {:error, :rate_limit}
 
   def transfer(
         "spotify",
@@ -89,7 +87,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
                :started
              )}
         else
-          {:error, 401, _} ->
+          {:error, :"401"} ->
             case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
               {:ok, refreshed_pc} ->
                 Logger.info("Restart the job with new credentials", platform_name: "spotify")
@@ -163,7 +161,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
                  )}
             end
 
-          {:error, 401, _} ->
+          {:error, :"401"} ->
             RemovePartnerIntegration.call(user_id, :spotify)
             {:cancel, :authentication_error}
 
