@@ -10,6 +10,7 @@ defmodule SwapifyApi.Accounts do
   alias SwapifyApi.MusicProviders.Services.StartPlatformSync
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
+  alias SwapifyApi.Utils
 
   @doc """
   Options:
@@ -83,7 +84,7 @@ defmodule SwapifyApi.Accounts do
   Generate an access and refresh token for a given user
   """
   @spec genereate_auth_tokens(User.t()) ::
-          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()}
+          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | SwapifyApi.Errors.t()
   def genereate_auth_tokens(user) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
@@ -108,5 +109,22 @@ defmodule SwapifyApi.Accounts do
     else
       {:error, _} -> SwapifyApi.Errors.server_error()
     end
+  end
+
+  @namespace "user_socket"
+  @doc """
+  Generate a socket token for a given user
+  """
+  @spec generate_socket_token(String.t()) :: {:ok, String.t()} | SwapifyApi.Errors.t()
+  def generate_socket_token(user_id) do
+    secret =
+      Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
+
+    Phoenix.Token.sign(
+      secret,
+      @namespace,
+      user_id
+    )
+    |> Utils.from_nullable_to_tuple()
   end
 end
