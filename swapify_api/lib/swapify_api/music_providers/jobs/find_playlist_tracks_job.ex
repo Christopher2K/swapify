@@ -17,11 +17,10 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Utils
+  alias SwapifyApi.Accounts
   alias SwapifyApi.Tasks.TransferRepo
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.Playlist
-  alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
-  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
   alias SwapifyApi.MusicProviders.PlaylistRepo
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.Track
@@ -171,7 +170,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
             end
 
           {:error, :service_401} ->
-            case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
+            case Accounts.refresh_partner_integration(user_id, :spotify, refresh_token) do
               {:ok, refreshed_pc} ->
                 Logger.info("Restart the job with new credentials", platform_name: "spotify")
 
@@ -185,7 +184,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                 {:cancel, :authentication_renewed}
 
               {:error, _} ->
-                RemovePartnerIntegration.call(user_id, :spotify)
                 {:cancel, :authentication_error}
             end
 
@@ -277,7 +275,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
             end
 
           {:error, :service_401} ->
-            RemovePartnerIntegration.call(user_id, :spotify)
+            Accounts.remove_partner_integration(user_id, :applemusic)
             {:cancel, :authentication_error}
 
           error ->

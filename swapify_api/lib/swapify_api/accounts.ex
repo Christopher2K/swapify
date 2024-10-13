@@ -12,6 +12,8 @@ defmodule SwapifyApi.Accounts do
   alias SwapifyApi.Oauth
   alias SwapifyApi.Utils
 
+  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
+
   @doc """
   Options:
   - :user_id - ID to use for the platform connection
@@ -126,5 +128,35 @@ defmodule SwapifyApi.Accounts do
       user_id
     )
     |> Utils.from_nullable_to_tuple()
+  end
+
+  @doc """
+  Remove a partner integration
+  """
+  @spec remove_partner_integration(String.t(), PlatformConnection.platform_name()) :: {:ok}
+  def remove_partner_integration(user_id, platform_name) do
+    PlatformConnectionRepo.delete(user_id, platform_name)
+  end
+
+  @spec refresh_partner_integration(String.t(), PlatformConnection.platform_name(), String.t()) ::
+          {:ok, PlatformConnection.t()} | SwapifyApi.Errors.t()
+  def refresh_partner_integration(user_id, :spotify = name, refresh_token) do
+    with {:ok,
+          %Oauth.AccessToken{
+            access_token: access_token,
+            expires_at: expires_at
+          }} <- Spotify.refresh_access_token(refresh_token),
+         {:ok, updated_pc, :updated} <-
+           PlatformConnectionRepo.create_or_update(user_id, name, %{
+             "access_token" => access_token,
+             "access_token_exp" => expires_at
+           }) do
+      {:ok, updated_pc}
+    else
+      _ ->
+        # TODO: Do not remove the integration on error, just disable it so the user know there's something wrong
+        remove_partner_integration(user_id, name)
+        {:error, :service_error}
+    end
   end
 end

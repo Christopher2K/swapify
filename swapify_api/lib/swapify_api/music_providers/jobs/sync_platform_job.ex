@@ -14,8 +14,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Utils
-  alias SwapifyApi.Accounts.Services.RefreshPartnerIntegration
-  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
+  alias SwapifyApi.Accounts
   alias SwapifyApi.MusicProviders.Services.SyncPlaylistMetadata
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
@@ -84,7 +83,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         end
 
       {:error, :service_401} ->
-        case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
+        case Accounts.refresh_partner_integration(user_id, :spotify, refresh_token) do
           {:ok, refreshed_pc} ->
             Logger.info("Restart the job with new credentials", platform_name: "spotify")
 
@@ -95,8 +94,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
             |> __MODULE__.new()
             |> Oban.insert()
 
+            {:cancel, :authentication_renewed}
+
           {:error, _} ->
-            RemovePartnerIntegration.call(user_id, :spotify)
             {:cancel, :authentication_error}
         end
 
@@ -127,7 +127,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         end
 
       {:error, :service_401} ->
-        RemovePartnerIntegration.call(user_id, :applemusic)
+        Accounts.remove_partner_integration(user_id, :applemusic)
         {:cancel, :authentication_error}
 
       error ->
