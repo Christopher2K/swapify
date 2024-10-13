@@ -6,7 +6,7 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
   alias SwapifyApi.Utils
 
   @doc """
-  Create if it doesn'texist or update a platform connection data for a given user
+  Create if it doesn't exist or update a platform connection data for a given user
   """
   @spec create_or_update(String.t(), String.t(), map()) ::
           {:ok, PlatformConnection.t(), :created | :updated} | {:error, Ecto.Changeset.t()}

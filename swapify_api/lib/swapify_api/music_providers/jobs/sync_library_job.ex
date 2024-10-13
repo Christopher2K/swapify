@@ -47,7 +47,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
-  defp handle_error({:error, :"427"}), do: {:error, :rate_limit}
+  defp handle_error({:error, :service_427}), do: {:error, :rate_limit}
 
   defp save_tracks(
          %{
@@ -126,7 +126,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
         save_tracks(args, tracks, total, has_next?, @spotify_limit)
 
-      {:error, :"401"} ->
+      {:error, :service_401} ->
         case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
           {:ok, refreshed_pc} ->
             Logger.info("Restart the job with new credentials", platform_name: "spotify")
@@ -167,7 +167,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
         save_tracks(args, tracks, total, has_next?, @apple_music_limit)
 
-      {:error, :"401"} ->
+      {:error, :service_401} ->
         RemovePartnerIntegration.call(user_id, :applemusic)
         {:cancel, :authentication_error}
 

@@ -41,7 +41,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
-  defp handle_error({:error, :"427"}), do: {:error, :rate_limit}
+  defp handle_error({:error, :service_427}), do: {:error, :rate_limit}
 
   @spec args(String.t(), Playlist.platform_name(), String.t(), String.t(), String.t() | nil) ::
           map()
@@ -83,7 +83,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("spotify", :done)}
         end
 
-      {:error, :"401"} ->
+      {:error, :service_401} ->
         case RefreshPartnerIntegration.call(user_id, :spotify, refresh_token) do
           {:ok, refreshed_pc} ->
             Logger.info("Restart the job with new credentials", platform_name: "spotify")
@@ -126,7 +126,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("applemusic", :done)}
         end
 
-      {:error, :"401"} ->
+      {:error, :service_401} ->
         RemovePartnerIntegration.call(user_id, :applemusic)
         {:cancel, :authentication_error}
 

@@ -16,11 +16,22 @@ defmodule SwapifyApiWeb.FallbackController do
     |> render("forms.json", errors: errors_map)
   end
 
-  def call(conn, {:error, :unauthorized}) do
+  def call(conn, {:error, reason}) do
+    {code, message} = SwapifyApi.Errors.get_details(reason)
+
     conn
-    |> put_status(401)
+    |> put_status(code)
     |> put_view(json: SwapifyApiWeb.ErrorJSON)
-    |> render(:"401")
+    |> render("errors.json", message: message)
+  end
+
+  def call(conn, _) do
+    {code, message} = SwapifyApi.Errors.get_details(nil)
+
+    conn
+    |> put_status(code)
+    |> put_view(json: SwapifyApiWeb.ErrorJSON)
+    |> render("errors.json", message: message)
   end
 
   def call(conn, {:ok}) do
