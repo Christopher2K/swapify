@@ -9,6 +9,9 @@ defmodule SwapifyApi.Errors do
   def not_found(), do: {:error, :not_found}
   def not_found_details(), do: {404, "Could not find the requested resource."}
 
+  def server_error(), do: {:error, :server_error}
+  def server_error_details(), do: {500, "An error occurred. Please try again."}
+
   ## HTTP SERVICE ERRORS
   @spec http_service_error(pos_integer()) :: t()
   def http_service_error(code),
@@ -22,7 +25,7 @@ defmodule SwapifyApi.Errors do
   def http_service_error_details(),
     do: {500, "An error occurred while trying to reach an external service. Please try again."}
 
-  ## OAUTH SPECIFIC ERRORS
+  ## SPECIFIC ERRORS
   def state_mismatch(), do: {:error, :state_mismatch}
   def state_mismatch_details(), do: {401, "Error while trying to authenticate. Please try again."}
 
@@ -34,6 +37,9 @@ defmodule SwapifyApi.Errors do
 
       :state_mismatch ->
         state_mismatch_details()
+
+      :server_error ->
+        server_error_details()
 
       err when is_atom(err) ->
         if err |> Atom.to_string() |> String.starts_with?("service_") do

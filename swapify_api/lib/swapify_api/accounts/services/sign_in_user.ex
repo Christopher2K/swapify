@@ -2,6 +2,7 @@ defmodule SwapifyApi.Accounts.Services.SignInUser do
   @moduledoc """
   Signs in an user
   """
+  alias SwapifyApi.Accounts
   alias SwapifyApi.Accounts.User
 
   @spec call(String.t(), String.t()) ::
@@ -10,7 +11,7 @@ defmodule SwapifyApi.Accounts.Services.SignInUser do
     with {:ok, user} <-
            SwapifyApi.Accounts.Services.ValidateUserCredentials.call(email, password),
          {:ok, _, _, _} = user_auth_data <-
-           SwapifyApi.Accounts.Services.GenerateAuthTokens.call(user) do
+           Accounts.genereate_auth_tokens(user) do
       user_auth_data
     else
       _ -> {:error, :unauthorized}

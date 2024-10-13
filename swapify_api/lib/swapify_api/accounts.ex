@@ -1,13 +1,15 @@
 defmodule SwapifyApi.Accounts do
   require Logger
 
-  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
+  alias SwapifyApi.Accounts.PlatformConnection
+  alias SwapifyApi.Accounts.PlatformConnectionRepo
+  alias SwapifyApi.Accounts.Token
+  alias SwapifyApi.Accounts.User
   alias SwapifyApi.MusicProviders.AppleMusic
+  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Services.StartPlatformSync
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
-  alias SwapifyApi.Accounts.PlatformConnectionRepo
-  alias SwapifyApi.Accounts.PlatformConnection
 
   @doc """
   Options:
@@ -72,6 +74,39 @@ defmodule SwapifyApi.Accounts do
       end
 
       {:ok, pc}
+    end
+  end
+
+  @access_token_validity 3600
+  @refresh_token_validity 86400
+  @doc """
+  Generate an access and refresh token for a given user
+  """
+  @spec genereate_auth_tokens(User.t()) ::
+          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()}
+  def genereate_auth_tokens(user) do
+    now = DateTime.utc_now() |> DateTime.to_unix()
+
+    claims = %{
+      "access" => %{
+        "iat" => now,
+        "exp" => now + @access_token_validity,
+        "user_id" => user.id,
+        "user_email" => user.email
+      },
+      "refresh" => %{
+        "iat" => now,
+        "exp" => now + @refresh_token_validity,
+        "user_id" => user.id,
+        "user_email" => user.email
+      }
+    }
+
+    with {:ok, access_token, _} <- Token.generate_and_sign(claims["access"]),
+         {:ok, refresh_token, _} <- Token.generate_and_sign(claims["refresh"]) do
+      {:ok, user, access_token, refresh_token}
+    else
+      {:error, _} -> SwapifyApi.Errors.server_error()
     end
   end
 end
