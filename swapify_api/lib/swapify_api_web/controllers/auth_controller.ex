@@ -2,6 +2,7 @@ defmodule SwapifyApiWeb.AuthController do
   use SwapifyApiWeb, :controller
 
   alias SwapifyApi.Accounts.Services, as: AccountServices
+  alias SwapifyApi.Accounts
 
   def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
@@ -16,7 +17,7 @@ defmodule SwapifyApiWeb.AuthController do
   def sign_in(%Plug.Conn{} = conn, _) do
     data = conn.body_params
 
-    case AccountServices.SignInUser.call(data["email"], data["password"]) do
+    case Accounts.sign_in_user(data["email"], data["password"]) do
       {:ok, user, access_token, refresh_token} ->
         conn
         |> put_session(:access_token, access_token)

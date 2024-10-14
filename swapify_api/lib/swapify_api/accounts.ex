@@ -1,6 +1,7 @@
 defmodule SwapifyApi.Accounts do
   require Logger
 
+  alias SwapifyApi.Accounts.UserRepo
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.Accounts.Token
@@ -11,8 +12,6 @@ defmodule SwapifyApi.Accounts do
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
   alias SwapifyApi.Utils
-
-  alias SwapifyApi.Accounts.Services.RemovePartnerIntegration
 
   @doc """
   Options:
@@ -157,6 +156,34 @@ defmodule SwapifyApi.Accounts do
         # TODO: Do not remove the integration on error, just disable it so the user know there's something wrong
         remove_partner_integration(user_id, name)
         {:error, :service_error}
+    end
+  end
+
+  @doc """
+  Hash a password
+  """
+  @spec hash_password(String.t()) :: String.t()
+  def hash_password(password), do: Argon2.hash_pwd_salt(password)
+
+  @doc """
+  Verify a password
+  """
+  @spec is_password_valid?(String.t(), String.t()) :: boolean()
+  def is_password_valid?(password_input, hash), do: Argon2.verify_pass(password_input, hash)
+
+  @doc """
+  Sign in a user and generate an access and refresh token
+  """
+  @spec sign_in_user(String.t(), String.t()) ::
+          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | SwapifyApi.Errors.t()
+  def sign_in_user(email, password) do
+    with {:ok, user} <- UserRepo.get_by(:email, email),
+         true <- is_password_valid?(password, user.password),
+         {:ok, _, _, _} = user_auth_data <- genereate_auth_tokens(user) do
+      user_auth_data
+    else
+      _ ->
+        SwapifyApi.Errors.auth_failed()
     end
   end
 end

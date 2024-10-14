@@ -50,7 +50,7 @@ defmodule SwapifyApi.Accounts.User do
         changeset
 
       pswd ->
-        hash = SwapifyApi.Accounts.Services.UserPasswordHashing.hash(pswd)
+        hash = SwapifyApi.Accounts.hash_password(pswd)
         put_change(changeset, :password, hash)
     end
   end

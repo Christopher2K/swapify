@@ -29,6 +29,9 @@ defmodule SwapifyApi.Errors do
   def state_mismatch(), do: {:error, :state_mismatch}
   def state_mismatch_details(), do: {401, "Error while trying to authenticate. Please try again."}
 
+  def auth_failed(), do: {:error, :auth_failed}
+  def auth_failed_details(), do: {401, "Invalid email or password."}
+
   ## GET MESSAGE
   def get_details(error_atom) do
     case error_atom do
@@ -40,6 +43,9 @@ defmodule SwapifyApi.Errors do
 
       :server_error ->
         server_error_details()
+
+      :auth_failed ->
+        auth_failed_details()
 
       err when is_atom(err) ->
         if err |> Atom.to_string() |> String.starts_with?("service_") do
