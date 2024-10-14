@@ -18,9 +18,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Tasks
   alias SwapifyApi.Utils
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
@@ -54,7 +54,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_tracks(transfer_id, offset, @spotify_add_limit) do
       {:ok, []} ->
-        with {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+        with {:ok, _} <- Tasks.update_job_status(job_id, :done) do
           {:ok,
            notification:
              JobUpdateNotification.new_transfer_tracks_update(
@@ -123,7 +123,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_track_by_index(transfer_id, offset) do
       {:error, :not_found} ->
-        with {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+        with {:ok, _} <- Tasks.update_job_status(job_id, :done) do
           {:ok,
            notification:
              JobUpdateNotification.new_transfer_tracks_update(
@@ -222,7 +222,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       service: job_args["platform_name"]
     )
 
-    UpdateJobStatus.call(job_args["job_id"], :error)
+    Tasks.update_job_status(job_args["job_id"], :error)
   end
 
   handle :success do
@@ -265,7 +265,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
     )
 
     Task.async(fn ->
-      UpdateJobStatus.call(job_id, :error)
+      Tasks.update_job_status(job_id, :error)
     end)
   end
 end

@@ -51,6 +51,11 @@ defmodule SwapifyApi.Tasks do
     end
   end
 
+  @doc "Update a job status"
+  @spec update_job_status(String.t(), Job.job_status()) :: {:ok, Job.t()} | SwapifyApi.Errors.t()
+  def update_job_status(job_id, new_status),
+    do: JobRepo.update(job_id, %{"status" => new_status})
+
   @spec start_find_playlist_tracks(
           String.t(),
           PlatformConnection.platform_name(),

@@ -16,6 +16,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
+  alias Mix.Tasks
+  alias SwapifyApi.Tasks
   alias SwapifyApi.Utils
   alias SwapifyApi.Accounts
   alias SwapifyApi.Tasks.TransferRepo
@@ -27,7 +29,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.Tasks.MatchedTrack
   alias SwapifyApi.Tasks.TaskEventHandler
-  alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
@@ -106,7 +107,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, :not_found} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
@@ -210,7 +211,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, :not_found} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
+             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
@@ -389,7 +390,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     )
 
     Task.async(fn ->
-      UpdateJobStatus.call(job_id, :error)
+      Tasks.update_job_status(job_id, :error)
     end)
   end
 end

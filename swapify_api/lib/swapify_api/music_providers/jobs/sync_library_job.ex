@@ -15,6 +15,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
+  alias SwapifyApi.Tasks
   alias SwapifyApi.MusicProviders
   alias SwapifyApi.Accounts
   alias SwapifyApi.MusicProviders.AppleMusic
@@ -24,7 +25,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
-  alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.Utils
   alias SwapifyApiWeb.JobUpdateChannel
@@ -80,7 +80,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
                   |> __MODULE__.new()
                   |> Oban.insert()
                 else
-                  UpdateJobStatus.call(job_id, :done)
+                  Tasks.update_job_status(job_id, :done)
                 end) do
           Logger.debug("Fetched library items",
             platform_name: platform_name,
@@ -274,7 +274,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         MusicProviders.mark_playlist_transfer_as_failed(playlist_id)
       end),
       Task.async(fn ->
-        UpdateJobStatus.call(job_id, :error)
+        Tasks.update_job_status(job_id, :error)
       end)
     ])
   end
