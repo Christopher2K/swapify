@@ -189,8 +189,7 @@ defmodule SwapifyApi.Accounts do
 
   @doc """
   Sign up a new user
-  Map properties:
-  - username
+  Map properties: - username
   - email
   - password
   """
@@ -198,4 +197,21 @@ defmodule SwapifyApi.Accounts do
   def sign_up_new_user(registration_data),
     # TODO: Email on registration
     do: UserRepo.create(registration_data)
+
+  @max_age 60 * 60
+  @namespace "user_socket"
+  @doc """
+  Validate a socket token for a given user
+  """
+  @spec validate_socket_token(String.t()) ::
+          {:ok, String.t()} | SwapifyApi.Errors.t()
+  def validate_socket_token(token) do
+    secret =
+      Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
+
+    case Phoenix.Token.verify(secret, @namespace, token, max_age: @max_age) do
+      {:ok, user_id} -> {:ok, user_id}
+      _ -> SwapifyApi.Errors.token_invalid()
+    end
+  end
 end

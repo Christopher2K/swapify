@@ -32,6 +32,9 @@ defmodule SwapifyApi.Errors do
   def auth_failed(), do: {:error, :auth_failed}
   def auth_failed_details(), do: {401, "Invalid email or password."}
 
+  def token_invalid(), do: {:error, :token_invalid}
+  def token_invalid_details(), do: {401, "Invalid token."}
+
   ## GET MESSAGE
   def get_details(error_atom) do
     case error_atom do
@@ -46,6 +49,9 @@ defmodule SwapifyApi.Errors do
 
       :auth_failed ->
         auth_failed_details()
+
+      :token_invalid ->
+        token_invalid_details()
 
       err when is_atom(err) ->
         if err |> Atom.to_string() |> String.starts_with?("service_") do
