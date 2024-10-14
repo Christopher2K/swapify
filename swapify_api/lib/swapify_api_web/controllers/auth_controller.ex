@@ -1,13 +1,12 @@
 defmodule SwapifyApiWeb.AuthController do
   use SwapifyApiWeb, :controller
 
-  alias SwapifyApi.Accounts.Services, as: AccountServices
   alias SwapifyApi.Accounts
 
   def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
 
-    with {:ok, user} <- AccountServices.SignUpNewUser.call(data) do
+    with {:ok, user} <- Accounts.sign_up_new_user(data) do
       conn
       |> put_status(200)
       |> render(:sign_up, user: user)

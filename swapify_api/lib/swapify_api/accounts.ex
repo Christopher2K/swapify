@@ -186,4 +186,16 @@ defmodule SwapifyApi.Accounts do
         SwapifyApi.Errors.auth_failed()
     end
   end
+
+  @doc """
+  Sign up a new user
+  Map properties:
+  - username
+  - email
+  - password
+  """
+  @spec sign_up_new_user(map()) :: {:ok, User.t()} | SwapifyApi.Errors.t()
+  def sign_up_new_user(registration_data),
+    # TODO: Email on registration
+    do: UserRepo.create(registration_data)
 end
