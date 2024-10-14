@@ -13,9 +13,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
+  alias SwapifyApi.MusicProviders
   alias SwapifyApi.Utils
   alias SwapifyApi.Accounts
-  alias SwapifyApi.MusicProviders.Services.SyncPlaylistMetadata
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.Tasks.Services.UpdateJobStatus
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
@@ -77,7 +77,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
       {:ok, _tracks, response} ->
         total = response.body["total"]
 
-        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :spotify, user_id, total),
+        with {:ok, _} <- MusicProviders.sync_playlist_metadata(:spotify, user_id, total),
              {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("spotify", :done)}
         end
@@ -121,7 +121,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
       {:ok, _tracks, response} ->
         total = response.body["meta"]["total"]
 
-        with {:ok, _} <- SyncPlaylistMetadata.call(:library, :applemusic, user_id, total),
+        with {:ok, _} <- MusicProviders.sync_playlist_metadata(:applemusic, user_id, total),
              {:ok, _} <- UpdateJobStatus.call(job_id, :done) do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("applemusic", :done)}
         end

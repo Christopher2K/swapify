@@ -1,14 +1,14 @@
 defmodule SwapifyApi.Accounts do
   require Logger
 
-  alias SwapifyApi.Accounts.UserRepo
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.Accounts.Token
   alias SwapifyApi.Accounts.User
+  alias SwapifyApi.Accounts.UserRepo
+  alias SwapifyApi.MusicProviders
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
-  alias SwapifyApi.MusicProviders.Services.StartPlatformSync
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
   alias SwapifyApi.Utils
@@ -48,7 +48,7 @@ defmodule SwapifyApi.Accounts do
            }) do
       if operation_type == :created do
         # When created for the first time we will try to synchronize the library data for this user
-        StartPlatformSync.call(user_id, name)
+        MusicProviders.start_platform_sync(user_id, name)
       end
 
       {:ok, pc}
@@ -72,7 +72,7 @@ defmodule SwapifyApi.Accounts do
            }) do
       if operation_type == :created do
         # When created for the first time we will try to synchronize the library data for this user
-        StartPlatformSync.call(user_id, name)
+        MusicProviders.start_platform_sync(user_id, name)
       end
 
       {:ok, pc}
