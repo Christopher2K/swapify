@@ -89,7 +89,9 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     end
   end
 
-  @doc "Update status"
+  @doc "Update playlist status"
+  @spec update_status(String.t(), Playlist.sync_status()) ::
+          {:ok, Playlist.t()} | SwapifyApi.Errors.t()
   def update_status(playlist_id, sync_status) do
     Playlist.queryable()
     |> Playlist.filter_by(:id, playlist_id)
@@ -102,7 +104,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
         get_by_id(playlist_id)
 
       _ ->
-        {:error, :not_found}
+        SwapifyApi.Errors.not_found()
     end
   end
 

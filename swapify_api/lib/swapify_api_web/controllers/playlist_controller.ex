@@ -1,8 +1,8 @@
 defmodule SwapifyApiWeb.PlaylistController do
   use SwapifyApiWeb, :controller
 
+  alias SwapifyApi.MusicProviders
   alias SwapifyApi.MusicProviders.Services.StartPlatformSync
-  alias SwapifyApi.MusicProviders.Services.StartLibrarySync
   alias SwapifyApi.MusicProviders.PlaylistRepo
 
   @doc """
@@ -37,7 +37,7 @@ defmodule SwapifyApiWeb.PlaylistController do
     # TODO: Check if a synchronization job is already running
     # Since one `Job` is expected to contain multiple Oban.Job
     # I need my own uniqueness job layer
-    with {:ok, job} <- StartLibrarySync.call(user_id, String.to_atom(platform_name)) do
+    with {:ok, job} <- MusicProviders.start_library_sync(user_id, String.to_atom(platform_name)) do
       conn
       |> put_status(200)
       |> render(:start_sync_platform_job, job: job)

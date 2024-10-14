@@ -15,12 +15,12 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
+  alias SwapifyApi.MusicProviders
   alias SwapifyApi.Accounts
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.PlaylistRepo
-  alias SwapifyApi.MusicProviders.Services.MarkPlaylistTransferAsFailed
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
@@ -271,7 +271,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
 
     Task.await_many([
       Task.async(fn ->
-        MarkPlaylistTransferAsFailed.call(playlist_id)
+        MusicProviders.mark_playlist_transfer_as_failed(playlist_id)
       end),
       Task.async(fn ->
         UpdateJobStatus.call(job_id, :error)

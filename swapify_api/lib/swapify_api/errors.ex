@@ -35,6 +35,15 @@ defmodule SwapifyApi.Errors do
   def token_invalid(), do: {:error, :token_invalid}
   def token_invalid_details(), do: {401, "Invalid token."}
 
+  def job_already_exists(), do: {:error, :job_already_exists}
+  def job_already_exists_details(), do: {409, "A similar operation is already in progress."}
+
+  def failed_to_acquire_lock(), do: {:error, :failed_to_acquire_lock}
+  def failed_to_acquire_lock_details(), do: {409, "A similar operation is already in progress."}
+
+  def oban_error(), do: {:error, :oban_error}
+  def oban_error_details(), do: {500, "An error occurred. Please try again."}
+
   ## GET MESSAGE
   def get_details(error_atom) do
     case error_atom do
@@ -52,6 +61,15 @@ defmodule SwapifyApi.Errors do
 
       :token_invalid ->
         token_invalid_details()
+
+      :job_already_exists ->
+        job_already_exists_details()
+
+      :failed_to_acquire_lock ->
+        failed_to_acquire_lock_details()
+
+      :oban_error ->
+        oban_error_details()
 
       err when is_atom(err) ->
         if err |> Atom.to_string() |> String.starts_with?("service_") do
