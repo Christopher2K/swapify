@@ -50,7 +50,7 @@ export function Onboarding() {
       width="full"
       justifyContent="flex-start"
       alignItems="flex-start"
-      gap="4"
+      gap="10"
     >
       <IntegrationStep />
       <SynchronizationStep />
@@ -151,12 +151,15 @@ const IntegrationStep = () => {
         justifyContent="flex-start"
         alignItems={isDone ? "center" : "flex-start"}
       >
-        <Text color="gray.9">
-          Swapify needs access to at least 2 music platforms before transfering
-          your library and your playlists. It sounds scary but no worries, it's
-          super simple. For now, we support Apple Music and Spotify.
-        </Text>
-        <HStack width="full" flexWrap="wrap" py="4">
+        {!isDone && (
+          <Text color="gray.11">
+            Swapify needs access to at least 2 music platforms before
+            transfering your library and your playlists. It sounds scary but no
+            worries, it's super simple. For now, we support Apple Music and
+            Spotify.
+          </Text>
+        )}
+        <HStack width="full" flexWrap="wrap">
           <PlatformButton
             icon={<PlatformLogo platform="applemusic" />}
             label={
@@ -237,11 +240,13 @@ const SynchronizationStep = () => {
       status={isDone ? "done" : isLoading ? "in_progress" : undefined}
     >
       <VStack justifyContent="flex-start" alignItems="flex-start">
-        <Text color="gray.9">
-          Now that we have access to your platforms, synchronize the library
-          you'd like to transfer to other platforms. This will allow our system
-          to know about the tracks
-        </Text>
+        {!isDone && (
+          <Text color="gray.11">
+            Now that we have access to your platforms, synchronize the library
+            you'd like to transfer to other platforms. This will allow our
+            system to know about the tracks
+          </Text>
+        )}
         {isIntegrationDone && (
           <HStack width="full" flexWrap="wrap">
             {libraries
@@ -277,6 +282,15 @@ const SynchronizationStep = () => {
 };
 
 const TransferStep = () => {
+  const { libraries } = useLibrariesQuery();
+  const { isConnected: isAppleMusicConnected } = useAppleMusicConnect();
+  const { isConnected: isSpotifyConnected } = useSpotifyConnect();
+
+  const isIntegrationDone = isAppleMusicConnected && isSpotifyConnected;
+  const isOnePlatformSynced = libraries?.some(
+    (lib) => lib.syncStatus === "synced",
+  );
+
   return (
     <Step title="Step 3" subtitle="Start a transfer" icon={<FolderSync />}>
       <VStack
@@ -285,7 +299,7 @@ const TransferStep = () => {
         gap="4"
         w="full"
       >
-        <Text color="gray.9">
+        <Text color="gray.11">
           When Swapify has everythig it needs, we can start transferring your
           music from a platform to another. This is a two-step process:
         </Text>
@@ -299,16 +313,16 @@ const TransferStep = () => {
           alignItems="flex-start"
           gap="2"
         >
-          <Text as="li" color="gray.9">
+          <Text as="li" color="gray.11">
             The first part is when our system will try to find and match tracks
             on the destination platform
           </Text>
-          <Text as="li" color="gray.9">
+          <Text as="li" color="gray.11">
             We will be waiting for your confirmation before starting transfering
             your music. Be sure to check your email inbox
           </Text>
         </styled.ol>
-        <TransferForm />
+        {isIntegrationDone && isOnePlatformSynced && <TransferForm />}
       </VStack>
     </Step>
   );
