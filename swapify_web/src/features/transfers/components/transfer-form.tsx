@@ -3,13 +3,21 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { toaster } from "#root/components/toast";
-import { SchemaForm, SelectSchema } from "#root/components/schema-form";
+import {
+  SchemaForm,
+  SelectSchema,
+  PlatformNameSchema,
+} from "#root/components/schema-form";
 import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { useIntegrationsQuery } from "#root/features/integrations/hooks/use-integrations-query";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { Select } from "#root/components/ui/select";
-import { APIPlatformName } from "#root/services/api.types";
+import {
+  APIPlatformName,
+  APIPlatformNameSchema,
+} from "#root/services/api.types";
+import { useStartPlaylistTransferMutation } from "#root/features/transfers/hooks/use-start-playlist-transfer-mutation";
 
 import { styled } from "#style/jsx";
 import { css } from "#style/css";
@@ -20,7 +28,7 @@ const TransferFormSchema = z.object({
   playlist: SelectSchema.describe(
     "Source playlist // Select a playlist to transfer",
   ),
-  destination: SelectSchema.describe(
+  destination: PlatformNameSchema.describe(
     "Destination platform // Select a destination platform",
   ),
 });
@@ -38,6 +46,7 @@ export const TransferForm = () => {
     status: ["synced", "error"],
   });
   const { integrations = [] } = useIntegrationsQuery();
+  const { startPlaylistTransferAsync } = useStartPlaylistTransferMutation();
 
   const selectedLibrary = useMemo(
     () => libraries?.find((lib) => lib.id === values.playlist),
@@ -59,6 +68,12 @@ export const TransferForm = () => {
     }
 
     try {
+      startPlaylistTransferAsync({
+        body: {
+          playlist: values.playlist,
+          destination: values.destination,
+        },
+      });
     } catch (error) {}
   }
 

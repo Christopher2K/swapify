@@ -3,14 +3,14 @@ import { z } from "zod";
 import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
 
 import { css } from "#style/css";
-import { styled } from "#style/jsx";
-import { hstack, vstack } from "#style/patterns";
+import { vstack } from "#style/patterns";
 
 import { Button } from "./ui/button";
 
 import { TextField, PasswordField } from "./textfield";
 import { SelectField } from "./select-field";
 import { ThemedAlert } from "./themed-alert";
+import { APIPlatformNameSchema } from "#root/services/api.types";
 
 export const PasswordSchema = createUniqueFieldSchema(
   z.string().min(8, "Password must be at least 8 characters"),
@@ -22,11 +22,17 @@ export const UncheckedPasswordSchema = createUniqueFieldSchema(
   "password",
 );
 
+export const PlatformNameSchema = createUniqueFieldSchema(
+  APIPlatformNameSchema,
+  "platform",
+);
+
 export const SelectSchema = createUniqueFieldSchema(z.string(), "select");
 
 const mapping = [
   [z.string(), TextField] as const,
   [PasswordSchema, PasswordField] as const,
+  [PlatformNameSchema, SelectField] as const,
   [SelectSchema, SelectField] as const,
 ] as const;
 

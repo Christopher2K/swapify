@@ -16,7 +16,7 @@ const APIFormErrorsSchema = z.object({
   form: z.record(z.string()),
 });
 
-const APIPlatformNameSchema = z.enum(["applemusic", "spotify"]);
+export const APIPlatformNameSchema = z.enum(["applemusic", "spotify"]);
 export type APIPlatformName = z.infer<typeof APIPlatformNameSchema>;
 
 const APIUserSchema = z.object({
@@ -201,5 +201,17 @@ export const contract = c.router({
       200: APIResponseTemplate(APIJobSchema),
     },
     summary: "Start a library synchronization job",
+  },
+  startPlaylistTransfer: {
+    method: "POST",
+    path: "/api/transfers",
+    body: z.object({
+      playlist: z.string(),
+      destination: APIPlatformNameSchema,
+    }),
+    responses: {
+      200: APIResponseTemplate(APIJobSchema),
+    },
+    summary: "Start a playlist transfer",
   },
 });
