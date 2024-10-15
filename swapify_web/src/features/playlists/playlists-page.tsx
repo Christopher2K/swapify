@@ -97,12 +97,23 @@ export function PlaylistsPage() {
     <VStack w="full" h="full" p="4" gap="10">
       <VStack
         w="full"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        gap="4"
+      >
+        <Heading as="h1" size="xl">
+          My playlists
+        </Heading>
+      </VStack>
+
+      <VStack
+        w="full"
         gap="4"
         justifyContent="flex-start"
         alignItems="flex-start"
       >
         <Heading as="h2" size="lg">
-          Your music libraries
+          Music libraries
         </Heading>
         <PlaylistsTable
           playlists={libraries}
@@ -118,7 +129,7 @@ export function PlaylistsPage() {
         alignItems="flex-start"
       >
         <Heading as="h2" size="lg">
-          Your library playlists
+          Library playlists
         </Heading>
         <p>Coming soon...</p>
       </VStack>

@@ -13,10 +13,7 @@ import { getPlatformName } from "#root/features/integrations/utils/get-platform-
 import { useIntegrationsQuery } from "#root/features/integrations/hooks/use-integrations-query";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { Select } from "#root/components/ui/select";
-import {
-  APIPlatformName,
-  APIPlatformNameSchema,
-} from "#root/services/api.types";
+import { APIPlatformName } from "#root/services/api.types";
 import { useStartPlaylistTransferMutation } from "#root/features/transfers/hooks/use-start-playlist-transfer-mutation";
 
 import { styled } from "#style/jsx";
@@ -74,6 +71,13 @@ export const TransferForm = () => {
           playlist: values.playlist,
           destination: values.destination,
         },
+      });
+
+      toaster.create({
+        title: "Transfer started",
+        description:
+          "A new library transfer has been started. You will be notified when it's done.",
+        type: "success",
       });
     } catch (error) {}
   }

@@ -29,15 +29,15 @@ export function IntegrationsPage() {
       justifyContent="flex-start"
       alignItems="flex-start"
     >
+      <Heading as="h1" size="xl">
+        My music platforms
+      </Heading>
       <VStack
         w="full"
         gap="4"
         justifyContent="flex-start"
         alignItems="flex-start"
       >
-        <Heading as="h2" size="lg">
-          Music platforms
-        </Heading>
         <Box
           w="full"
           display="grid"

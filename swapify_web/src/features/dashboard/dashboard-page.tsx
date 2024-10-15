@@ -1,6 +1,8 @@
 import { VStack } from "#style/jsx";
 
+import { Heading } from "#root/components/ui/heading";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
+import { useUserQuery } from "#root/features/auth/hooks/use-user-query";
 
 import { Onboarding } from "./components/onboarding";
 
@@ -16,7 +18,38 @@ export function DashboardPage() {
       justifyContent="flex-start"
       alignItems="flex-start"
     >
-      {shouldShowOnboarding && <Onboarding />}
+      <VStack
+        w="full"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        gap="4"
+      >
+        <Heading as="h1" size="xl">
+          Dashboard
+        </Heading>
+      </VStack>
+
+      {shouldShowOnboarding && (
+        <VStack
+          w="full"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+          gap="4"
+        >
+          <Onboarding />
+        </VStack>
+      )}
+
+      <VStack
+        w="full"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        gap="4"
+      >
+        <Heading as="h1" size="xl">
+          Transfers
+        </Heading>
+      </VStack>
     </VStack>
   );
 }
