@@ -292,6 +292,7 @@ const TransferStep = () => {
   const isOnePlatformSynced = libraries?.some(
     (lib) => lib.syncStatus === "synced",
   );
+  const hasAtLeastOneTransfer = transfers && transfers?.length > 0;
 
   return (
     <Step title="Step 3" subtitle="Start a transfer" icon={<FolderSync />}>
@@ -324,7 +325,9 @@ const TransferStep = () => {
             your music. Be sure to check your email inbox
           </Text>
         </styled.ol>
-        {isIntegrationDone && isOnePlatformSynced && <TransferForm />}
+        {isIntegrationDone && isOnePlatformSynced && !hasAtLeastOneTransfer && (
+          <TransferForm />
+        )}
       </VStack>
     </Step>
   );

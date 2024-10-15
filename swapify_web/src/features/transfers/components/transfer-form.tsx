@@ -46,7 +46,8 @@ export const TransferForm = () => {
     status: ["synced", "error"],
   });
   const { integrations = [] } = useIntegrationsQuery();
-  const { startPlaylistTransferAsync } = useStartPlaylistTransferMutation();
+  const { startPlaylistTransferAsync, isPending } =
+    useStartPlaylistTransferMutation();
 
   const selectedLibrary = useMemo(
     () => libraries?.find((lib) => lib.id === values.playlist),
@@ -84,6 +85,7 @@ export const TransferForm = () => {
       form={form}
       formProps={{
         submitText: "Start transfer",
+        isLoading: isPending,
         formItemsContainerClassName: css({
           w: "full",
           display: "flex",
