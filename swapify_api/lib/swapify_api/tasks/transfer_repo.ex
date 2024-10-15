@@ -134,4 +134,15 @@ defmodule SwapifyApi.Tasks.TransferRepo do
        Map.merge(%MatchedTrack{}, Recase.Enumerable.atomize_keys(track))
      end)}
   end
+
+  @doc "List all transfers for a given user"
+  @spec list_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
+  def list_by_user_id(user_id) do
+    Transfer.queryable()
+    |> Transfer.include(:matching_job)
+    |> Transfer.include(:transfer_job)
+    |> Transfer.include(:source_playlist)
+    |> Transfer.filter_by(:user_id, user_id)
+    |> Repo.all()
+  end
 end

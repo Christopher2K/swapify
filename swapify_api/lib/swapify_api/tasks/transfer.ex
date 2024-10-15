@@ -63,7 +63,7 @@ defmodule SwapifyApi.Tasks.Transfer do
   def filter_by(queryable, :id, id), do: queryable |> where([transfer: t], t.id == ^id)
 
   def filter_by(queryable, :user_id, user_id),
-    do: queryable |> where([transfer: t], t.user == ^user_id)
+    do: queryable |> where([transfer: t], t.user_id == ^user_id)
 
   def order_asc(queryable, :inserted_at),
     do: queryable |> order_by(asc: :inserted_at)

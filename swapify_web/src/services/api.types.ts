@@ -227,4 +227,11 @@ export const contract = c.router({
     },
     summary: "Start a playlist transfer",
   },
+  searchPlaylistTransfers: {
+    method: "GET",
+    path: "/api/transfers",
+    responses: {
+      200: APIResponseTemplate(z.array(APITransferSchema)),
+    },
+  },
 });

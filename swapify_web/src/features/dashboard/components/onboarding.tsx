@@ -18,6 +18,7 @@ import { getPlatformName } from "#root/features/integrations/utils/get-platform-
 import { TransferForm } from "#root/features/transfers/components/transfer-form";
 
 import { PlatformButton } from "./platform-button";
+import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 
 export function Onboarding() {
   const { addJobUpdateEventListener } = useJobUpdateContext();
@@ -283,6 +284,7 @@ const SynchronizationStep = () => {
 
 const TransferStep = () => {
   const { libraries } = useLibrariesQuery();
+  const { transfers } = useTransfersQuery();
   const { isConnected: isAppleMusicConnected } = useAppleMusicConnect();
   const { isConnected: isSpotifyConnected } = useSpotifyConnect();
 
@@ -290,6 +292,8 @@ const TransferStep = () => {
   const isOnePlatformSynced = libraries?.some(
     (lib) => lib.syncStatus === "synced",
   );
+
+  console.debug(transfers);
 
   return (
     <Step title="Step 3" subtitle="Start a transfer" icon={<FolderSync />}>
