@@ -2,6 +2,7 @@ defmodule SwapifyApi.Tasks do
   @moduledoc """
   Task contexts
   """
+  alias SwapifyApi.Repo
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob
@@ -98,7 +99,7 @@ defmodule SwapifyApi.Tasks do
           String.t(),
           PlatformConnection.platform_name()
         ) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
+          {:ok, Transfer.t()} | SwapifyApi.Errors.t()
   def start_playlist_transfer_matching_step(
         user_id,
         playlist_id,
@@ -111,8 +112,9 @@ defmodule SwapifyApi.Tasks do
              "destination" => destination,
              "user_id" => user_id
            }),
-         {:ok, job} <- start_find_playlist_tracks(user_id, destination, playlist.id, transfer.id) do
-      TransferRepo.update(transfer, %{"matching_step_job_id" => job.id})
+         {:ok, job} <- start_find_playlist_tracks(user_id, destination, playlist.id, transfer.id),
+         {:ok, transfer} <- TransferRepo.update(transfer, %{"matching_step_job_id" => job.id}) do
+      {:ok, Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist])}
     end
   end
 

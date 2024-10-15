@@ -83,6 +83,17 @@ export const APIJobSchema = z.object({
 });
 export type APIJob = z.infer<typeof APIJobSchema>;
 
+export const APITransferSchema = z.object({
+  id: z.string(),
+  destination: APIPlatformNameSchema,
+  sourcePlaylist: APIPlaylistSchema,
+  matchingStepJob: APIJobSchema,
+  transferStepJob: APIJobSchema,
+  insertedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+export type APITransfer = z.infer<typeof APITransferSchema>;
+
 // API Payloads
 const APISignupPayloadSchema = z.object({
   username: z.string(),
@@ -99,6 +110,11 @@ export type APISigninPayload = z.infer<typeof APISigninPayloadSchema>;
 
 const APIUpdateAppleMusicUserTokenPayloadSchema = z.object({
   authToken: z.string(),
+});
+
+const APITransferPayloadSchema = z.object({
+  playlist: z.string(),
+  destination: APIPlatformNameSchema,
 });
 
 const c = initContract();
@@ -205,12 +221,9 @@ export const contract = c.router({
   startPlaylistTransfer: {
     method: "POST",
     path: "/api/transfers",
-    body: z.object({
-      playlist: z.string(),
-      destination: APIPlatformNameSchema,
-    }),
+    body: APITransferPayloadSchema,
     responses: {
-      200: APIResponseTemplate(APIJobSchema),
+      200: APIResponseTemplate(APITransferSchema),
     },
     summary: "Start a playlist transfer",
   },

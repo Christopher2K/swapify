@@ -14,5 +14,7 @@ defmodule SwapifyApi.Tasks.JobJSON do
     to_serialize |> Recase.Enumerable.convert_keys(&Recase.to_camel/1)
   end
 
+  def show(_), do: nil
+
   def list(job_list), do: job_list |> Enum.map(&show/1)
 end

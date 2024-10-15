@@ -68,7 +68,7 @@ export const TransferForm = () => {
     }
 
     try {
-      startPlaylistTransferAsync({
+      await startPlaylistTransferAsync({
         body: {
           playlist: values.playlist,
           destination: values.destination,
