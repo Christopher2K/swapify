@@ -102,4 +102,7 @@ defmodule SwapifyApi.MusicProviders.Playlist do
         [playlist: p],
         fragment("? != ?::text", p.platform_id, p.user_id)
       )
+
+  def order_asc(queryable, :inserted_at),
+    do: queryable |> order_by(asc: :inserted_at)
 end

@@ -139,6 +139,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
          query
        end
      end)
+     |> Playlist.order_asc(:inserted_at)
      |> Repo.all()}
   end
 

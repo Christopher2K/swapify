@@ -11,7 +11,9 @@ defmodule SwapifyApi.Tasks.TransferJSON do
       "matchingStepJob" => JobJSON.show(t.matching_step_job),
       "transferStepJob" => JobJSON.show(t.transfer_step_job),
       "insertedAt" => t.inserted_at,
-      "updatedAt" => t.updated_at
+      "updatedAt" => t.updated_at,
+      "matchedTracks" => length(t.matched_tracks),
+      "notFoundTracks" => length(t.not_found_tracks)
     }
   end
 

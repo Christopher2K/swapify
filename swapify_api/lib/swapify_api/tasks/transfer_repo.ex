@@ -139,10 +139,9 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   @spec list_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
   def list_by_user_id(user_id) do
     Transfer.queryable()
-    |> Transfer.include(:matching_job)
-    |> Transfer.include(:transfer_job)
-    |> Transfer.include(:source_playlist)
+    |> preload([:matching_step_job, :transfer_step_job, :source_playlist])
     |> Transfer.filter_by(:user_id, user_id)
     |> Repo.all()
+    |> dbg()
   end
 end

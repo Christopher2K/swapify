@@ -64,4 +64,7 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
 
   def filter_by(queryable, :name, value),
     do: where(queryable, [platform_connection: pt], pt.name == ^value)
+
+  def order_asc(queryable, :name),
+    do: queryable |> order_by(asc: :name)
 end

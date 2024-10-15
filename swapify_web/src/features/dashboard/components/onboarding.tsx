@@ -293,8 +293,6 @@ const TransferStep = () => {
     (lib) => lib.syncStatus === "synced",
   );
 
-  console.debug(transfers);
-
   return (
     <Step title="Step 3" subtitle="Start a transfer" icon={<FolderSync />}>
       <VStack

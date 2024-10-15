@@ -64,6 +64,7 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
   def get_by_user_id(user_id) do
     PlatformConnection.queryable()
     |> PlatformConnection.filter_by(:user_id, user_id)
+    |> PlatformConnection.order_asc(:name)
     |> Repo.all()
   end
 
