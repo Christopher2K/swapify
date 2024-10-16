@@ -198,7 +198,7 @@ export function DashboardPage() {
         </Heading>
       </VStack>
 
-      {shouldShowOnboarding && (
+      {shouldShowOnboarding ? (
         <VStack
           w="full"
           justifyContent="flex-start"
@@ -207,22 +207,22 @@ export function DashboardPage() {
         >
           <Onboarding />
         </VStack>
+      ) : (
+        <VStack
+          w="full"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+          gap="4"
+        >
+          <Heading as="h1" size="xl">
+            Transfers in progress
+          </Heading>
+
+          {transfersInProgress.map((transfer) => (
+            <TransferRow key={transfer.id} transfer={transfer} />
+          ))}
+        </VStack>
       )}
-
-      <VStack
-        w="full"
-        justifyContent="flex-start"
-        alignItems="flex-start"
-        gap="4"
-      >
-        <Heading as="h1" size="xl">
-          Transfers in progress
-        </Heading>
-
-        {transfersInProgress.map((transfer) => (
-          <TransferRow key={transfer.id} transfer={transfer} />
-        ))}
-      </VStack>
     </VStack>
   );
 }

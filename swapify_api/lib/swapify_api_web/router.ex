@@ -51,6 +51,9 @@ defmodule SwapifyApiWeb.Router do
   scope "/api/transfers", SwapifyApiWeb do
     pipe_through :api_protected
 
+    get "/", TransferController, :index
+    post "/", TransferController, :start_transfer
+
     get "/:transfer_id", TransferController, :get_transfer
     put "/:transfer_id/confirm", TransferController, :confirm_transfer
     put "/:transfer_id/cancel", TransferController, :cancel_transfer
