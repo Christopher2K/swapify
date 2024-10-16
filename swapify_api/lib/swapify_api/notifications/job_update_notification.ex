@@ -56,10 +56,12 @@ defmodule SwapifyApi.Notifications.JobUpdateNotification do
   @spec new_search_tracks_update(
           String.t(),
           String.t(),
+          String.t(),
           pos_integer(),
           Job.job_status()
         ) :: t()
   def new_search_tracks_update(
+        transfer_id,
         playlist_id,
         platform_name,
         current_index,
@@ -68,6 +70,7 @@ defmodule SwapifyApi.Notifications.JobUpdateNotification do
     %__MODULE__{
       name: :search_tracks,
       data: %{
+        "transfer_id" => transfer_id,
         "playlist_id" => playlist_id,
         "platform_name" => platform_name,
         "current_index" => current_index,

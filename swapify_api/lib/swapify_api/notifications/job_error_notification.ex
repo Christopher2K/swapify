@@ -35,11 +35,12 @@ defmodule SwapifyApi.Notifications.JobErrorNotification do
     }
   end
 
-  @spec new_search_tracks_error(String.t(), String.t()) :: t()
-  def new_search_tracks_error(playlist_id, platform_name) do
+  @spec new_search_tracks_error(String.t(), String.t(), String.t()) :: t()
+  def new_search_tracks_error(transfer_id, playlist_id, platform_name) do
     %__MODULE__{
       name: :search_tracks,
       data: %{
+        "transfer_id" => transfer_id,
         "playlist_id" => playlist_id,
         "platform_name" => platform_name
       }

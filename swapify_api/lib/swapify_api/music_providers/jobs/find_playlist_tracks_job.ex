@@ -111,6 +111,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
+               transfer_id,
                playlist_id,
                "spotify",
                offset,
@@ -139,6 +140,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
               {:ok,
                notification:
                  JobUpdateNotification.new_search_tracks_update(
+                   transfer_id,
                    playlist_id,
                    "spotify",
                    offset,
@@ -163,6 +165,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
               {:ok,
                notification:
                  JobUpdateNotification.new_search_tracks_update(
+                   transfer_id,
                    playlist_id,
                    "spotify",
                    offset,
@@ -215,6 +218,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
+               transfer_id,
                playlist_id,
                "applemusic",
                offset,
@@ -247,6 +251,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
               {:ok,
                notification:
                  JobUpdateNotification.new_search_tracks_update(
+                   transfer_id,
                    playlist_id,
                    "applemusic",
                    offset,
@@ -268,6 +273,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
               {:ok,
                notification:
                  JobUpdateNotification.new_search_tracks_update(
+                   transfer_id,
                    playlist_id,
                    "applemusic",
                    offset,
@@ -379,11 +385,13 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
          "user_id" => user_id,
          "playlist_id" => playlist_id,
          "job_id" => job_id,
-         "platform_name" => platform_name
+         "platform_name" => platform_name,
+         "transfer_id" => transfer_id
        }) do
     JobUpdateChannel.broadcast_job_progress(
       user_id,
       JobErrorNotification.new_search_tracks_error(
+        transfer_id,
         playlist_id,
         platform_name
       )
