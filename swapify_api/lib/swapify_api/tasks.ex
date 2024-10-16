@@ -118,24 +118,15 @@ defmodule SwapifyApi.Tasks do
     end
   end
 
-  @doc """
-  Start a playlist transfer transfer step: transfer job
-  """
-  @spec start_playlist_transfer_transfer_step(String.t(), String.t()) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
-  def start_playlist_transfer_transfer_step(user_id, transfer_id) do
-    with {:ok, %Transfer{source_playlist: playlist} = transfer} <-
-           TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching,
-             includes: [:source_playlist]
-           ),
-         {:ok, pc} <-
+  defp start_transfer_playlist_tracks(user_id, transfer) do
+    with {:ok, pc} <-
            PlatformConnectionRepo.get_by_user_id_and_platform(user_id, transfer.destination),
          job_args <-
            TransferTracksJob.args(
              user_id,
-             transfer_id,
+             transfer.id,
              transfer.destination,
-             user_id == playlist.platform_id,
+             user_id == transfer.source_playlist.platform_id,
              pc.access_token,
              pc.refresh_token
            ),
@@ -146,14 +137,27 @@ defmodule SwapifyApi.Tasks do
              "user_id" => user_id,
              "oban_job_args" =>
                Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }),
-         {:ok, _} <- TransferRepo.update(transfer, %{"transfer_step_job_id" => db_job.id}) do
+           }) do
       Map.merge(job_args, %{"job_id" => db_job.id})
       |> TransferTracksJob.new()
       |> Oban.insert()
-      |> handle_oban_insertion_error(db_job, fn _ ->
-        TransferRepo.update(transfer, %{"transfer_step_job_id" => nil})
-      end)
+      |> handle_oban_insertion_error(db_job)
+    end
+  end
+
+  @doc """
+  Start a playlist transfer transfer step: transfer job
+  """
+  @spec start_playlist_transfer_transfer_step(String.t(), String.t()) ::
+          {:ok, Job.t()} | SwapifyApi.Errors.t()
+  def start_playlist_transfer_transfer_step(user_id, transfer_id) do
+    with {:ok, transfer} <-
+           TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching,
+             includes: [:source_playlist]
+           ),
+         {:ok, db_job} <- start_transfer_playlist_tracks(user_id, transfer),
+         {:ok, _} <- TransferRepo.update(transfer, %{"transfer_step_job_id" => db_job.id}) do
+      {:ok, Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist])}
     end
   end
 

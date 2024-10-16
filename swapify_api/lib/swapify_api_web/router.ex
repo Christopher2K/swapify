@@ -55,8 +55,8 @@ defmodule SwapifyApiWeb.Router do
     post "/", TransferController, :start_transfer
 
     get "/:transfer_id", TransferController, :get_transfer
-    put "/:transfer_id/confirm", TransferController, :confirm_transfer
-    put "/:transfer_id/cancel", TransferController, :cancel_transfer
+    patch "/:transfer_id/confirm", TransferController, :confirm_transfer
+    patch "/:transfer_id/cancel", TransferController, :cancel_transfer
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

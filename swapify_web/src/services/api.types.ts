@@ -73,6 +73,10 @@ export type APIMeta = z.infer<typeof APIMetaSchema>;
 export const APIJobStatusSchema = z.enum(["started", "done", "error"]);
 export type APIJobStatus = z.infer<typeof APIJobStatusSchema>;
 
+export const APIConfirmTransferPayloadSchema = z.object({
+  transferId: z.string(),
+});
+
 export const APIJobSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -233,5 +237,29 @@ export const contract = c.router({
     responses: {
       200: APIResponseTemplate(z.array(APITransferSchema)),
     },
+  },
+  confirmPlaylistTransfer: {
+    method: "PATCH",
+    path: "/api/transfers/:transferId/confirm",
+    pathParams: z.object({
+      transferId: z.string(),
+    }),
+    body: z.undefined(),
+    responses: {
+      200: APIResponseTemplate(APITransferSchema),
+    },
+    summary: "Confirm a playlist transfer",
+  },
+  cancelPlaylistTransfer: {
+    method: "PATCH",
+    path: "/api/transfers/:transferId/cancel",
+    pathParams: z.object({
+      transferId: z.string(),
+    }),
+    body: z.undefined(),
+    responses: {
+      200: APIResponseTemplate(APITransferSchema),
+    },
+    summary: "Cancel a playlist transfer",
   },
 });

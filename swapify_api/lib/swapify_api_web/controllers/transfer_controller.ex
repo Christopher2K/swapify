@@ -31,11 +31,21 @@ defmodule SwapifyApiWeb.TransferController do
     # TODO
   end
 
-  def confirm_transfer(%Plug.Conn{} = _conn, _) do
-    # TODO
+  def confirm_transfer(%Plug.Conn{} = conn, %{
+        "transfer_id" => transfer_id
+      }) do
+    user_id = conn.assigns[:user_id]
+
+    with {:ok, transfer} <- Tasks.start_playlist_transfer_transfer_step(user_id, transfer_id) do
+      conn
+      |> put_status(200)
+      |> render(:show, transfer: transfer)
+    end
   end
 
-  def cancel_transfer(%Plug.Conn{} = _conn, _) do
+  def cancel_transfer(%Plug.Conn{} = conn, %{
+        "transfer_id" => transfer_id
+      }) do
     # TODO
   end
 end
