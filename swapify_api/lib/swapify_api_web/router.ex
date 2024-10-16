@@ -16,6 +16,7 @@ defmodule SwapifyApiWeb.Router do
     pipe_through :api
     post "/signup", AuthController, :sign_up
     post "/signin", AuthController, :sign_in
+    get "/signout", AuthController, :sign_out
   end
 
   scope "/api/users", SwapifyApiWeb do
@@ -49,9 +50,6 @@ defmodule SwapifyApiWeb.Router do
 
   scope "/api/transfers", SwapifyApiWeb do
     pipe_through :api_protected
-
-    get "/", TransferController, :index
-    post "/", TransferController, :start_transfer
 
     get "/:transfer_id", TransferController, :get_transfer
     put "/:transfer_id/confirm", TransferController, :confirm_transfer

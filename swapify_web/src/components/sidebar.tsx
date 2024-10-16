@@ -6,6 +6,7 @@ import { VStack } from "#style/jsx";
 import { css } from "#style/css";
 
 import { Button } from "./ui/button";
+import { getApiUrl } from "#root/services/api";
 
 type SidebarLinkProps = {
   to: ComponentProps<typeof Link>["to"];
@@ -78,9 +79,18 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
           icon={<ToyBrickIcon strokeWidth="2" />}
         />
       </VStack>
-      <Button width="full" size="sm">
-        Sign out
-      </Button>
+      <Link
+        to={getApiUrl("/api/auth/signout")}
+        className={css({
+          width: "full",
+          display: "flex",
+          alignItems: "center",
+        })}
+      >
+        <Button width="full" size="sm">
+          Sign out
+        </Button>
+      </Link>
     </VStack>
   );
 }

@@ -2,6 +2,7 @@ defmodule SwapifyApiWeb.AuthController do
   use SwapifyApiWeb, :controller
 
   alias SwapifyApi.Accounts
+  alias SwapifyApi.Utils
 
   def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
@@ -27,5 +28,13 @@ defmodule SwapifyApiWeb.AuthController do
       error ->
         error
     end
+  end
+
+  def sign_out(%Plug.Conn{} = conn, _) do
+    conn
+    |> delete_session(:access_token)
+    |> delete_session(:refresh_token)
+    |> put_status(200)
+    |> redirect(external: Utils.get_app_url("/"))
   end
 end
