@@ -2,16 +2,11 @@ import { APIPlaylistSyncStatus } from "#root/services/api.types";
 import { humanReadableSyncStatus } from "#root/features/playlists/utils/playlist-utils";
 
 import { cva } from "#style/css";
-import { styled } from "#style/jsx";
+
+import { Badge } from "./ui/badge";
 
 export const playlistStatusBadgeStyle = cva({
-  base: {
-    fontWeight: "medium",
-    fontSize: "sm",
-    py: "1",
-    px: "2",
-    borderRadius: "sm",
-  },
+  base: {},
   variants: {
     syncStatus: {
       synced: {
@@ -40,8 +35,8 @@ export type PlaylistStatusProps = {
 
 export function PlaylistStatus({ syncStatus }: PlaylistStatusProps) {
   return (
-    <styled.span className={playlistStatusBadgeStyle({ syncStatus })}>
+    <Badge className={playlistStatusBadgeStyle({ syncStatus })}>
       {humanReadableSyncStatus[syncStatus]}
-    </styled.span>
+    </Badge>
   );
 }
