@@ -44,6 +44,26 @@ export type APISyncPlatformUpdate = APIJobUpdateNotification<
   }
 >;
 
+export type APISearchPlaylistTracksError = APIJobErrorNotification<
+  "search_tracks",
+  {
+    playlistId: string;
+    transferId: string;
+    platformName: APIPlatformName;
+  }
+>;
+
+export type APISearchPlaylistTracksUpdate = APIJobUpdateNotification<
+  "search_tracks",
+  {
+    transferId: string;
+    playlistId: string;
+    platformName: APIPlatformName;
+    currentIndex: number;
+    status: APIJobStatus;
+  }
+>;
+
 export type JobUpdateSocketOutgoingMessageRecord = {};
 
 export type JobUpdateSocketIncomingMessageRecord = {
@@ -52,7 +72,9 @@ export type JobUpdateSocketIncomingMessageRecord = {
       | APISyncPlaylistUpdate
       | APISyncPlaylistError
       | APISyncPlatformUpdate
-      | APISyncPlatformError;
+      | APISyncPlatformError
+      | APISearchPlaylistTracksUpdate
+      | APISearchPlaylistTracksError;
   };
 };
 

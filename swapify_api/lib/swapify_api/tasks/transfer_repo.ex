@@ -142,6 +142,5 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> preload([:matching_step_job, :transfer_step_job, :source_playlist])
     |> Transfer.filter_by(:user_id, user_id)
     |> Repo.all()
-    |> dbg()
   end
 end

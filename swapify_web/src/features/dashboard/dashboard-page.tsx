@@ -1,17 +1,21 @@
-import { HStack, Stack, VStack } from "#style/jsx";
+import { useEffect, useState } from "react";
 
 import { Heading } from "#root/components/ui/heading";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 
 import { PlatformLogo } from "#root/components/platform-logo";
+import { Badge } from "#root/components/ui/badge";
 import { Button } from "#root/components/ui/button";
+import { Progress } from "#root/components/ui/progress";
 import { Text } from "#root/components/ui/text";
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { APITransfer } from "#root/services/api.types";
 import { formatDateTime } from "#root/utils/date";
 import { css, cva } from "#style/css";
+import { HStack, Stack, VStack } from "#style/jsx";
 
-import { Badge } from "#root/components/ui/badge";
+import { useJobUpdateContext } from "../job/components/job-update-context";
+import { onJobUpdate } from "../job/utils/on-job-update";
 import { Onboarding } from "./components/onboarding";
 
 type TransferStatus =
@@ -102,12 +106,34 @@ const getTransferStatusText = (status: TransferStatus) => {
 
 type TransferRowProps = {
   transfer: APITransfer;
+  refetchTransfers?: () => Promise<void>;
 };
-function TransferRow({ transfer }: TransferRowProps) {
+function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
+  const { addJobUpdateEventListener } = useJobUpdateContext();
+  const [searchJobOffset, setSearchJobOffset] = useState<number | undefined>(
+    undefined,
+  );
+
   const status = getTransferStatus(transfer);
   const canCancel = status === "wait-for-confirmation";
   const canConfirm = status === "wait-for-confirmation";
   const statusText = getTransferStatusText(status);
+
+  useEffect(
+    () =>
+      addJobUpdateEventListener(
+        "job_update",
+        onJobUpdate("search_tracks", ({ data }) => {
+          if (data.transferId !== transfer.id) return;
+          setSearchJobOffset(data.currentIndex);
+
+          if (data.status === "done" && refetchTransfers) {
+            refetchTransfers().finally(() => setSearchJobOffset(undefined));
+          }
+        }),
+      ),
+    [],
+  );
 
   return (
     <Stack
@@ -155,7 +181,24 @@ function TransferRow({ transfer }: TransferRowProps) {
         <Text color="gray.9" textStyle="sm" mb="2">
           Started on {formatDateTime(transfer.insertedAt)}
         </Text>
+
+        {searchJobOffset !== undefined && (
+          <VStack justifyContent="flex-start" alignItems="flex-start" gap="0">
+            <Text color="gray.9" textStyle="sm" mb="2" fontWeight="medium">
+              Matching track #{searchJobOffset} of{" "}
+              {transfer.sourcePlaylist.tracksTotal}
+            </Text>
+            <Progress
+              translations={{ value: () => "" }}
+              min={0}
+              max={transfer.sourcePlaylist.tracksTotal}
+              value={searchJobOffset}
+            />
+          </VStack>
+        )}
       </Stack>
+
+      <span></span>
 
       <HStack alignSelf={[undefined, undefined, undefined, "center"]}>
         {canConfirm && <Button size="sm">Confirm your transfer</Button>}
@@ -166,7 +209,7 @@ function TransferRow({ transfer }: TransferRowProps) {
 }
 
 export function DashboardPage() {
-  const { transfers } = useTransfersQuery();
+  const { transfers, refetch } = useTransfersQuery();
   const shouldShowOnboarding = transfers && transfers.length === 0;
 
   const transfersInProgress =
@@ -219,7 +262,11 @@ export function DashboardPage() {
           </Heading>
 
           {transfersInProgress.map((transfer) => (
-            <TransferRow key={transfer.id} transfer={transfer} />
+            <TransferRow
+              key={transfer.id}
+              transfer={transfer}
+              refetchTransfers={refetch}
+            />
           ))}
         </VStack>
       )}
