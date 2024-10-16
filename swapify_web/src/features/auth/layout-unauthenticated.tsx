@@ -1,5 +1,5 @@
+import { useNavigate } from "@tanstack/react-router";
 import { type PropsWithChildren } from "react";
-import { Outlet, useNavigate } from "@tanstack/react-router";
 
 import { AuthenticationProvider } from "./authentication-provider";
 

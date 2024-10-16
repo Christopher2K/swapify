@@ -1,15 +1,15 @@
 import { Link as RouterLink } from "@tanstack/react-router";
 
-import { css } from "#style/css";
-import { Box, styled, HStack } from "#style/jsx";
+import { DefinitionList } from "#root/components/definition-list";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { PlaylistStatus } from "#root/components/playlist-status";
 import { Button } from "#root/components/ui/button";
+import { Card } from "#root/components/ui/card";
 import { Text } from "#root/components/ui/text";
 import { APIPlatformName, APIPlaylist } from "#root/services/api.types";
-import { Card } from "#root/components/ui/card";
-import { DefinitionList } from "#root/components/definition-list";
 import { timeAgo } from "#root/services/time-ago";
+import { css } from "#style/css";
+import { Box, HStack, styled } from "#style/jsx";
 
 import type { PlaylistStatusState } from "../types/playlist-sync-status-state";
 

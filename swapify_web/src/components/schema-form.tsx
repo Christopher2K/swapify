@@ -1,16 +1,16 @@
+import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
 import { PropsWithChildren } from "react";
 import { z } from "zod";
-import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
 
 import { css } from "#style/css";
 import { vstack } from "#style/patterns";
 
 import { Button } from "./ui/button";
 
-import { TextField, PasswordField } from "./textfield";
-import { SelectField } from "./select-field";
-import { ThemedAlert } from "./themed-alert";
 import { APIPlatformNameSchema } from "#root/services/api.types";
+import { SelectField } from "./select-field";
+import { PasswordField, TextField } from "./textfield";
+import { ThemedAlert } from "./themed-alert";
 
 export const PasswordSchema = createUniqueFieldSchema(
   z.string().min(8, "Password must be at least 8 characters"),

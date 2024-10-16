@@ -1,14 +1,14 @@
-import { useChannel } from "#root/services/realtime";
+import { useAuthenticatedUser } from "#root/features/auth/authentication-provider";
 import type {
   APIJobStatus,
   APIPlatformName,
   APIPlaylistSyncStatus,
 } from "#root/services/api.types";
+import { useChannel } from "#root/services/realtime";
 import type {
-  APIJobUpdateNotification,
   APIJobErrorNotification,
+  APIJobUpdateNotification,
 } from "#root/services/realtime.types";
-import { useAuthenticatedUser } from "#root/features/auth/authentication-provider";
 
 export type APISyncPlaylistError = APIJobErrorNotification<
   "sync_library",

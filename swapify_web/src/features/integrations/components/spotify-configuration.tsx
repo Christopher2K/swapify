@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from "react";
 import { SquareArrowOutUpRightIcon } from "lucide-react";
+import { useRef } from "react";
 
-import { Text } from "#root/components/ui/text";
-import { Heading } from "#root/components/ui/heading";
-import { Button } from "#root/components/ui/button";
 import SpotifyIcon from "#root/components/icons/spotify.svg?react";
+import { Button } from "#root/components/ui/button";
+import { Heading } from "#root/components/ui/heading";
+import { Text } from "#root/components/ui/text";
 
-import { VStack } from "#style/jsx";
 import { css } from "#style/css";
+import { VStack } from "#style/jsx";
 import { useSearch } from "@tanstack/react-router";
 
 const SPOTIFY_LOGIN_URL = `${import.meta.env.VITE_API_URL}/api/integrations/spotify/login`;

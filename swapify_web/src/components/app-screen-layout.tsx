@@ -1,13 +1,13 @@
-import { type PropsWithChildren, useState, useEffect } from "react";
-import { Logs } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
+import { Logs } from "lucide-react";
+import { type PropsWithChildren, useEffect, useState } from "react";
 
-import { HStack, VStack, Box } from "#style/jsx";
 import { JobUpdateContextProvider } from "#root/features/job/components/job-update-context";
+import { Box, HStack, VStack } from "#style/jsx";
 
+import { Sidebar } from "./sidebar";
 import { Button } from "./ui/button";
 import { Text } from "./ui/text";
-import { Sidebar } from "./sidebar";
 
 type AppScreenLayoutProps = PropsWithChildren;
 

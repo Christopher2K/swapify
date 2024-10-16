@@ -1,17 +1,17 @@
-import { useState, useRef } from "react";
 import { SquareArrowOutUpRightIcon } from "lucide-react";
+import { useRef, useState } from "react";
 
-import { Text } from "#root/components/ui/text";
-import { Heading } from "#root/components/ui/heading";
-import { Button } from "#root/components/ui/button";
-import { useAppleDeveloperTokenQuery } from "#root/features/integrations/hooks/use-apple-developer-token-query";
-import { tsr } from "#root/services/api";
-import { useMusicKit } from "#root/features/integrations/hooks/use-music-kit";
 import AppleMusicIcon from "#root/components/icons/apple-music.svg?react";
 import { LoadingContainer } from "#root/components/loading-container";
+import { Button } from "#root/components/ui/button";
+import { Heading } from "#root/components/ui/heading";
+import { Text } from "#root/components/ui/text";
+import { useAppleDeveloperTokenQuery } from "#root/features/integrations/hooks/use-apple-developer-token-query";
+import { useMusicKit } from "#root/features/integrations/hooks/use-music-kit";
+import { tsr } from "#root/services/api";
 
-import { VStack } from "#style/jsx";
 import { css } from "#style/css";
+import { VStack } from "#style/jsx";
 
 function formatPostMessage(eventType: string, message?: string) {
   return {

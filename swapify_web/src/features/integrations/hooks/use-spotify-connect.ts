@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useIntegrationsQuery } from "./use-integrations-query";
 

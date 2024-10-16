@@ -1,5 +1,5 @@
-import { Socket, Channel } from "phoenix";
-import { useEffect, useState, useRef } from "react";
+import { Channel, Socket } from "phoenix";
+import { useEffect, useRef, useState } from "react";
 
 import { useMeta } from "#root/features/meta/components/meta-provider";
 

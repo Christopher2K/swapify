@@ -1,12 +1,12 @@
 /**
  * This is supposed to to be open in a popup
  */
-import { useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
+import { useMemo } from "react";
 
-import { integrationEnumValidator } from "#root/features/integrations/models/integration-enum";
-import { SpotifyConfiguration } from "#root/features/integrations/components/spotify-configuration";
 import { AppleMusicConfiguration } from "#root/features/integrations/components/apple-music-configuration";
+import { SpotifyConfiguration } from "#root/features/integrations/components/spotify-configuration";
+import { integrationEnumValidator } from "#root/features/integrations/models/integration-enum";
 
 export function IntegrationConfigurationPage() {
   const params = useParams({

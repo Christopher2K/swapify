@@ -1,18 +1,18 @@
-import { Stack, HStack, VStack } from "#style/jsx";
+import { HStack, Stack, VStack } from "#style/jsx";
 
 import { Heading } from "#root/components/ui/heading";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 
 import { PlatformLogo } from "#root/components/platform-logo";
-import { Text } from "#root/components/ui/text";
-import { formatDateTime } from "#root/utils/date";
 import { Button } from "#root/components/ui/button";
-import { APITransfer } from "#root/services/api.types";
+import { Text } from "#root/components/ui/text";
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
+import { APITransfer } from "#root/services/api.types";
+import { formatDateTime } from "#root/utils/date";
 import { css, cva } from "#style/css";
 
-import { Onboarding } from "./components/onboarding";
 import { Badge } from "#root/components/ui/badge";
+import { Onboarding } from "./components/onboarding";
 
 type TransferStatus =
   | "matching"

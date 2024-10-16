@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
 import { SquareArrowOutUpRightIcon } from "lucide-react";
+import { ReactNode } from "react";
 
+import { ThemedAlert } from "#root/components/themed-alert";
+import { Button } from "#root/components/ui/button";
 import { Card } from "#root/components/ui/card";
 import { Text } from "#root/components/ui/text";
-import { Button } from "#root/components/ui/button";
-import { ThemedAlert } from "#root/components/themed-alert";
 import { css } from "#style/css";
 
 export type IntegrationCardProps = {

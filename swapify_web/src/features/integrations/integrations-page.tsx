@@ -1,4 +1,4 @@
-import { VStack, Box } from "#style/jsx";
+import { Box, VStack } from "#style/jsx";
 
 import { PlatformLogo } from "#root/components/platform-logo";
 import { Heading } from "#root/components/ui/heading";

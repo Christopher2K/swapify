@@ -1,11 +1,11 @@
 import { CircleCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { HStack, styled } from "#style/jsx";
-import { Text } from "#root/components/ui/text";
 import { Button } from "#root/components/ui/button";
-import { css } from "#style/css";
 import { Spinner } from "#root/components/ui/spinner";
+import { Text } from "#root/components/ui/text";
+import { css } from "#style/css";
+import { HStack, styled } from "#style/jsx";
 
 export type PlatformButtonProps = {
   icon: ReactNode;

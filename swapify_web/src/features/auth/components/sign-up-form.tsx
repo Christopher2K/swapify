@@ -1,8 +1,8 @@
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { SchemaForm, PasswordSchema } from "#root/components/schema-form";
+import { PasswordSchema, SchemaForm } from "#root/components/schema-form";
 
 export const SIGN_UP_FORM_ID = "sign-up-form";
 

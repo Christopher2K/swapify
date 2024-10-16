@@ -1,24 +1,24 @@
-import { ReactNode, PropsWithChildren, useEffect, useState } from "react";
 import { FolderSync, Music2Icon, RefreshCcw } from "lucide-react";
+import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
 
-import { styled, HStack, Stack, VStack } from "#style/jsx";
-import { css } from "#style/css";
+import { PlatformLogo } from "#root/components/platform-logo";
+import { Badge } from "#root/components/ui/badge";
 import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
-import { Badge } from "#root/components/ui/badge";
 import { useAppleMusicConnect } from "#root/features/integrations/hooks/use-apple-music-connect";
 import { useSpotifyConnect } from "#root/features/integrations/hooks/use-spotify-connect";
-import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
-import { PlatformLogo } from "#root/components/platform-logo";
-import { tsr } from "#root/services/api";
-import { APIPlatformName } from "#root/services/api.types";
+import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
 import { onJobUpdate } from "#root/features/job/utils/on-job-update";
-import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
+import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { TransferForm } from "#root/features/transfers/components/transfer-form";
+import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
+import { tsr } from "#root/services/api";
+import { APIPlatformName } from "#root/services/api.types";
+import { css } from "#style/css";
+import { HStack, Stack, styled, VStack } from "#style/jsx";
 
 import { PlatformButton } from "./platform-button";
-import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 
 export function Onboarding() {
   const { addJobUpdateEventListener } = useJobUpdateContext();

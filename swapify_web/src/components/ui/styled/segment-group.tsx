@@ -1,53 +1,59 @@
-'use client'
-import type { Assign } from '@ark-ui/react'
-import { SegmentGroup } from '@ark-ui/react/segment-group'
-import { type SegmentGroupVariantProps, segmentGroup } from 'styled-system/recipes'
-import type { ComponentProps, HTMLStyledProps } from 'styled-system/types'
-import { createStyleContext } from './utils/create-style-context'
+"use client";
+import type { Assign } from "@ark-ui/react";
+import { SegmentGroup } from "@ark-ui/react/segment-group";
+import {
+  type SegmentGroupVariantProps,
+  segmentGroup,
+} from "styled-system/recipes";
+import type { ComponentProps, HTMLStyledProps } from "styled-system/types";
+import { createStyleContext } from "./utils/create-style-context";
 
-const { withProvider, withContext } = createStyleContext(segmentGroup)
+const { withProvider, withContext } = createStyleContext(segmentGroup);
 
-export type RootProviderProps = ComponentProps<typeof RootProvider>
+export type RootProviderProps = ComponentProps<typeof RootProvider>;
 export const RootProvider = withProvider<
   HTMLDivElement,
   Assign<
-    Assign<HTMLStyledProps<'div'>, SegmentGroup.RootProviderBaseProps>,
+    Assign<HTMLStyledProps<"div">, SegmentGroup.RootProviderBaseProps>,
     SegmentGroupVariantProps
   >
->(SegmentGroup.RootProvider, 'root')
+>(SegmentGroup.RootProvider, "root");
 
-export type RootProps = ComponentProps<typeof Root>
+export type RootProps = ComponentProps<typeof Root>;
 export const Root = withProvider<
   HTMLDivElement,
-  Assign<Assign<HTMLStyledProps<'div'>, SegmentGroup.RootBaseProps>, SegmentGroupVariantProps>
->(SegmentGroup.Root, 'root')
+  Assign<
+    Assign<HTMLStyledProps<"div">, SegmentGroup.RootBaseProps>,
+    SegmentGroupVariantProps
+  >
+>(SegmentGroup.Root, "root");
 
 export const Indicator = withContext<
   HTMLDivElement,
-  Assign<HTMLStyledProps<'div'>, SegmentGroup.IndicatorBaseProps>
->(SegmentGroup.Indicator, 'indicator')
+  Assign<HTMLStyledProps<"div">, SegmentGroup.IndicatorBaseProps>
+>(SegmentGroup.Indicator, "indicator");
 
 export const ItemControl = withContext<
   HTMLDivElement,
-  Assign<HTMLStyledProps<'div'>, SegmentGroup.ItemControlBaseProps>
->(SegmentGroup.ItemControl, 'itemControl')
+  Assign<HTMLStyledProps<"div">, SegmentGroup.ItemControlBaseProps>
+>(SegmentGroup.ItemControl, "itemControl");
 
 export const Item = withContext<
   HTMLLabelElement,
-  Assign<HTMLStyledProps<'label'>, SegmentGroup.ItemBaseProps>
->(SegmentGroup.Item, 'item')
+  Assign<HTMLStyledProps<"label">, SegmentGroup.ItemBaseProps>
+>(SegmentGroup.Item, "item");
 
 export const ItemText = withContext<
   HTMLSpanElement,
-  Assign<HTMLStyledProps<'span'>, SegmentGroup.ItemTextBaseProps>
->(SegmentGroup.ItemText, 'itemText')
+  Assign<HTMLStyledProps<"span">, SegmentGroup.ItemTextBaseProps>
+>(SegmentGroup.ItemText, "itemText");
 
 export const Label = withContext<
   HTMLLabelElement,
-  Assign<HTMLStyledProps<'label'>, SegmentGroup.LabelBaseProps>
->(SegmentGroup.Label, 'label')
+  Assign<HTMLStyledProps<"label">, SegmentGroup.LabelBaseProps>
+>(SegmentGroup.Label, "label");
 
 export {
   SegmentGroupContext as Context,
   SegmentGroupItemHiddenInput as ItemHiddenInput,
-} from '@ark-ui/react/segment-group'
+} from "@ark-ui/react/segment-group";

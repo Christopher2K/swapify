@@ -2,22 +2,22 @@ import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { toaster } from "#root/components/toast";
+import { PlatformLogo } from "#root/components/platform-logo";
 import {
+  PlatformNameSchema,
   SchemaForm,
   SelectSchema,
-  PlatformNameSchema,
 } from "#root/components/schema-form";
-import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
-import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
-import { useIntegrationsQuery } from "#root/features/integrations/hooks/use-integrations-query";
-import { PlatformLogo } from "#root/components/platform-logo";
+import { toaster } from "#root/components/toast";
 import { Select } from "#root/components/ui/select";
-import { APIPlatformName } from "#root/services/api.types";
+import { useIntegrationsQuery } from "#root/features/integrations/hooks/use-integrations-query";
+import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
+import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { useStartPlaylistTransferMutation } from "#root/features/transfers/hooks/use-start-playlist-transfer-mutation";
+import { APIPlatformName } from "#root/services/api.types";
 
-import { styled } from "#style/jsx";
 import { css } from "#style/css";
+import { styled } from "#style/jsx";
 
 export const TRANSFER_FORM_ID = "transfer-form";
 

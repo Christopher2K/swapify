@@ -1,5 +1,5 @@
-import { APIPlaylistSyncStatus } from "#root/services/api.types";
 import { humanReadableSyncStatus } from "#root/features/playlists/utils/playlist-utils";
+import { APIPlaylistSyncStatus } from "#root/services/api.types";
 
 import { cva } from "#style/css";
 

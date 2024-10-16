@@ -1,12 +1,12 @@
-import type { ComponentProps, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboardIcon, ToyBrickIcon, MusicIcon } from "lucide-react";
+import { LayoutDashboardIcon, MusicIcon, ToyBrickIcon } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
 
-import { VStack } from "#style/jsx";
 import { css } from "#style/css";
+import { VStack } from "#style/jsx";
 
-import { Button } from "./ui/button";
 import { getApiUrl } from "#root/services/api";
+import { Button } from "./ui/button";
 
 type SidebarLinkProps = {
   to: ComponentProps<typeof Link>["to"];

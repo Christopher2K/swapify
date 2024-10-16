@@ -1,11 +1,11 @@
-import { useNavigate, Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { isFetchError } from "@ts-rest/react-query/v5";
 
-import { VStack } from "#style/jsx";
+import { Card } from "#root/components/ui/card";
 import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
-import { Card } from "#root/components/ui/card";
 import { tsr } from "#root/services/api";
+import { VStack } from "#style/jsx";
 
 import {
   SignUpForm,

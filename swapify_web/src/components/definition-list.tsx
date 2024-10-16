@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 
-import { VStack } from "#style/jsx";
 import { Text } from "#root/components/ui/text";
 import { css } from "#style/css";
+import { VStack } from "#style/jsx";
 
 const rootClass = css({
   "& dd": {
