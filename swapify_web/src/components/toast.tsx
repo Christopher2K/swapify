@@ -21,7 +21,7 @@ const rootStyle = cva({
         backgroundColor: "red.4",
       },
       success: {
-        backgroundColor: "green.4",
+        backgroundColor: "grass.4",
       },
       info: {},
       loading: {},
@@ -37,7 +37,7 @@ const textStyle = cva({
         color: "red.9",
       },
       success: {
-        color: "green.9",
+        color: "grass.9",
       },
       info: {},
       loading: {},
@@ -53,7 +53,7 @@ const iconStyle = cva({
         stroke: "red.9",
       },
       success: {
-        stroke: "green.9",
+        stroke: "grass.9",
       },
       info: {},
       loading: {},
