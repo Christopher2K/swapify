@@ -93,6 +93,8 @@ export const APITransferSchema = z.object({
   sourcePlaylist: APIPlaylistSchema,
   matchingStepJob: APIJobSchema.optional(),
   transferStepJob: APIJobSchema.optional(),
+  matchedTracks: z.number(),
+  notFoundTracks: z.number(),
   insertedAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

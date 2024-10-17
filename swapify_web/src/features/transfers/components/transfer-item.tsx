@@ -5,7 +5,6 @@ import { Heading } from "#root/components/ui/heading";
 import { PlatformLogo } from "#root/components/platform-logo";
 import { Badge } from "#root/components/ui/badge";
 import { Button } from "#root/components/ui/button";
-import { Progress } from "#root/components/ui/progress";
 import { Text } from "#root/components/ui/text";
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
@@ -13,13 +12,15 @@ import { onJobUpdate } from "#root/features/job/utils/on-job-update";
 import { APITransfer } from "#root/services/api.types";
 import { formatDateTime } from "#root/utils/date";
 import { css, cva } from "#style/css";
-import { HStack, Stack, VStack } from "#style/jsx";
+import { HStack, Stack } from "#style/jsx";
 import { toaster } from "#root/components/toast";
+import { ThemedAlert } from "#root/components/themed-alert";
 
 import { useCancelTransferMutation } from "../hooks/use-cancel-transfer-mutation";
 import { useConfirmTransferMutation } from "../hooks/use-confirm-transfer-mutation";
 import type { TransferStatus } from "../transfers.types";
 import { getTransferStatus } from "../transfers.utils";
+import { TransferProgress } from "./transfer-progress";
 
 const statusStyle = cva({
   base: {},
@@ -83,6 +84,9 @@ export function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
   const [searchJobOffset, setSearchJobOffset] = useState<number | undefined>(
     undefined,
   );
+  const [transferJobOffset, setTransferJobOffset] = useState<
+    number | undefined
+  >(undefined);
 
   const status = getTransferStatus(transfer);
   const canCancel = status === "wait-for-confirmation";
@@ -92,6 +96,7 @@ export function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
   const handleConfirmTransfer = async () => {
     try {
       await confirmTransferAsync(transfer.id);
+      setTransferJobOffset(0);
       toaster.create({
         title: "Transfer confirmed",
         description:
@@ -122,6 +127,22 @@ export function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
 
           if (data.status === "done" && refetchTransfers) {
             refetchTransfers().finally(() => setSearchJobOffset(undefined));
+          }
+        }),
+      ),
+    [],
+  );
+
+  useEffect(
+    () =>
+      addJobUpdateEventListener(
+        "job_update",
+        onJobUpdate("transfer_tracks", ({ data }) => {
+          if (data.transferId !== transfer.id) return;
+          setTransferJobOffset(data.currentIndex);
+
+          if (data.status === "done" && refetchTransfers) {
+            refetchTransfers().finally(() => setTransferJobOffset(undefined));
           }
         }),
       ),
@@ -175,23 +196,34 @@ export function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
           Started on {formatDateTime(transfer.insertedAt)}
         </Text>
 
-        {searchJobOffset !== undefined && (
-          <VStack justifyContent="flex-start" alignItems="flex-start" gap="0">
-            <Text color="gray.9" textStyle="sm" mb="2" fontWeight="medium">
-              Matching track #{searchJobOffset} of{" "}
-              {transfer.sourcePlaylist.tracksTotal}
-            </Text>
-            <Progress
-              translations={{ value: () => "" }}
-              min={0}
+        {status === "wait-for-confirmation" && (
+          <ThemedAlert
+            severity="info"
+            description={`Out of ${transfer.sourcePlaylist.tracksTotal} tracks, ${transfer.matchedTracks} were found and ${transfer.notFoundTracks} were not found. Confirm the transfer to proceed.`}
+          />
+        )}
+
+        {searchJobOffset != null &&
+          transfer.sourcePlaylist.tracksTotal != null && (
+            <TransferProgress
+              current={searchJobOffset}
               max={transfer.sourcePlaylist.tracksTotal}
-              value={searchJobOffset}
+              progressText={(current, max) =>
+                `Matching track #${current} of ${max}`
+              }
             />
-          </VStack>
+          )}
+
+        {transferJobOffset != null && (
+          <TransferProgress
+            current={transferJobOffset}
+            max={transfer.matchedTracks}
+            progressText={(current, max) =>
+              `Transfering track #${current} of ${max}`
+            }
+          />
         )}
       </Stack>
-
-      <span></span>
 
       <HStack alignSelf={[undefined, undefined, undefined, "center"]}>
         {canConfirm && (

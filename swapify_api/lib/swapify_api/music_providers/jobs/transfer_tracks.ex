@@ -228,6 +228,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   handle :success do
     {:ok, notification: notification} = result
 
+    JobUpdateChannel.broadcast_job_progress(job_args["user_id"], notification)
+
     Logger.info("TransferTracks job finished",
       user_id: job_args["user_id"],
       service: job_args["platform_name"]
