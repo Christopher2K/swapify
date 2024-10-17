@@ -56,7 +56,7 @@ const statusStyle = cva({
 const getTransferStatusText = (status: TransferStatus) => {
   switch (status) {
     case "matching":
-      return "Maching";
+      return "Matching";
     case "wait-for-confirmation":
       return "Waiting for confirmation";
     case "transfering":
