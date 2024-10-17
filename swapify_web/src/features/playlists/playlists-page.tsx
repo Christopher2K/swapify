@@ -94,7 +94,7 @@ export function PlaylistsPage() {
   );
 
   return (
-    <VStack w="full" h="auto" p="4" gap="10">
+    <VStack w="full" h="auto" p="4" gap="5">
       <VStack
         w="full"
         justifyContent="flex-start"

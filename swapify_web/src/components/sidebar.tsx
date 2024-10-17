@@ -1,5 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { LayoutDashboardIcon, MusicIcon, ToyBrickIcon } from "lucide-react";
+import {
+  LayoutDashboardIcon,
+  MusicIcon,
+  ToyBrickIcon,
+  FolderSyncIcon,
+} from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 import { css } from "#style/css";
@@ -62,11 +67,16 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
       ]}
       {...navProps}
     >
-      <VStack flex="1" w="full" gap="4">
+      <VStack flex="1" w="full" gap="1">
         <SidebarLink
           to="/"
           label="Dashboard"
           icon={<LayoutDashboardIcon strokeWidth="2" />}
+        />
+        <SidebarLink
+          to="/transfers"
+          label="Transfers"
+          icon={<FolderSyncIcon strokeWidth="2" />}
         />
         <SidebarLink
           to="/playlists"

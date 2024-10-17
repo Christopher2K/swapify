@@ -19,6 +19,7 @@ import { IntegrationsPage } from "#root/features/integrations/integrations-page"
 import { MetaProvider } from "#root/features/meta/components/meta-provider";
 import { PlaylistsPage } from "#root/features/playlists/playlists-page";
 import { Root } from "#root/root";
+import { TransfersPage } from "#root/features/transfers/transfers-page";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -112,6 +113,12 @@ const playlistsRoute = createRoute({
   component: PlaylistsPage,
 });
 
+const transfersRoute = createRoute({
+  getParentRoute: () => appScreenLayoutRoute,
+  path: "/transfers",
+  component: TransfersPage,
+});
+
 const routeTree = rootRoute.addChildren([
   unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
   authenticatedLayoutRoute.addChildren([integrationConfigurationRoute]),
@@ -119,8 +126,10 @@ const routeTree = rootRoute.addChildren([
     indexRoute,
     integrationsRoute,
     playlistsRoute,
+    transfersRoute,
   ]),
 ]);
+
 export const router = createRouter({
   routeTree,
 });

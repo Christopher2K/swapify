@@ -1,31 +1,31 @@
 import { Heading } from "#root/components/ui/heading";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 
-import { TransferRow } from "#root/features/transfers/components/transfer-item";
 import { getTransferStatus } from "#root/features/transfers/transfers.utils";
+import { TransfersList } from "#root/features/transfers/components/tranfers-list";
 import { VStack } from "#style/jsx";
+import { APITransfer } from "#root/services/api.types";
 
 import { Onboarding } from "./components/onboarding";
+
+function isTransferInProgress(transfer: APITransfer) {
+  const status = getTransferStatus(transfer);
+  return (
+    status === "matching" ||
+    status === "transfering" ||
+    status === "wait-for-confirmation"
+  );
+}
 
 export function DashboardPage() {
   const { transfers, refetch } = useTransfersQuery();
   const shouldShowOnboarding = transfers && transfers.length === 0;
 
-  const transfersInProgress =
-    transfers?.filter((transfer) => {
-      const status = getTransferStatus(transfer);
-      return (
-        status === "matching" ||
-        status === "transfering" ||
-        status === "wait-for-confirmation"
-      );
-    }) ?? [];
-
   return (
     <VStack
       w="full"
       p="4"
-      gap="10"
+      gap="5"
       justifyContent="flex-start"
       alignItems="flex-start"
     >
@@ -40,35 +40,28 @@ export function DashboardPage() {
         </Heading>
       </VStack>
 
-      {shouldShowOnboarding ? (
-        <VStack
-          w="full"
-          justifyContent="flex-start"
-          alignItems="flex-start"
-          gap="4"
-        >
+      <VStack
+        w="full"
+        justifyContent="flex-start"
+        alignItems="flex-start"
+        gap="4"
+      >
+        {shouldShowOnboarding ? (
           <Onboarding />
-        </VStack>
-      ) : (
-        <VStack
-          w="full"
-          justifyContent="flex-start"
-          alignItems="flex-start"
-          gap="4"
-        >
-          <Heading as="h1" size="xl">
-            Transfers in progress
-          </Heading>
+        ) : (
+          <>
+            <Heading as="h2" size="lg">
+              Transfers in progress
+            </Heading>
 
-          {transfersInProgress.map((transfer) => (
-            <TransferRow
-              key={transfer.id}
-              transfer={transfer}
-              refetchTransfers={refetch}
+            <TransfersList
+              transfers={transfers}
+              predicate={isTransferInProgress}
+              refetchList={refetch}
             />
-          ))}
-        </VStack>
-      )}
+          </>
+        )}
+      </VStack>
     </VStack>
   );
 }

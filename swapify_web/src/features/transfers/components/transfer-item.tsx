@@ -71,11 +71,14 @@ const getTransferStatusText = (status: TransferStatus) => {
   }
 };
 
-type TransferRowProps = {
+type TransferItemProps = {
   transfer: APITransfer;
   refetchTransfers?: () => Promise<unknown>;
 };
-export function TransferRow({ transfer, refetchTransfers }: TransferRowProps) {
+export function TransferItem({
+  transfer,
+  refetchTransfers,
+}: TransferItemProps) {
   const { confirmTransferAsync, isPending: isConfirmTransferPending } =
     useConfirmTransferMutation();
   const { cancelTransferAsync, isPending: isCancelTransferPending } =

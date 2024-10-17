@@ -25,7 +25,7 @@ export function IntegrationsPage() {
       w="full"
       h="full"
       p="4"
-      gap="10"
+      gap="5"
       justifyContent="flex-start"
       alignItems="flex-start"
     >
