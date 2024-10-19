@@ -3,8 +3,9 @@ import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-
 
 import { getTransferStatus } from "#root/features/transfers/transfers.utils";
 import { TransfersList } from "#root/features/transfers/components/tranfers-list";
-import { VStack } from "#style/jsx";
+import { HStack, VStack } from "#style/jsx";
 import { APITransfer } from "#root/services/api.types";
+import { CreateTransferButton } from "#root/features/transfers/components/create-transfer-button";
 
 import { Onboarding } from "./components/onboarding";
 
@@ -29,16 +30,18 @@ export function DashboardPage() {
       justifyContent="flex-start"
       alignItems="flex-start"
     >
-      <VStack
+      <HStack
         w="full"
-        justifyContent="flex-start"
-        alignItems="flex-start"
+        justifyContent="space-between"
+        alignItems="center"
         gap="4"
+        flexWrap="wrap"
       >
         <Heading as="h1" size="xl">
           Dashboard
         </Heading>
-      </VStack>
+        {!shouldShowOnboarding && <CreateTransferButton />}
+      </HStack>
 
       <VStack
         w="full"

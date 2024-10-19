@@ -33,10 +33,11 @@ const TransferFormSchema = z.object({
 export type TransferFormData = z.infer<typeof TransferFormSchema>;
 
 export type TransferFormProps = {
-  handleSubmit: (data: z.infer<typeof TransferFormSchema>) => void;
+  onSuccess?: () => void;
+  onError?: () => void;
 };
 
-export const TransferForm = () => {
+export const TransferForm = ({ onSuccess, onError }: TransferFormProps) => {
   const form = useForm<z.infer<typeof TransferFormSchema>>();
   const values = form.watch();
   const { libraries = [] } = useLibrariesQuery({
@@ -79,7 +80,11 @@ export const TransferForm = () => {
           "A new library transfer has been started. You will be notified when it's done.",
         type: "success",
       });
-    } catch (error) {}
+
+      onSuccess?.();
+    } catch (error) {
+      onError?.();
+    }
   }
 
   return (
