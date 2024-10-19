@@ -162,6 +162,6 @@ defmodule SwapifyApi.Tasks do
   end
 
   @doc "List all transfers for a given user"
-  @spec list_all_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
-  def list_all_by_user_id(user_id), do: {:ok, TransferRepo.list_by_user_id(user_id)}
+  @spec list_transfers_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
+  def list_transfers_by_user_id(user_id), do: {:ok, TransferRepo.list_by_user_id(user_id)}
 end

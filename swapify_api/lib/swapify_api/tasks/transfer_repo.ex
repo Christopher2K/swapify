@@ -141,6 +141,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     Transfer.queryable()
     |> preload([:matching_step_job, :transfer_step_job, :source_playlist])
     |> Transfer.filter_by(:user_id, user_id)
+    |> Transfer.sort_by(:inserted_at, :desc)
     |> Repo.all()
   end
 end

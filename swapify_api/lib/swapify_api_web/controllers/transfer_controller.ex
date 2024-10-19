@@ -6,7 +6,7 @@ defmodule SwapifyApiWeb.TransferController do
   def index(%Plug.Conn{} = conn, _) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, transfers} <- Tasks.list_all_by_user_id(user_id) do
+    with {:ok, transfers} <- Tasks.list_transfers_by_user_id(user_id) do
       conn
       |> put_status(200)
       |> render(:index, transfers: transfers)

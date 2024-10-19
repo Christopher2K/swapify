@@ -121,4 +121,10 @@ defmodule SwapifyApi.Tasks.Transfer do
           not is_nil(t.transfer_step_job_id) and
           tj.status == ^job_status
       )
+
+  def sort_by(queryable, :inserted_at, :asc),
+    do: queryable |> order_by(asc: :inserted_at)
+
+  def sort_by(queryable, :inserted_at, :desc),
+    do: queryable |> order_by(desc: :inserted_at)
 end
