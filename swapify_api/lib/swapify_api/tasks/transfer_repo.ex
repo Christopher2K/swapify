@@ -72,7 +72,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Transfer.include(:matching_job)
     |> Transfer.filter_by(:id, transfer_id)
     |> Transfer.step(:matching, :done)
-    |> handle_tranfer_inclusions(Keyword.get(opts, :includes, []))
+    |> handle_transfer_inclusions(Keyword.get(opts, :includes, []))
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
@@ -83,12 +83,12 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Transfer.include(:transfer_job)
     |> Transfer.filter_by(:id, transfer_id)
     |> Transfer.step(:transfer, :done)
-    |> handle_tranfer_inclusions(Keyword.get(opts, :includes, []))
+    |> handle_transfer_inclusions(Keyword.get(opts, :includes, []))
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
 
-  defp handle_tranfer_inclusions(query, includes),
+  defp handle_transfer_inclusions(query, includes),
     do:
       includes
       |> Enum.reduce(query, fn include, q ->
