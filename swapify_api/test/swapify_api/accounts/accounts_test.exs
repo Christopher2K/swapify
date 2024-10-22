@@ -3,7 +3,7 @@ defmodule SwapifyApi.SignInUserTest do
 
   import SwapifyApi.AccountsFixtures
 
-  alias SwapifyApi.Accounts.Services.SignInUser
+  alias SwapifyApi.Accounts
 
   test "it returns a user when email and psw are correct" do
     email = "chris@test.fr"
@@ -14,7 +14,7 @@ defmodule SwapifyApi.SignInUserTest do
       password: password
     })
 
-    assert {:ok, user, _, _} = SignInUser.call(email, password)
+    assert {:ok, user, _, _} = Accounts.sign_in_user(email, password)
     assert user.email == email
     assert user.password != email
   end
@@ -28,7 +28,7 @@ defmodule SwapifyApi.SignInUserTest do
       password: password
     })
 
-    assert {:error, :unauthorized} = SignInUser.call(email, "fakepassword")
+    assert {:error, :auth_failed} = Accounts.sign_in_user(email, "fakepassword")
   end
 
   test "it fails when the email is not the one expected" do
@@ -40,6 +40,6 @@ defmodule SwapifyApi.SignInUserTest do
       password: password
     })
 
-    assert {:error, :unauthorized} = SignInUser.call("fakeemail@test.fr", password)
+    assert {:error, :auth_failed} = Accounts.sign_in_user("fakeemail@test.fr", password)
   end
 end

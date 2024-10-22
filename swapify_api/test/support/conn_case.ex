@@ -38,7 +38,7 @@ defmodule SwapifyApiWeb.ConnCase do
 
     if user_attributes do
       user = SwapifyApi.AccountsFixtures.user_fixture(user_attributes)
-      {:ok, _, access, refresh} = SwapifyApi.Accounts.Services.GenerateAuthTokens.call(user)
+      {:ok, _, access, refresh} = SwapifyApi.Accounts.genereate_auth_tokens(user)
 
       conn =
         Phoenix.ConnTest.build_conn()

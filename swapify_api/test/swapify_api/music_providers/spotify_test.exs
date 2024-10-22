@@ -39,7 +39,7 @@ defmodule SwapifyApi.SpotifyTest do
 
   @tag mocked_status: 400
   test "request_access_token/1 returns an error on http error" do
-    assert {:error, 400, %{status: 400}} = Spotify.request_access_token("fake_code")
+    assert {:error, :service_400} = Spotify.request_access_token("fake_code")
   end
 
   @tag mocked_response: %{
