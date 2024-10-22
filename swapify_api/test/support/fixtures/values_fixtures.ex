@@ -15,7 +15,7 @@ defmodule SwapifyApi.ValuesFixtures do
         Faker.random_between(0, length(@random_playlist_status_values) - 1)
       )
 
-  @random_job_status_values [:started, :done, :error]
+  @random_job_status_values [:started, :done, :error, :canceled]
   def random_job_status(),
     do:
       Enum.at(

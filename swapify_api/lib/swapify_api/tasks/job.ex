@@ -18,7 +18,7 @@ defmodule SwapifyApi.Tasks.Job do
 
   schema "jobs" do
     field :name, :string
-    field :status, Ecto.Enum, values: [:started, :done, :error]
+    field :status, Ecto.Enum, values: [:started, :done, :error, :canceled]
     field :oban_job_args, :map
     field :done_at, :utc_datetime
     field :canceled_at, :utc_datetime
@@ -35,7 +35,9 @@ defmodule SwapifyApi.Tasks.Job do
         :name,
         :status,
         :user_id,
-        :oban_job_args
+        :oban_job_args,
+        :done_at,
+        :canceled_at
       ])
       |> assoc_constraint(:user)
       |> validate_required([
