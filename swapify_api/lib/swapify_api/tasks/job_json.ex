@@ -6,7 +6,9 @@ defmodule SwapifyApi.Tasks.JobJSON do
     :name,
     :status,
     :updated_at,
-    :user_id
+    :user_id,
+    :done_at,
+    :canceled_at
   ]
 
   def show(%Job{} = j) do

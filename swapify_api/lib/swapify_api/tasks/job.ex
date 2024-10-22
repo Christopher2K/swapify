@@ -3,7 +3,7 @@ defmodule SwapifyApi.Tasks.Job do
 
   alias SwapifyApi.Accounts.User
 
-  @type job_status :: :started | :done | :error
+  @type job_status :: :started | :done | :error | :canceled
 
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
@@ -11,13 +11,17 @@ defmodule SwapifyApi.Tasks.Job do
           status: job_status(),
           user_id: Ecto.UUID.t(),
           inserted_at: DateTime.t(),
-          updated_at: DateTime.t()
+          updated_at: DateTime.t(),
+          done_at: DateTime.t() | nil,
+          canceled_at: DateTime.t() | nil
         }
 
   schema "jobs" do
     field :name, :string
     field :status, Ecto.Enum, values: [:started, :done, :error]
     field :oban_job_args, :map
+    field :done_at, :utc_datetime
+    field :canceled_at, :utc_datetime
     belongs_to :user, User
 
     timestamps(type: :utc_datetime)

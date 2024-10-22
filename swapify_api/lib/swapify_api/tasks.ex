@@ -52,8 +52,25 @@ defmodule SwapifyApi.Tasks do
     end
   end
 
-  @doc "Update a job status"
+  @doc "Update a job status and timestamps if needed"
   @spec update_job_status(String.t(), Job.job_status()) :: {:ok, Job.t()} | SwapifyApi.Errors.t()
+
+  def update_job_status(job_id, new_status) when new_status == :done do
+    JobRepo.update(job_id, %{
+      "status" => new_status,
+      "done_at" => DateTime.utc_now(),
+      "cancelled_at" => nil
+    })
+  end
+
+  def update_job_status(job_id, new_status) when new_status in [:canceled, :error] do
+    JobRepo.update(job_id, %{
+      "status" => new_status,
+      "canceled_at" => DateTime.utc_now(),
+      "done_at" => nil
+    })
+  end
+
   def update_job_status(job_id, new_status),
     do: JobRepo.update(job_id, %{"status" => new_status})
 
@@ -164,4 +181,18 @@ defmodule SwapifyApi.Tasks do
   @doc "List all transfers for a given user"
   @spec list_transfers_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
   def list_transfers_by_user_id(user_id), do: {:ok, TransferRepo.list_by_user_id(user_id)}
+
+  @doc "Cancel a transfer when it's in the `waiting for confirmation` state"
+  @spec cancel_transfer(String.t(), String.t()) ::
+          {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()}
+  def cancel_transfer(user_id, transfer_id) do
+    # 2. Check for domain invariants
+    # 3. If possible, cancel the transfer
+    with {:ok, transfer} <- TransferRepo.get_user_transfer_by_id(user_id, transfer_id) do
+      if Transfer.can_be_cancelled?(transfer) do
+      else
+        SwapifyApi.Errors.transfer_cancel_error()
+      end
+    end
+  end
 end

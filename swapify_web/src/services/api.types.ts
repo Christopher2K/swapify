@@ -84,6 +84,8 @@ export const APIJobSchema = z.object({
   userId: z.string(),
   insertedAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  doneAt: z.string().datetime().optional(),
+  canceledAt: z.string().datetime().optional(),
 });
 export type APIJob = z.infer<typeof APIJobSchema>;
 
