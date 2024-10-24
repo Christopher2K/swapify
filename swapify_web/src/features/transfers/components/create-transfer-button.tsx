@@ -2,14 +2,28 @@ import { useState } from "react";
 
 import { Dialog } from "#root/components/ui/dialog";
 import { Button } from "#root/components/ui/button";
+import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
 import { VStack } from "#style/jsx";
 
+import { getTransferStatus } from "../transfers.utils";
 import { TransferForm } from "./transfer-form";
 
 export type CreateTransferButtonProps = {};
 
 export function CreateTransferButton() {
   const [isOpen, setIsOpen] = useState(false);
+  const { transfers } = useTransfersQuery();
+
+  const hasRunningTransfers =
+    transfers?.some((t) => {
+      const transferStatus = getTransferStatus(t);
+
+      return (
+        transferStatus === "wait-for-confirmation" ||
+        transferStatus === "matching" ||
+        transferStatus === "transfering"
+      );
+    }) ?? true;
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -21,7 +35,7 @@ export function CreateTransferButton() {
 
   return (
     <>
-      <Button onClick={handleOpen} disabled={isOpen}>
+      <Button onClick={handleOpen} disabled={isOpen || hasRunningTransfers}>
         Start a new transfer
       </Button>
 
