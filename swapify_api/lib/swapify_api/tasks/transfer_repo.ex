@@ -135,7 +135,9 @@ defmodule SwapifyApi.Tasks.TransferRepo do
      end)}
   end
 
-  @doc "List all transfers for a given user"
+  @doc """
+  List all transfers for a given user
+  """
   @spec list_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
   def list_by_user_id(user_id) do
     Transfer.queryable()
@@ -143,5 +145,19 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Transfer.filter_by(:user_id, user_id)
     |> Transfer.sort_by(:inserted_at, :desc)
     |> Repo.all()
+  end
+
+  @doc """
+  Get one user transfer by its ID
+  """
+  @spec get_user_transfer_by_id(String.t(), String.t()) ::
+          {:ok, Transfer.t()} | SwapifyApi.Errors.t()
+  def get_user_transfer_by_id(user_id, transfer_id) do
+    Transfer.queryable()
+    |> preload([:matching_step_job, :transfer_step_job, :source_playlist])
+    |> Transfer.filter_by(:id, transfer_id)
+    |> Transfer.filter_by(:user_id, user_id)
+    |> Repo.one()
+    |> Utils.from_nullable_to_tuple()
   end
 end

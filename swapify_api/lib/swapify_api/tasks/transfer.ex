@@ -57,6 +57,13 @@ defmodule SwapifyApi.Tasks.Transfer do
         :user_id
       ])
 
+  def is_cancelled?(%__MODULE__{} = transfer), do: transfer.matching_step_job.status == :canceled
+
+  # Domain invariants
+  @doc "If a transfer can be cancelled in its current state"
+  def can_be_cancelled?(%__MODULE__{} = transfer),
+    do: transfer.matching_step_job.status == :done && transfer.transfer_step_job_id == nil
+
   # Queries
   def queryable(), do: from(transfer in __MODULE__, as: :transfer)
 

@@ -44,6 +44,11 @@ defmodule SwapifyApi.Errors do
   def oban_error(), do: {:error, :oban_error}
   def oban_error_details(), do: {500, "An error occurred. Please try again."}
 
+  def transfer_cancel_error(), do: {:error, :transfer_cancel_error}
+
+  def transfer_cancel_error_details(),
+    do: {400, "The transfer cannot be cancelled in its current state."}
+
   ## GET MESSAGE
   def get_details(error_atom) do
     case error_atom do
@@ -70,6 +75,9 @@ defmodule SwapifyApi.Errors do
 
       :oban_error ->
         oban_error_details()
+
+      :transfer_cancel_error ->
+        transfer_cancel_error_details()
 
       err when is_atom(err) ->
         if err |> Atom.to_string() |> String.starts_with?("service_") do

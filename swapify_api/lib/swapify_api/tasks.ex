@@ -190,6 +190,9 @@ defmodule SwapifyApi.Tasks do
     # 3. If possible, cancel the transfer
     with {:ok, transfer} <- TransferRepo.get_user_transfer_by_id(user_id, transfer_id) do
       if Transfer.can_be_cancelled?(transfer) do
+        with {:ok, _} <- update_job_status(transfer.matching_step_job_id, :canceled) do
+          TransferRepo.get_user_transfer_by_id(user_id, transfer_id)
+        end
       else
         SwapifyApi.Errors.transfer_cancel_error()
       end
