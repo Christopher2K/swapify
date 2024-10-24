@@ -3,7 +3,7 @@ import { ComponentProps } from "react";
 import { APIPlatformName } from "#root/services/api.types";
 import { css, cx } from "#style/css";
 
-import AppleMusicIcon from "./icons/apple-music.svg?react";
+import AppleMusicIcon from "./icons/apple-music.svg.tsx";
 import SpotifyIcon from "./icons/spotify.svg?react";
 
 export type PlatformLogoProps = ComponentProps<typeof AppleMusicIcon> & {
@@ -27,5 +27,7 @@ export function PlatformLogo({
       return <SpotifyIcon className={classNameProp} {...props} />;
     case "applemusic":
       return <AppleMusicIcon className={classNameProp} {...props} />;
+    default:
+      return null;
   }
 }
