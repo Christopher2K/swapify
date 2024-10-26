@@ -2,6 +2,6 @@ export type TransferStatus =
   | "matching"
   | "wait-for-confirmation"
   | "transfering"
-  | "cancelled"
+  | "canceled"
   | "done"
   | "error";

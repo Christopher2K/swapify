@@ -70,7 +70,12 @@ export const APIMetaSchema = z.object({
 });
 export type APIMeta = z.infer<typeof APIMetaSchema>;
 
-export const APIJobStatusSchema = z.enum(["started", "done", "error"]);
+export const APIJobStatusSchema = z.enum([
+  "started",
+  "done",
+  "error",
+  "canceled",
+]);
 export type APIJobStatus = z.infer<typeof APIJobStatusSchema>;
 
 export const APIConfirmTransferPayloadSchema = z.object({

@@ -46,6 +46,12 @@ defmodule SwapifyApiWeb.TransferController do
   def cancel_transfer(%Plug.Conn{} = conn, %{
         "transfer_id" => transfer_id
       }) do
-    # TODO
+    user_id = conn.assigns[:user_id]
+
+    with {:ok, transfer} <- Tasks.cancel_transfer(user_id, transfer_id) do
+      conn
+      |> put_status(200)
+      |> render(:show, transfer: transfer)
+    end
   end
 end

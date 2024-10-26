@@ -38,7 +38,7 @@ const statusStyle = cva({
         backgroundColor: "blue.11",
         color: "blue.4",
       },
-      cancelled: {
+      canceled: {
         backgroundColor: "gray.11",
         color: "gray.4",
       },
@@ -62,8 +62,8 @@ const getTransferStatusText = (status: TransferStatus) => {
       return "Waiting for confirmation";
     case "transfering":
       return "Transfering";
-    case "cancelled":
-      return "Cancelled";
+    case "canceled":
+      return "Canceled";
     case "done":
       return "Done";
     case "error":

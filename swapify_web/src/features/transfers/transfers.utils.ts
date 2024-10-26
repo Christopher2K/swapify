@@ -3,6 +3,10 @@ import type { APITransfer } from "#root/services/api.types";
 import type { TransferStatus } from "./transfers.types";
 
 export function getTransferStatus(transfer: APITransfer): TransferStatus {
+  if (transfer.matchingStepJob?.status === "canceled") {
+    return "canceled";
+  }
+
   if (
     transfer.matchingStepJob?.status === "error" ||
     transfer.transferStepJob?.status === "error"
