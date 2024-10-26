@@ -1,22 +1,11 @@
-import { Heading } from "#root/components/ui/heading";
-import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
-
-import { getTransferStatus } from "#root/features/transfers/transfers.utils";
-import { TransfersList } from "#root/features/transfers/components/tranfers-list";
-import { HStack, VStack } from "#style/jsx";
-import { APITransfer } from "#root/services/api.types";
 import { CreateTransferButton } from "#root/features/transfers/components/create-transfer-button";
+import { HStack, VStack } from "#style/jsx";
+import { Heading } from "#root/components/ui/heading";
+import { TransfersList } from "#root/features/transfers/components/tranfers-list";
+import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
+import { isTransferInProgress } from "#root/features/transfers/transfers.utils";
 
 import { Onboarding } from "./components/onboarding";
-
-function isTransferInProgress(transfer: APITransfer) {
-  const status = getTransferStatus(transfer);
-  return (
-    status === "matching" ||
-    status === "transfering" ||
-    status === "wait-for-confirmation"
-  );
-}
 
 export function DashboardPage() {
   const { transfers, refetch } = useTransfersQuery();

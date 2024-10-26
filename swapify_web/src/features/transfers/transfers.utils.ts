@@ -34,3 +34,12 @@ export function getTransferStatus(transfer: APITransfer): TransferStatus {
 
   return "matching";
 }
+
+export function isTransferInProgress(transfer: APITransfer) {
+  const status = getTransferStatus(transfer);
+  return (
+    status === "matching" ||
+    status === "transfering" ||
+    status === "wait-for-confirmation"
+  );
+}
