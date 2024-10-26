@@ -1,14 +1,43 @@
+import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
+
 import { CreateTransferButton } from "#root/features/transfers/components/create-transfer-button";
 import { HStack, VStack } from "#style/jsx";
 import { Heading } from "#root/components/ui/heading";
+import { Button } from "#root/components/ui/button";
 import { TransfersList } from "#root/features/transfers/components/tranfers-list";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
-import { isTransferInProgress } from "#root/features/transfers/transfers.utils";
 
 import { Onboarding } from "./components/onboarding";
 
-export function DashboardPage() {
+function DashboardContent() {
   const { transfers, refetch } = useTransfersQuery();
+
+  const threeLastTransfers = useMemo(() => transfers?.slice(0, 3), [transfers]);
+
+  return (
+    <VStack
+      w="full"
+      justifyContent="flex-start"
+      alignItems="flex-start"
+      gap="4"
+    >
+      <HStack w="full" justifyContent="flex-start" alignItems="center">
+        <Heading as="h2" size="lg">
+          Latest transfers
+        </Heading>
+
+        <Button size="xs" variant="outline" asChild>
+          <Link to="/transfers">See all</Link>
+        </Button>
+      </HStack>
+      <TransfersList transfers={threeLastTransfers} refetchList={refetch} />
+    </VStack>
+  );
+}
+
+export function DashboardPage() {
+  const { transfers } = useTransfersQuery();
   const shouldShowOnboarding = transfers && transfers.length === 0;
 
   return (
@@ -36,23 +65,9 @@ export function DashboardPage() {
         w="full"
         justifyContent="flex-start"
         alignItems="flex-start"
-        gap="4"
+        gap="0"
       >
-        {shouldShowOnboarding ? (
-          <Onboarding />
-        ) : (
-          <>
-            <Heading as="h2" size="lg">
-              Transfers in progress
-            </Heading>
-
-            <TransfersList
-              transfers={transfers}
-              predicate={isTransferInProgress}
-              refetchList={refetch}
-            />
-          </>
-        )}
+        {shouldShowOnboarding ? <Onboarding /> : <DashboardContent />}
       </VStack>
     </VStack>
   );
