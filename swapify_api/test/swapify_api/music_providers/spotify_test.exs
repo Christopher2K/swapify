@@ -24,11 +24,7 @@ defmodule SwapifyApi.SpotifyTest do
     :ok
   end
 
-  @tag mocked_response: %{
-         "access_token" => @fake_access_token,
-         "refresh_token" => @fake_refresh_token,
-         "expires_in" => 3600
-       }
+  @tag mocked_response: request_access_token_response_fixture()
   test "request_access_token/1 returns an access_token on success" do
     assert {:ok,
             %Oauth.AccessToken{

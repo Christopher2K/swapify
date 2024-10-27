@@ -82,4 +82,6 @@ defmodule SwapifyApi.AppleMusicAPIFixtures do
       }
     }
   end
+
+  def me_storefront_response_fixture(), do: %{"data" => [%{"id" => "FR"}]}
 end

@@ -19,6 +19,7 @@ defmodule SwapifyApi.DataCase do
   using do
     quote do
       alias SwapifyApi.Repo
+      use Oban.Testing, repo: SwapifyApi.Repo
 
       import Ecto
       import Ecto.Changeset

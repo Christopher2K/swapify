@@ -91,4 +91,13 @@ defmodule SwapifyApi.SpotifyAPIFixtures do
       ]
     }
   end
+
+  def request_access_token_response_fixture(),
+    do: %{
+      "access_token" => "fake_at",
+      "refresh_token" => "fake_rt",
+      "expires_in" => 3600
+    }
+
+  def me_response_fixture(), do: %{"id" => "fake_id", "country" => "FR"}
 end

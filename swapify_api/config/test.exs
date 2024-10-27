@@ -44,3 +44,5 @@ config :swapify_api,
   http_client_opts: [
     plug: {Req.Test, :test}
   ]
+
+config :swapify_api, Oban, testing: :manual
