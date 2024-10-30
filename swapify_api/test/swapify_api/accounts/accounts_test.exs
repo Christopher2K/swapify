@@ -39,10 +39,10 @@ defmodule SwapifyApi.SignInUserTest do
                 country_code: "FR"
               }} =
                Accounts.create_or_update_integration(:spotify,
-                 user_id: user.id,
+                 code: "code",
                  session_state: "session_state",
-                 remote_state: "session_state",
-                 code: "code"
+                 user_id: user.id,
+                 remote_state: "session_state"
                )
     end
 
@@ -194,6 +194,21 @@ defmodule SwapifyApi.SignInUserTest do
       })
 
       assert {:error, :auth_failed} = Accounts.sign_in_user("fakeemail@test.fr", password)
+    end
+  end
+
+  describe "disable_partner_integration/2" do
+    setup do
+      user = user_fixture()
+      pc = platform_connection_fixture(%{user_id: user.id, name: :spotify})
+      {:ok, user: user}
+    end
+
+    test "it should disable a partner integration", %{user: user} do
+      assert {:ok, pc} =
+               Accounts.disable_partner_integration(user.id, :spotify)
+
+      assert not is_nil(pc.invalidated_at)
     end
   end
 end

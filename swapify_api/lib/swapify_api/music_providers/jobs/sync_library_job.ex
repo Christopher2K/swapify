@@ -166,7 +166,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncLibraryJob do
         save_tracks(args, tracks, total, has_next?, @apple_music_limit)
 
       {:error, :service_401} ->
-        Accounts.remove_partner_integration(user_id, :applemusic)
+        Accounts.disable_partner_integration(user_id, :applemusic)
         {:cancel, :authentication_error}
 
       error ->

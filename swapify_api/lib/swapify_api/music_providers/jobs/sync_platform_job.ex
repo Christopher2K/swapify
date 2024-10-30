@@ -127,7 +127,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         end
 
       {:error, :service_401} ->
-        Accounts.remove_partner_integration(user_id, :applemusic)
+        Accounts.disable_partner_integration(user_id, :applemusic)
         {:cancel, :authentication_error}
 
       error ->

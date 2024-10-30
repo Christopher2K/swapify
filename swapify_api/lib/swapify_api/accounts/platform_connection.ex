@@ -8,34 +8,29 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
           user_id: Ecto.UUID.t(),
+          platform_id: String.t(),
           name: platform_name(),
           country_code: String.t() | nil,
           access_token: String.t() | nil,
           access_token_exp: DateTime.t() | nil,
           refresh_token: String.t() | nil,
+          invalidated_at: DateTime.t() | nil,
           inserted_at: DateTime.t(),
           updated_at: DateTime.t()
         }
 
   schema "platform_connections" do
+    field :platform_id, :string
     field :name, Ecto.Enum, values: [:spotify, :applemusic]
     field :country_code, :string
     field :access_token, :string
     field :access_token_exp, :utc_datetime
     field :refresh_token, :string
+    field :invalidated_at, :utc_datetime
     belongs_to :user, User
 
     timestamps(type: :utc_datetime)
   end
-
-  def to_json(platform_connection),
-    do: %{
-      "id" => platform_connection.id,
-      "name" => platform_connection.name,
-      "countryCode" => platform_connection.country_code,
-      "accessTokenExp" => platform_connection.access_token_exp,
-      "userId" => platform_connection.user_id
-    }
 
   @doc "Default changeset"
   def changeset(platform_connection, attrs \\ %{}) do
@@ -44,17 +39,42 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
       :access_token,
       :access_token_exp,
       :refresh_token,
+      :invalidated_at,
+      :platform_id,
       :name,
       :user_id,
       :country_code
     ])
     |> validate_required([:access_token, :access_token_exp, :name, :user_id])
+    |> unique_constraint([:platform_id, :name])
+  end
+
+  def create_changeset(platform_connection, attrs \\ %{}) do
+    platform_connection
+    |> cast(attrs, [
+      :access_token,
+      :access_token_exp,
+      :refresh_token,
+      :platform_id,
+      :name,
+      :user_id,
+      :country_code
+    ])
+    |> validate_required([:access_token, :access_token_exp, :name, :user_id])
+    |> unique_constraint([:platform_id, :name])
   end
 
   def update_changeset(platform_connection, attrs \\ %{}) do
     platform_connection
     |> cast(attrs, [:access_token, :access_token_exp, :refresh_token])
+    |> put_change(:invalidated_at, nil)
     |> validate_required([:access_token, :access_token_exp])
+  end
+
+  def invalidate_changeset(platform_connection, attrs \\ %{}) do
+    platform_connection
+    |> cast(attrs, [:invalidated_at])
+    |> validate_required([:invalidated_at])
   end
 
   def queryable(), do: from(platform_connection in __MODULE__, as: :platform_connection)

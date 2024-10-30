@@ -50,14 +50,15 @@ defmodule SwapifyApi.Accounts.PlatformConnectionRepo do
     end
   end
 
-  @spec delete(String.t(), PlatformConnection.platform_name()) :: {:ok}
-  def delete(user_id, name) do
-    PlatformConnection.queryable()
-    |> PlatformConnection.filter_by(:user_id, user_id)
-    |> PlatformConnection.filter_by(:name, name)
-    |> Repo.delete_all()
-
-    {:ok}
+  @doc "Invalidate a platform connection"
+  @spec invalidate(String.t(), PlatformConnection.platform_name()) ::
+          {:ok, PlatformConnection.t()} | {:error, Ecto.Changeset.t()}
+  def invalidate(user_id, name) do
+    with {:ok, pc} <- get_by_user_id_and_platform(user_id, name) do
+      pc
+      |> PlatformConnection.invalidate_changeset(%{invalidated_at: DateTime.utc_now()})
+      |> Repo.update(returning: true)
+    end
   end
 
   @spec get_by_user_id(String.t()) :: list(PlatformConnection.t())
