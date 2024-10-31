@@ -37,6 +37,7 @@ defmodule SwapifyApi.MixProject do
       {:cors_plug, "~> 3.0"},
       {:dns_cluster, "~> 0.1.1"},
       {:ecto_sql, "~> 3.10"},
+      {:error_message, "~> 0.2.0"},
       {:faker, "~> 0.18", only: :test},
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
@@ -52,7 +53,8 @@ defmodule SwapifyApi.MixProject do
       {:req, "~> 0.5.0"},
       {:swoosh, "~> 1.5"},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"}
+      {:telemetry_poller, "~> 1.0"},
+      {:nimble_options, "~> 1.0"}
     ]
   end
 
