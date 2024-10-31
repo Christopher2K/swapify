@@ -9,7 +9,7 @@ export function useSignInMutation() {
     error,
   } = tsr.signinUser.useMutation({
     onSuccess: async () => {
-      await queryClient.invalidateQueries();
+      await queryClient.resetQueries();
     },
   });
 
