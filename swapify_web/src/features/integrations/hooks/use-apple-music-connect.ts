@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { useIntegrationsQuery } from "./use-integrations-query";
 
@@ -14,30 +14,7 @@ export function useAppleMusicConnect() {
   );
 
   function connect() {
-    const popup = window.open(
-      "/integrations/applemusic",
-      "_blank",
-      "popup=yes",
-    )!;
-
-    popupRef.current = popup;
-    setIsLoading(true);
-
-    const windowCheckInterval = setInterval(() => {
-      if (popupRef.current?.closed) {
-        clearInterval(windowCheckInterval);
-        onProcessEnd();
-      }
-    }, 1000);
-  }
-
-  async function onProcessEnd() {
-    await refetchIntegrations();
-    setIsLoading(false);
-  }
-
-  useEffect(() => {
-    function handleMessage(event: MessageEvent) {
+    const handleMessage = (event: MessageEvent) => {
       if (event.data?.integration !== "applemusic") return;
       switch (event.data.eventType) {
         case "success":
@@ -48,12 +25,34 @@ export function useAppleMusicConnect() {
           console.debug("Apple Music error");
           break;
       }
+      window.removeEventListener("message", handleMessage);
       onProcessEnd();
-    }
+    };
+
+    const popup = window.open(
+      "/integrations/applemusic",
+      "_blank",
+      "popup=yes",
+    )!;
+
+    popupRef.current = popup;
+    setIsLoading(true);
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [onProcessEnd]);
+
+    const windowCheckInterval = setInterval(() => {
+      if (popupRef.current?.closed) {
+        clearInterval(windowCheckInterval);
+        window.removeEventListener("message", handleMessage);
+        onProcessEnd();
+      }
+    }, 1000);
+  }
+
+  async function onProcessEnd() {
+    await refetchIntegrations();
+    setIsLoading(false);
+  }
 
   return {
     connect,

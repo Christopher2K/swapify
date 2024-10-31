@@ -11,7 +11,7 @@ defmodule SwapifyApi.Accounts.UserRepo do
     |> Repo.insert()
   end
 
-  @spec get_by(atom(), String.t()) :: {:ok, User.t()} | {:error, :not_found}
+  @spec get_by(atom(), String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
   def get_by(field, email) do
     User.queryable()
     |> User.filter_by(field, email)

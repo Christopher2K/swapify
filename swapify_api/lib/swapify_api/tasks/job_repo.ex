@@ -9,7 +9,8 @@ defmodule SwapifyApi.Tasks.JobRepo do
       |> Job.changeset(args)
       |> Repo.insert(returning: true)
 
-  @spec update(String.t(), map()) :: {:ok, Job.t()} | {:error, :not_found | Ecto.Changeset.t()}
+  @spec update(String.t(), map()) ::
+          {:ok, Job.t()} | {:error, ErrorMessage.t() | Ecto.Changeset.t()}
   def update(id, args) do
     with({:ok, job} <- get_by_id(id)) do
       job
@@ -18,7 +19,7 @@ defmodule SwapifyApi.Tasks.JobRepo do
     end
   end
 
-  @spec get_by_id(String.t()) :: {:ok, Job.t()} | {:error, :not_found}
+  @spec get_by_id(String.t()) :: {:ok, Job.t()} | {:error, ErrorMessage.t()}
   def get_by_id(id),
     do:
       Job.queryable()

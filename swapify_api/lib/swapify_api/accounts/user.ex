@@ -37,8 +37,8 @@ defmodule SwapifyApi.Accounts.User do
     |> validate_format(:email, ~r/@/)
     |> validate_length(:password, min: 8, max: 30)
     |> validate_length(:username, min: 3, max: 20)
-    |> unique_constraint(:email)
-    |> unique_constraint(:username)
+    |> unique_constraint(:email, message: "Email is already taken")
+    |> unique_constraint(:username, message: "Username is already taken")
     |> hash_new_password()
   end
 

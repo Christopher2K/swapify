@@ -99,6 +99,7 @@ const integrationsRoute = createRoute({
 
 const integrationConfigurationRouteSearch = z.object({
   result: z.enum(["success", "error"]).optional(),
+  error: z.string().optional(),
 });
 const integrationConfigurationRoute = createRoute({
   getParentRoute: () => authenticatedLayoutRoute,

@@ -16,6 +16,13 @@ const APIFormErrorsSchema = z.object({
   form: z.record(z.string()),
 });
 
+export const APIErrorSchema = z.object({
+  message: z.string(),
+  code: z.string(),
+  details: z.any().optional(),
+});
+export type APIError = z.infer<typeof APIErrorSchema>;
+
 export const APIPlatformNameSchema = z.enum(["applemusic", "spotify"]);
 export type APIPlatformName = z.infer<typeof APIPlatformNameSchema>;
 
@@ -164,6 +171,7 @@ export const contract = c.router({
     body: APISigninPayloadSchema,
     responses: {
       200: APIResponseTemplate(APIUserSchema),
+      401: APIErrorSchema,
     },
     summary: "Sign in a user",
   },
@@ -193,6 +201,7 @@ export const contract = c.router({
     body: APIUpdateAppleMusicUserTokenPayloadSchema,
     responses: {
       200: APIResponseTemplate(APISuccessSchema),
+      400: APIErrorSchema,
     },
   },
   searchUserLibraries: {

@@ -16,7 +16,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
       |> Repo.insert()
 
   @spec add_matched_tracks(String.t(), list(MatchedTrack.t())) ::
-          {:ok, nil} | {:error, :not_found}
+          {:ok, nil} | {:error, ErrorMessage.t()}
   def add_matched_tracks(transfer_id, matched_tracks) do
     from(t in Transfer,
       where: [id: ^transfer_id],
@@ -32,11 +32,12 @@ defmodule SwapifyApi.Tasks.TransferRepo do
         {:ok, nil}
 
       {_, _} ->
-        {:error, :not_found}
+        {:error, ErrorMessage.not_found("Could not find the requested resource.")}
     end
   end
 
-  @spec add_not_found_tracks(String.t(), list(Track.t())) :: {:ok, nil} | {:error, :not_found}
+  @spec add_not_found_tracks(String.t(), list(Track.t())) ::
+          {:ok, nil} | {:error, ErorrMessage.t()}
   def add_not_found_tracks(transfer_id, tracks) do
     Transfer.queryable()
     |> Transfer.filter_by(:id, transfer_id)
@@ -51,7 +52,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
         {:ok, nil}
 
       {_, _} ->
-        {:error, :not_found}
+        {:error, ErrorMessage.not_found("Could not find the requested resource.")}
     end
   end
 
@@ -63,7 +64,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   end
 
   @spec get_transfer_by_step_and_id(String.t(), Transfer.transfer_step(), Keyword.t()) ::
-          {:ok, Transfer.t()} | {:error, :not_found}
+          {:ok, Transfer.t()} | {:error, ErrorMessage.t()}
 
   def get_transfer_by_step_and_id(transfer_id, step, opts \\ [])
 
@@ -102,7 +103,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   Get a specific track by its index
   """
   @spec get_matched_track_by_index(String.t(), pos_integer()) ::
-          {:ok, MatchedTrack.t()} | {:error, :not_found}
+          {:ok, MatchedTrack.t()} | {:error, ErrorMessage.t()}
   def get_matched_track_by_index(transfer_id, index) do
     Transfer.queryable()
     |> Transfer.filter_by(:id, transfer_id)
@@ -110,7 +111,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Repo.one()
     |> case do
       nil ->
-        {:error, :not_found}
+        {:error, ErrorMessage.not_found("Could not find the requested resource.")}
 
       track ->
         {:ok, Map.merge(%MatchedTrack{}, Recase.Enumerable.atomize_keys(track))}
@@ -151,7 +152,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   Get one user transfer by its ID
   """
   @spec get_user_transfer_by_id(String.t(), String.t()) ::
-          {:ok, Transfer.t()} | SwapifyApi.Errors.t()
+          {:ok, Transfer.t()} | {:error, ErrorMessage.t()}
   def get_user_transfer_by_id(user_id, transfer_id) do
     Transfer.queryable()
     |> preload([:matching_step_job, :transfer_step_job, :source_playlist])

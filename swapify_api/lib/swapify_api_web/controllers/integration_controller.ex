@@ -46,12 +46,24 @@ defmodule SwapifyApiWeb.IntegrationController do
         |> delete_session(:spotify_state)
         |> redirect(external: Utils.get_app_url("/integrations/spotify?result=success"))
 
-      {:error, error} ->
+      {:error, %{message: error_message}} ->
         conn
         |> delete_session(:spotify_state)
         |> redirect(
           external:
-            Utils.get_app_url("/integrations/spotify?result=error&error=#{Atom.to_string(error)}")
+            Utils.get_app_url(
+              "/integrations/spotify?result=error&error=#{URI.encode(error_message)}"
+            )
+        )
+
+      _ ->
+        conn
+        |> delete_session(:spotify_state)
+        |> redirect(
+          external:
+            Utils.get_app_url(
+              "/integrations/spotify?result=error&error=#{URI.encode("Unexpected error, please try again.")}"
+            )
         )
     end
   end
@@ -60,7 +72,10 @@ defmodule SwapifyApiWeb.IntegrationController do
     conn
     |> delete_session(:spotify_state)
     |> redirect(
-      external: Utils.get_app_url("/integrations/spotify?result=error&error=service_error")
+      external:
+        Utils.get_app_url(
+          "/integrations/spotify?result=error&error=#{URI.encode("Unexpected error, please try again.")}"
+        )
     )
   end
 

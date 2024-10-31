@@ -43,7 +43,12 @@ export function AppleMusicConfiguration() {
         },
       });
     } catch (_) {
-      opener.postMessage(formatPostMessage("error"));
+      opener.postMessage(
+        formatPostMessage(
+          "error",
+          "Error while connecting to Apple Music. Please try again or contact support.",
+        ),
+      );
       setAuthorizationIsLoading(false);
       window.close();
       return;

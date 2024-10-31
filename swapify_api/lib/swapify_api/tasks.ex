@@ -17,7 +17,7 @@ defmodule SwapifyApi.Tasks do
   Handle Oban insertion error when a domain job is involved
   """
   @spec handle_oban_insertion_error(any(), Job.t(), any()) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
+          {:ok, Job.t()} | {:error, ErrorMessage.t()}
   def handle_oban_insertion_error(result, %Job{} = job, on_error \\ fn _ -> :ok end) do
     case result do
       {:ok, %{id: nil, conflict?: true}} ->
@@ -27,7 +27,7 @@ defmodule SwapifyApi.Tasks do
 
         on_error.()
 
-        SwapifyApi.Errors.failed_to_acquire_lock()
+        {:error, ErrorMessage.bad_request("Failed to start the operation. Please try again.")}
 
       {:ok, %{conflict?: true}} ->
         JobRepo.update(job.id, %{
@@ -36,24 +36,28 @@ defmodule SwapifyApi.Tasks do
 
         on_error.()
 
-        SwapifyApi.Errors.job_already_exists()
+        {:error, ErrorMessage.conflict("A similar operation is already in progress.")}
 
       {:ok, _} ->
         {:ok, job}
 
-      {:error, _} ->
+      {:error, error} ->
         JobRepo.update(job.id, %{
           "status" => :error
         })
 
         on_error.()
 
-        SwapifyApi.Errors.oban_error()
+        {:error,
+         ErrorMessage.internal_server_error("A similar operation is already in progress.", %{
+           details: error
+         })}
     end
   end
 
   @doc "Update a job status and timestamps if needed"
-  @spec update_job_status(String.t(), Job.job_status()) :: {:ok, Job.t()} | SwapifyApi.Errors.t()
+  @spec update_job_status(String.t(), Job.job_status()) ::
+          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
 
   def update_job_status(job_id, new_status) when new_status == :done do
     JobRepo.update(job_id, %{
@@ -80,7 +84,7 @@ defmodule SwapifyApi.Tasks do
           String.t(),
           String.t()
         ) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
+          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   defp start_find_playlist_tracks(user_id, target_platform, playlist_id, transfer_id) do
     with {:ok, pc} <-
            PlatformConnectionRepo.get_by_user_id_and_platform(user_id, target_platform),
@@ -116,7 +120,7 @@ defmodule SwapifyApi.Tasks do
           String.t(),
           PlatformConnection.platform_name()
         ) ::
-          {:ok, Transfer.t()} | SwapifyApi.Errors.t()
+          {:ok, Transfer.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   def start_playlist_transfer_matching_step(
         user_id,
         playlist_id,
@@ -166,7 +170,7 @@ defmodule SwapifyApi.Tasks do
   Start a playlist transfer transfer step: transfer job
   """
   @spec start_playlist_transfer_transfer_step(String.t(), String.t()) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
+          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   def start_playlist_transfer_transfer_step(user_id, transfer_id) do
     with {:ok, transfer} <-
            TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching,
@@ -184,7 +188,7 @@ defmodule SwapifyApi.Tasks do
 
   @doc "Cancel a transfer when it's in the `waiting for confirmation` state"
   @spec cancel_transfer(String.t(), String.t()) ::
-          {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()} | {:error, ErrorMessage.t()}
   def cancel_transfer(user_id, transfer_id) do
     # 2. Check for domain invariants
     # 3. If possible, cancel the transfer
@@ -194,7 +198,8 @@ defmodule SwapifyApi.Tasks do
           TransferRepo.get_user_transfer_by_id(user_id, transfer_id)
         end
       else
-        SwapifyApi.Errors.transfer_cancel_error()
+        {:error,
+         ErrorMessage.bad_request("The transfer cannot be cancelled in its current state.")}
       end
     end
   end

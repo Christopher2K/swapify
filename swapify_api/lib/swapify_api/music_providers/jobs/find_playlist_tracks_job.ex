@@ -46,7 +46,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
-  defp handle_error({:error, :service_427}), do: {:error, :rate_limit}
+  defp handle_error({:error, %{details: %{status: 427}}}), do: {:error, :rate_limit}
 
   defp process_match_results(matched_tracks, transfer_id, should_force_update? \\ false) do
     should_update? = should_force_update? || length(matched_tracks) >= @unsaved_threshold
@@ -104,7 +104,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         } = args
       ) do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
-      {:error, :not_found} ->
+      {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
              {:ok, _} <- Tasks.update_job_status(job_id, :done) do
@@ -173,7 +173,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                  )}
             end
 
-          {:error, :service_401} ->
+          {:error, %{details: %{status: 401}}} ->
             case Accounts.refresh_partner_integration(user_id, :spotify, refresh_token) do
               {:ok, refreshed_pc} ->
                 Logger.info("Restart the job with new credentials", platform_name: "spotify")
@@ -211,7 +211,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         } = args
       ) do
     case PlaylistRepo.get_playlist_track_by_index(playlist_id, offset) do
-      {:error, :not_found} ->
+      {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
              {:ok, _} <- Tasks.update_job_status(job_id, :done) do
@@ -281,7 +281,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
                  )}
             end
 
-          {:error, :service_401} ->
+          {:error, %{details: %{status: 401}}} ->
             Accounts.disable_partner_integration(user_id, :applemusic)
             {:cancel, :authentication_error}
 

@@ -55,7 +55,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   @spec add_tracks(String.t(), list(Track.t()), pos_integer(), Playlist.sync_status(), [
           {:erase_tracks, bool()}
         ]) ::
-          {:ok, Playlist.t()} | {:error, :not_found}
+          {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def add_tracks(playlist_id, tracks, tracks_total, status, opts \\ []) do
     should_replace_tracks? = Keyword.get(opts, :replace_tracks, false)
 
@@ -85,13 +85,13 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     |> Repo.update_all([])
     |> case do
       {1, _} -> get_by_id(playlist_id)
-      _ -> {:error, :not_found}
+      _ -> {:error, ErrorMessage.not_found("Could not find the requested resource.")}
     end
   end
 
   @doc "Update playlist status"
   @spec update_status(String.t(), Playlist.sync_status()) ::
-          {:ok, Playlist.t()} | SwapifyApi.Errors.t()
+          {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def update_status(playlist_id, sync_status) do
     Playlist.queryable()
     |> Playlist.filter_by(:id, playlist_id)
@@ -104,12 +104,12 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
         get_by_id(playlist_id)
 
       _ ->
-        SwapifyApi.Errors.not_found()
+        {:error, ErrorMessage.not_found("Could not find the requested resource.")}
     end
   end
 
   @doc "Get a playlist by its ID"
-  @spec get_by_id(String.t()) :: {:ok, Playlist.t()} | {:error, :not_found}
+  @spec get_by_id(String.t()) :: {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def get_by_id(id) do
     Playlist.queryable()
     |> Playlist.filter_by(:id, id)
@@ -147,7 +147,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   Get the latest library playlist for a given user and platform
   """
   @spec get_user_library(String.t(), Playlist.platform_name()) ::
-          {:ok, Playlist.t()} | {:error, :not_found}
+          {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def get_user_library(user_id, platform_name) do
     Playlist.queryable()
     |> Playlist.filter_by(:user_id, user_id)
@@ -161,7 +161,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
   Get a specific track by its index
   """
   @spec get_playlist_track_by_index(String.t(), pos_integer()) ::
-          {:ok, Track.t()} | {:error, :not_found}
+          {:ok, Track.t()} | {:error, ErrorMessage.t()}
   def get_playlist_track_by_index(playlist_id, index) do
     Playlist.queryable()
     |> Playlist.filter_by(:id, playlist_id)
@@ -169,7 +169,7 @@ defmodule SwapifyApi.MusicProviders.PlaylistRepo do
     |> Repo.one()
     |> case do
       nil ->
-        {:error, :not_found}
+        {:error, ErrorMessage.not_found("Could not find the requested resource.")}
 
       track ->
         {:ok, Map.merge(%Track{}, Recase.Enumerable.atomize_keys(track))}

@@ -14,7 +14,7 @@ defmodule SwapifyApi.MusicProviders do
   Mark a playlist transfer as failed
   """
   @spec mark_playlist_transfer_as_failed(String.t()) ::
-          {:ok, Playlist.t()} | SwapifyApi.Errors.t()
+          {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def mark_playlist_transfer_as_failed(playlist_id),
     do: PlaylistRepo.update_status(playlist_id, :error)
 
@@ -22,7 +22,7 @@ defmodule SwapifyApi.MusicProviders do
   Start a library synchronization job
   """
   @spec start_library_sync(String.t(), PlatformConnection.platform_name()) ::
-          {:ok, Playlist.t()} | SwapifyApi.Errors.t()
+          {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def start_library_sync(user_id, platform_name) do
     with {:ok, playlist} <- PlaylistRepo.get_user_library(user_id, platform_name),
          {:ok, pc} <- PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name),
@@ -54,7 +54,7 @@ defmodule SwapifyApi.MusicProviders do
   Start a platform synchronization job
   """
   @spec start_platform_sync(String.t(), PlatformConnection.platform_name()) ::
-          {:ok, Job.t()} | SwapifyApi.Errors.t()
+          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   def start_platform_sync(user_id, platform_name) do
     with {:ok, pc} <- PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name),
          job_args <-
@@ -78,8 +78,7 @@ defmodule SwapifyApi.MusicProviders do
   Add metadata to an existing or non existing playlist
   """
   @spec sync_playlist_metadata(PlatformConnection.platform_name(), String.t(), pos_integer()) ::
-          {:ok, Playlist.t()} | SwapifyApi.Errors.t()
-  def sync_playlist_metadata(platform_name, user_id, tracks_total) do
-    PlaylistRepo.create_or_update(platform_name, user_id, user_id, tracks_total)
-  end
+          {:ok, Playlist.t()} | {:error, Changeset.t()}
+  def sync_playlist_metadata(platform_name, user_id, tracks_total),
+    do: PlaylistRepo.create_or_update(platform_name, user_id, user_id, tracks_total)
 end

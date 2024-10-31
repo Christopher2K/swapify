@@ -38,7 +38,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
 
   defp handle_error({:error, error}) when is_atom(error), do: {:error, error}
 
-  defp handle_error({:error, :service_427}), do: {:error, :rate_limit}
+  defp handle_error({:error, %{details: %{status: 427}}}), do: {:error, :rate_limit}
 
   def transfer(
         "spotify",
@@ -86,7 +86,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
                :started
              )}
         else
-          {:error, :service_401} ->
+          {:error, %{details: %{status: 401}}} ->
             case Accounts.refresh_partner_integration(user_id, :spotify, refresh_token) do
               {:ok, refreshed_pc} ->
                 Logger.info("Restart the job with new credentials", platform_name: "spotify")
@@ -122,7 +122,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
         } = args
       ) do
     case TransferRepo.get_matched_track_by_index(transfer_id, offset) do
-      {:error, :not_found} ->
+      {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- Tasks.update_job_status(job_id, :done) do
           {:ok,
            notification:
@@ -159,7 +159,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
                  )}
             end
 
-          {:error, :service_401} ->
+          {:error, %{details: %{status: 401}}} ->
             Accounts.disable_partner_integration(user_id, :applemusic)
             {:cancel, :authentication_error}
 

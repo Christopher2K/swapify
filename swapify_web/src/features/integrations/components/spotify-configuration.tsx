@@ -1,3 +1,4 @@
+import { useSearch } from "@tanstack/react-router";
 import { SquareArrowOutUpRightIcon } from "lucide-react";
 import { useRef } from "react";
 
@@ -8,7 +9,6 @@ import { Text } from "#root/components/ui/text";
 
 import { css } from "#style/css";
 import { VStack } from "#style/jsx";
-import { useSearch } from "@tanstack/react-router";
 
 const SPOTIFY_LOGIN_URL = `${import.meta.env.VITE_API_URL}/api/integrations/spotify/login`;
 
@@ -22,23 +22,17 @@ function formatPostMessage(eventType: string, message?: string) {
 
 export function SpotifyConfiguration() {
   const { current: opener } = useRef(window.opener as Window);
-  const { result } = useSearch({
+  const { result, error } = useSearch({
     from: "/authenticated/integrations/$integrationName",
   });
 
   if (result === "success") {
     opener.postMessage(formatPostMessage("success"));
-    console.log("success");
     window.close();
   }
 
   if (result === "error") {
-    opener.postMessage(
-      formatPostMessage(
-        "error",
-        "Error while connecting to Spotify. Please try again or contact support.",
-      ),
-    );
+    opener.postMessage(formatPostMessage("error", error));
     window.close();
   }
 

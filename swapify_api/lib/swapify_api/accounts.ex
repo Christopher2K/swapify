@@ -11,30 +11,43 @@ defmodule SwapifyApi.Accounts do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
-  alias SwapifyApi.Utils
 
+  @create_or_update_integration_spotify_opts_def NimbleOptions.new!(
+                                                   user_id: [type: :string, required: true],
+                                                   code: [type: :string, required: true],
+                                                   remote_state: [type: :string, required: true],
+                                                   session_state: [type: :string, required: true]
+                                                 )
+  @create_or_update_integration_applemusic_opts_def NimbleOptions.new!(
+                                                      user_id: [type: :string, required: true],
+                                                      token: [type: :string, required: true]
+                                                    )
+  @type create_or_update_integration_applemusic_opts() ::
+          unquote(
+            NimbleOptions.option_typespec(@create_or_update_integration_applemusic_opts_def)
+          )
+  @type create_or_update_integration_spotify_opts() ::
+          unquote(NimbleOptions.option_typespec(@create_or_update_integration_spotify_opts_def))
   @doc """
-  Options:
-  - :user_id - ID to use for the platform connection
-
   For Spotify:
-  - :code - Authorization code we got from the provider
-  - :remote_state - State we got from the provider
-  - :session_state - State we kept in the session
+  #{NimbleOptions.docs(@create_or_update_integration_spotify_opts_def)}
 
   For Apple music:
-  - :token - Token code we got from AppleMusicKit on frontend
+  #{NimbleOptions.docs(@create_or_update_integration_applemusic_opts_def)}
   """
-  @spec create_or_update_integration(PlatformConnection.platform_name(), Keyword.t()) ::
-          {:ok, map()} | SwapifyApi.Errors.t() | Ecto.Changeset.t()
-
+  @spec create_or_update_integration(
+          PlatformConnection.platform_name(),
+          create_or_update_integration_spotify_opts()
+          | create_or_update_integration_applemusic_opts()
+        ) ::
+          {:ok, map()} | {:error, ErrorMessage.t()}
   def create_or_update_integration(:spotify = name, opts) do
-    Keyword.validate!(opts, [:user_id, :code, :remote_state, :session_state])
+    NimbleOptions.validate!(opts, @create_or_update_integration_spotify_opts_def)
 
-    user_id = Keyword.get(opts, :user_id)
+    code = Keyword.get(opts, :code)
     remote_state = Keyword.get(opts, :remote_state)
     session_state = Keyword.get(opts, :session_state)
-    code = Keyword.get(opts, :code)
+    user_id = Keyword.get(opts, :user_id)
 
     with {:ok} <- Oauth.check_state(session_state, remote_state),
          {:ok, access_token_data} <- Spotify.request_access_token(code),
@@ -44,22 +57,26 @@ defmodule SwapifyApi.Accounts do
              "access_token_exp" => access_token_data.expires_at,
              "access_token" => access_token_data.access_token,
              "refresh_token" => access_token_data.refresh_token,
-             "country_code" => spotify_user["country"]
+             "country_code" => spotify_user["country"],
+             "platform_id" => spotify_user["id"]
            }) do
-      if operation_type == :created do
-        # When created for the first time we will try to synchronize the library data for this user
-        MusicProviders.start_platform_sync(user_id, name)
-      end
+      case operation_type do
+        :created ->
+          # When created for the first time we will try to synchronize the library data for this user
+          MusicProviders.start_platform_sync(user_id, name)
 
-      {:ok, pc}
+        _ ->
+          {:ok, pc}
+      end
     end
   end
 
   def create_or_update_integration(:applemusic = name, opts) do
-    Keyword.validate!(opts, [:user_id, :token])
+    NimbleOptions.validate!(opts, @create_or_update_integration_applemusic_opts_def)
 
-    user_id = Keyword.get(opts, :user_id)
     token = Keyword.get(opts, :token)
+    user_id = Keyword.get(opts, :user_id)
+
     exp = DateTime.utc_now() |> DateTime.add(60, :day)
 
     with dev_token <- AppleMusicTokenWorker.get(),
@@ -70,12 +87,14 @@ defmodule SwapifyApi.Accounts do
              "access_token_exp" => exp,
              "access_token" => token
            }) do
-      if operation_type == :created do
-        # When created for the first time we will try to synchronize the library data for this user
-        MusicProviders.start_platform_sync(user_id, name)
-      end
+      case operation_type do
+        :created ->
+          # When created for the first time we will try to synchronize the library data for this user
+          MusicProviders.start_platform_sync(user_id, name)
 
-      {:ok, pc}
+        _ ->
+          {:ok, pc}
+      end
     end
   end
 
@@ -85,7 +104,7 @@ defmodule SwapifyApi.Accounts do
   Generate an access and refresh token for a given user
   """
   @spec genereate_auth_tokens(User.t()) ::
-          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | SwapifyApi.Errors.t()
+          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | {:error, ErrorMessage.t()}
   def genereate_auth_tokens(user) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
@@ -108,7 +127,7 @@ defmodule SwapifyApi.Accounts do
          {:ok, refresh_token, _} <- Token.generate_and_sign(claims["refresh"]) do
       {:ok, user, access_token, refresh_token}
     else
-      {:error, _} -> SwapifyApi.Errors.server_error()
+      _ -> {:error, ErrorMessage.internal_server_error("An error occurred, please try again.")}
     end
   end
 
@@ -116,7 +135,7 @@ defmodule SwapifyApi.Accounts do
   @doc """
   Generate a socket token for a given user
   """
-  @spec generate_socket_token(String.t()) :: {:ok, String.t()} | SwapifyApi.Errors.t()
+  @spec generate_socket_token(String.t()) :: {:ok, String.t()}
   def generate_socket_token(user_id) do
     secret =
       Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
@@ -126,19 +145,32 @@ defmodule SwapifyApi.Accounts do
       @namespace,
       user_id
     )
-    |> Utils.from_nullable_to_tuple()
+    |> then(fn token -> {:ok, token} end)
   end
 
   @doc """
-  Remove a partner integration
+  Disable a partner integration
   """
-  @spec remove_partner_integration(String.t(), PlatformConnection.platform_name()) :: {:ok}
-  def remove_partner_integration(user_id, platform_name) do
-    PlatformConnectionRepo.delete(user_id, platform_name)
+  @spec disable_partner_integration(String.t(), PlatformConnection.platform_name()) ::
+          {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
+  def disable_partner_integration(user_id, platform_name) do
+    case PlatformConnectionRepo.invalidate(user_id, platform_name) do
+      {:error, _} ->
+        {:error,
+         ErrorMessage.bad_request(
+           "Error while trying to disable an integration. Please try again."
+         )}
+
+      result ->
+        result
+    end
   end
 
+  @doc """
+  Refresh an existing partner integration
+  """
   @spec refresh_partner_integration(String.t(), PlatformConnection.platform_name(), String.t()) ::
-          {:ok, PlatformConnection.t()} | SwapifyApi.Errors.t()
+          {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
   def refresh_partner_integration(user_id, :spotify = name, refresh_token) do
     with {:ok,
           %Oauth.AccessToken{
@@ -153,9 +185,7 @@ defmodule SwapifyApi.Accounts do
       {:ok, updated_pc}
     else
       _ ->
-        # TODO: Do not remove the integration on error, just disable it so the user know there's something wrong
-        remove_partner_integration(user_id, name)
-        {:error, :service_error}
+        disable_partner_integration(user_id, name)
     end
   end
 
@@ -175,7 +205,7 @@ defmodule SwapifyApi.Accounts do
   Sign in a user and generate an access and refresh token
   """
   @spec sign_in_user(String.t(), String.t()) ::
-          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | SwapifyApi.Errors.t()
+          {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | {:error, ErrorMessage.t()}
   def sign_in_user(email, password) do
     with {:ok, user} <- UserRepo.get_by(:email, email),
          true <- is_password_valid?(password, user.password),
@@ -183,7 +213,7 @@ defmodule SwapifyApi.Accounts do
       user_auth_data
     else
       _ ->
-        SwapifyApi.Errors.auth_failed()
+        {:error, ErrorMessage.unauthorized("Invalid email or password.")}
     end
   end
 
@@ -193,7 +223,7 @@ defmodule SwapifyApi.Accounts do
   - email
   - password
   """
-  @spec sign_up_new_user(map()) :: {:ok, User.t()} | SwapifyApi.Errors.t()
+  @spec sign_up_new_user(map()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def sign_up_new_user(registration_data),
     # TODO: Email on registration
     do: UserRepo.create(registration_data)
@@ -204,14 +234,14 @@ defmodule SwapifyApi.Accounts do
   Validate a socket token for a given user
   """
   @spec validate_socket_token(String.t()) ::
-          {:ok, String.t()} | SwapifyApi.Errors.t()
+          {:ok, String.t()} | {:error, ErrorMessage.t()}
   def validate_socket_token(token) do
     secret =
       Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
 
     case Phoenix.Token.verify(secret, @namespace, token, max_age: @max_age) do
       {:ok, user_id} -> {:ok, user_id}
-      _ -> SwapifyApi.Errors.token_invalid()
+      _ -> {:error, ErrorMessage.unauthorized("Invalid token.")}
     end
   end
 end
