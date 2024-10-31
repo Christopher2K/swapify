@@ -21,33 +21,35 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   end
 
   @spec handle_api_error({:ok, Req.Response.t()} | {:error, any()}, String.t()) ::
-          SwapifyApi.Errors.t()
+          {:error, {:error, ErrorMessage.t()}}
   defp handle_api_error(result, uri) do
     case result do
       {:ok, %Req.Response{} = response} ->
-        Logger.error("API Service error",
-          service: "applemusic",
-          uri: uri,
-          status: response.status,
-          response: response.body
-        )
-
-        SwapifyApi.Errors.http_service_error(response.status)
+        {:error,
+         ErrorMessage.service_unavailable(
+           "Communication with Apple Music failed. Please try again.",
+           %{
+             uri: uri,
+             status: response.status,
+             response: response.body
+           }
+         )}
 
       {:error, exception} ->
-        Logger.error("Failed to call an API",
-          service: "applemusic",
-          uri: uri,
-          error: exception
-        )
-
-        {:error, :service_error}
+        {:error,
+         ErrorMessage.internal_server_error(
+           "Communication with Apple Music failed. Please try again.",
+           %{
+             uri: uri,
+             error: exception
+           }
+         )}
     end
   end
 
   ## RESOURCES FUNCTIONS
   @spec get_storefront(String.t(), String.t()) ::
-          {:ok, map() | nil, Req.Response.t()} | SwapifyApi.Errors.t()
+          {:ok, map() | nil, Req.Response.t()} | {:error, ErrorMessage.t()}
   def get_storefront(developer_token, user_token) do
     uri = get_api_url("/me/storefront")
 
@@ -73,7 +75,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   end
 
   @spec get_user_library(String.t(), String.t(), pos_integer(), pos_integer()) ::
-          {:ok, list(), Req.Response.t()} | SwapifyApi.Errors.t()
+          {:ok, list(), Req.Response.t()} | {:error, ErrorMessage.t()}
   def get_user_library(developer_token, user_token, offset \\ 0, limit \\ @default_resource_limit) do
     uri =
       get_api_url("/me/library/songs", [
@@ -112,7 +114,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   end
 
   @spec search_tracks(String.t(), String.t(), list(String.t())) ::
-          {:ok, map(), Req.Response.t()} | SwapifyApi.Errors.t()
+          {:ok, map(), Req.Response.t()} | {:error, ErrorMessage.t()}
   def search_tracks(developer_token, user_token, track_isrc_list) do
     uri =
       get_api_url(
@@ -153,7 +155,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   - "album"
   """
   @spec search_track(String.t(), String.t(), map()) ::
-          {:ok, MatchedTrack.t(), Req.Response.t()} | SwapifyApi.Errors.t()
+          {:ok, MatchedTrack.t(), Req.Response.t()} | {:error, ErrorMessage.t()}
   def search_track(
         developer_token,
         user_token,
@@ -281,7 +283,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   end
 
   @spec add_track_to_library(String.t(), String.t(), String.t()) ::
-          {:ok, Req.Response.t()} | SwapifyApi.Errors.t()
+          {:ok, Req.Response.t()} | {:error, ErrorMessage.t()}
   def add_track_to_library(developer_token, user_token, track_id) do
     uri =
       get_api_url("/me/library", [
