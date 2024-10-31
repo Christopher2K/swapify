@@ -34,7 +34,6 @@ defmodule SwapifyApiWeb.AuthController do
     conn
     |> delete_session(:access_token)
     |> delete_session(:refresh_token)
-    |> put_status(200)
     |> redirect(external: Utils.get_app_url("/"))
   end
 end
