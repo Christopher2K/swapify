@@ -224,9 +224,19 @@ defmodule SwapifyApi.Accounts do
   - password
   """
   @spec sign_up_new_user(map()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def sign_up_new_user(registration_data),
+  def sign_up_new_user(registration_data) do
     # TODO: Email on registration
-    do: UserRepo.create(registration_data)
+    case UserRepo.create(registration_data) do
+      {:ok, user} ->
+        SwapifyApi.Emails.welcome(user.email, user.username)
+        |> SwapifyApi.Mailer.deliver()
+
+        {:ok, user}
+
+      error ->
+        error
+    end
+  end
 
   @max_age 60 * 60
   @namespace "user_socket"

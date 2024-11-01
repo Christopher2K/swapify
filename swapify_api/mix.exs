@@ -44,6 +44,7 @@ defmodule SwapifyApi.MixProject do
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
+      {:mjml, "~> 4.0"},
       {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
