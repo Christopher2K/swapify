@@ -58,7 +58,6 @@ defmodule SwapifyApi.Emails do
         playlist_length,
         matched_tracks_length
       )
-      |> dbg
       |> Mjml.to_html()
 
     new()
