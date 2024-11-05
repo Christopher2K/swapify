@@ -13,7 +13,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   - access_token - Access token to reach the search service
   - refresh_token (optional)
 
-
+  The `job_id` is needed for this job to work
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias Mix.Tasks
@@ -89,7 +89,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     end
   end
 
-  defp on_job_finished(
+  defp on_job_success(
          user_id,
          transfer_id
        ) do
@@ -107,6 +107,34 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         |> SwapifyApi.Mailer.deliver()
       end
     end)
+  end
+
+  defp on_job_failed(%{
+         "user_id" => user_id,
+         "playlist_id" => playlist_id,
+         "job_id" => job_id,
+         "platform_name" => platform_name,
+         "transfer_id" => transfer_id
+       }) do
+    JobUpdateChannel.broadcast_job_progress(
+      user_id,
+      JobErrorNotification.new_search_tracks_error(
+        transfer_id,
+        playlist_id,
+        platform_name
+      )
+    )
+
+    with {:ok, _} <- Tasks.update_job_status(job_id, :error),
+         {:ok, %{username: username}} <- Accounts.get_by_id(user_id),
+         {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+      SwapifyApi.Emails.transfer_error(transfer.email, username,
+        app_url: Application.fetch_env!(:swapify_api, :app_url),
+        username: username,
+        source_name: Atom.to_string(transfer.source),
+        destination_name: Atom.to_string(transfer.destination)
+      )
+    end
   end
 
   def search_track(
@@ -128,7 +156,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
              {:ok, _} <- Tasks.update_job_status(job_id, :done),
-             {:ok, _} <- on_job_finished(user_id, transfer_id) do
+             {:ok, _} <- on_job_success(user_id, transfer_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
@@ -236,7 +264,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
              {:ok, _} <- Tasks.update_job_status(job_id, :done),
-             {:ok, _} <- on_job_finished(user_id, transfer_id) do
+             {:ok, _} <- on_job_success(user_id, transfer_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
@@ -375,7 +403,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   end
 
   handle :cancelled do
-    handle_playlist_sync_error(job_args)
+    on_job_failed(job_args)
 
     Logger.info("FindPlaylistTracks job cancelled",
       user_id: job_args["user_id"],
@@ -384,7 +412,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   end
 
   handle :failure do
-    handle_playlist_sync_error(job_args)
+    on_job_failed(job_args)
 
     Logger.info("FindPlaylistTracks job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
@@ -401,26 +429,5 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   handle :catch_all do
     :ok
-  end
-
-  defp handle_playlist_sync_error(%{
-         "user_id" => user_id,
-         "playlist_id" => playlist_id,
-         "job_id" => job_id,
-         "platform_name" => platform_name,
-         "transfer_id" => transfer_id
-       }) do
-    JobUpdateChannel.broadcast_job_progress(
-      user_id,
-      JobErrorNotification.new_search_tracks_error(
-        transfer_id,
-        playlist_id,
-        platform_name
-      )
-    )
-
-    Task.async(fn ->
-      Tasks.update_job_status(job_id, :error)
-    end)
   end
 end

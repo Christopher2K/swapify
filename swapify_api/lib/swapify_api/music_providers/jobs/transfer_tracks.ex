@@ -54,6 +54,30 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
     end)
   end
 
+  defp on_job_failed(%{
+         "user_id" => user_id,
+         "job_id" => job_id,
+         "transfer_id" => transfer_id
+       }) do
+    Task.Supervisor.start_child(Task.Supervisor, fn ->
+      JobUpdateChannel.broadcast_job_progress(
+        user_id,
+        JobErrorNotification.new_transfer_tracks_error(transfer_id)
+      )
+
+      with {:ok, _} <- Tasks.update_job_status(job_id, :error),
+           {:ok, %{username: username}} <- Accounts.get_by_id(user_id),
+           {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+        SwapifyApi.Emails.transfer_error(transfer.email, username,
+          app_url: Application.fetch_env!(:swapify_api, :app_url),
+          username: username,
+          source_name: Atom.to_string(transfer.source),
+          destination_name: Atom.to_string(transfer.destination)
+        )
+      end
+    end)
+  end
+
   def transfer(
         "spotify",
         %{
@@ -231,7 +255,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   end
 
   handle :cancelled do
-    handle_transfer_tracks_error(job_args)
+    on_job_failed(job_args)
 
     Logger.info("TransferTracks job cancelled",
       user_id: job_args["user_id"],
@@ -253,7 +277,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   end
 
   handle :failure do
-    handle_transfer_tracks_error(job_args)
+    on_job_failed(job_args)
 
     Logger.info("TransferTracks job failure(max attempt exceeded)",
       user_id: job_args["user_id"],
@@ -270,20 +294,5 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
 
   handle :catch_all do
     :ok
-  end
-
-  defp handle_transfer_tracks_error(%{
-         "user_id" => user_id,
-         "job_id" => job_id,
-         "transfer_id" => transfer_id
-       }) do
-    JobUpdateChannel.broadcast_job_progress(
-      user_id,
-      JobErrorNotification.new_transfer_tracks_error(transfer_id)
-    )
-
-    Task.async(fn ->
-      Tasks.update_job_status(job_id, :error)
-    end)
   end
 end
