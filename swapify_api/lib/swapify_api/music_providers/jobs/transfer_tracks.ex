@@ -2,28 +2,30 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
   @moduledoc """
   Transfer all the tracks found to the destination platform
 
-  user_id - User starting the transfer
-  transfer_id - the transfer this find job belongs to and must update
-  offset - The current track to look for in the matched_tracks array
-  target_platform - The platform where the tracks should be added
-  is_library - Tells if the target is the library playlist
-  access_token - Access token to reach the search service
-  refresh_token (optional)
+  Job arguments:
+  - user_id - User starting the transfer
+  - transfer_id - the transfer this find job belongs to and must update
+  - offset - The current track to look for in the matched_tracks array
+  - target_platform - The platform where the tracks should be added
+  - is_library - Tells if the target is the library playlist
+  - access_token - Access token to reach the search service
+  - refresh_token (optional)
 
   The `job_id` is needed for this job to work
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
   alias SwapifyApi.Accounts
+  alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.Tasks.TaskEventHandler
-  alias SwapifyApi.Tasks.TransferRepo
-  alias SwapifyApi.Tasks
-  alias SwapifyApi.Utils
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApi.Tasks
+  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Utils
   alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
@@ -47,8 +49,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
         SwapifyApi.Emails.transfer_done(transfer.email, username,
           app_url: Application.fetch_env!(:swapify_api, :app_url),
           username: username,
-          source_name: Atom.to_string(transfer.source),
-          destination_name: Atom.to_string(transfer.destination)
+          source_name: PlatformConnection.get_name(transfer.source),
+          destination_name: PlatformConnection.get_name(transfer.destination)
         )
       end
     end)
@@ -71,8 +73,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
         SwapifyApi.Emails.transfer_error(transfer.email, username,
           app_url: Application.fetch_env!(:swapify_api, :app_url),
           username: username,
-          source_name: Atom.to_string(transfer.source),
-          destination_name: Atom.to_string(transfer.destination)
+          source_name: PlatformConnection.get_name(transfer.source),
+          destination_name: PlatformConnection.get_name(transfer.destination)
         )
       end
     end)

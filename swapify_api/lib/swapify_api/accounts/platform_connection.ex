@@ -77,6 +77,7 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
     |> validate_required([:invalidated_at])
   end
 
+  # Queries
   def queryable(), do: from(platform_connection in __MODULE__, as: :platform_connection)
 
   def filter_by(queryable, :user_id, value),
@@ -87,4 +88,15 @@ defmodule SwapifyApi.Accounts.PlatformConnection do
 
   def order_asc(queryable, :name),
     do: queryable |> order_by(asc: :name)
+
+  # Functions
+
+  @doc "Get the name of a platform"
+  @spec get_name(platform_name()) :: String.t()
+  def get_name(pc_name) do
+    case pc_name do
+      :spotify -> "Spotify"
+      :applemusic -> "Apple Music"
+    end
+  end
 end

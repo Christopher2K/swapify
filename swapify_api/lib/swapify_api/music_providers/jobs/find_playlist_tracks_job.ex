@@ -16,22 +16,22 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   The `job_id` is needed for this job to work
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
-  alias Mix.Tasks
-  alias SwapifyApi.Tasks
-  alias SwapifyApi.Utils
   alias SwapifyApi.Accounts
-  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.MusicProviders.AppleMusic
+  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.PlaylistRepo
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.MusicProviders.Track
-  alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
-  alias SwapifyApi.Tasks.MatchedTrack
-  alias SwapifyApi.Tasks.TaskEventHandler
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
+  alias SwapifyApi.Tasks
+  alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Utils
   alias SwapifyApiWeb.JobUpdateChannel
 
   require Logger
@@ -99,8 +99,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
         SwapifyApi.Emails.transfer_ready(email, username,
           app_url: Application.fetch_env!(:swapify_api, :app_url),
           username: username,
-          source_name: Atom.to_string(transfer.source),
-          destination_name: Atom.to_string(transfer.destination),
+          source_name: PlatformConnection.get_name(transfer.source),
+          destination_name: PlatformConnection.get_name(transfer.destination),
           matched_tracks_length: transfer.matched_tracks,
           playlist_length: transfer.source_tracks
         )
@@ -131,8 +131,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       SwapifyApi.Emails.transfer_error(transfer.email, username,
         app_url: Application.fetch_env!(:swapify_api, :app_url),
         username: username,
-        source_name: Atom.to_string(transfer.source),
-        destination_name: Atom.to_string(transfer.destination)
+        source_name: PlatformConnection.get_name(transfer.source),
+        destination_name: PlatformConnection.get_name(transfer.destination)
       )
     end
   end
