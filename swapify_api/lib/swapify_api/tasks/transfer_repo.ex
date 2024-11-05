@@ -2,6 +2,7 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   @doc "Transfer table repository"
   import Ecto.Query
 
+  alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Repo
   alias SwapifyApi.Tasks.MatchedTrack
@@ -161,4 +162,39 @@ defmodule SwapifyApi.Tasks.TransferRepo do
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
+
+  @doc "Get a transfer by its ID"
+  @spec get_by_id(String.t()) :: {:ok, Transfer.t()} | {:error, ErrorMessage.t()}
+  def get_by_id(transfer_id),
+    do:
+      Transfer.queryable()
+      |> Transfer.filter_by(:id, transfer_id)
+      |> Repo.one()
+      |> Utils.from_nullable_to_tuple()
+
+  @type transfer_infos :: %{
+          id: String.t(),
+          source: Playlist.platform_name(),
+          destination: Playlist.platform_name(),
+          matched_tracks: integer(),
+          source_tracks: integer()
+        }
+  @doc "Get metadata about a transfer without fetching the tracks"
+  @spec get_transfer_infos(String.t()) :: {:ok, transfer_infos()} | {:error, ErrorMessage.t()}
+  def get_transfer_infos(transfer_id),
+    do:
+      from(t in Transfer,
+        left_join: p in Playlist,
+        on: t.source_playlist_id == p.id,
+        select: %{
+          id: t.id,
+          source: p.platform_name,
+          destination: t.destination,
+          matched_tracks: fragment("jsonb_array_length(?)", t.matched_tracks),
+          source_tracks: fragment("jsonb_array_length(?)", p.tracks)
+        },
+        where: t.id == ^transfer_id
+      )
+      |> Repo.one()
+      |> Utils.from_nullable_to_tuple()
 end

@@ -212,4 +212,18 @@ defmodule SwapifyApi.TransferRepoTest do
       assert %Playlist{} = transfer.source_playlist
     end
   end
+
+  describe "get_transfer_infos/1" do
+    setup do
+      user = user_fixture()
+      playlist = playlist_fixture(%{"user_id" => user.id})
+      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      {:ok, user: user, playlist: playlist, transfer: transfer}
+    end
+
+    test "it should return the transfer infos", %{transfer: transfer} do
+      transfer_id = transfer.id
+      assert {:ok, %{id: ^transfer_id}} = TransferRepo.get_transfer_infos(transfer.id)
+    end
+  end
 end

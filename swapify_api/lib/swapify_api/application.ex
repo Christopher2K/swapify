@@ -22,6 +22,7 @@ defmodule SwapifyApi.Application do
       # {SwapifyApi.Worker, arg},
       # Start to serve requests, typically the last entry
       {SwapifyApi.MusicProviders.AppleMusicTokenWorker, name: SwapifyApi.AppleMusicWorker},
+      {Task.Supervisor, name: Task.Supervisor},
       SwapifyApiWeb.Endpoint,
       {Oban, Application.fetch_env!(:swapify_api, Oban)}
     ]

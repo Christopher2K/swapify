@@ -186,6 +186,15 @@ defmodule SwapifyApi.Tasks do
   @spec list_transfers_by_user_id(String.t()) :: {:ok, list(Transfer.t())}
   def list_transfers_by_user_id(user_id), do: {:ok, TransferRepo.list_by_user_id(user_id)}
 
+  @doc "Get a transfer by its ID"
+  @spec get_transfer_by_id(String.t()) :: {:ok, Transfer.t()} | {:error, ErrorMessage.t()}
+  def get_transfer_by_id(transfer_id), do: TransferRepo.get_by_id(transfer_id)
+
+  @doc "Get metadata about a transfer without fetching the tracks"
+  @spec get_transfer_infos(String.t()) ::
+          {:ok, TransferRepo.transfer_infos()} | {:error, ErrorMessage.t()}
+  def get_transfer_infos(transfer_id), do: TransferRepo.get_transfer_infos(transfer_id)
+
   @doc "Cancel a transfer when it's in the `waiting for confirmation` state"
   @spec cancel_transfer(String.t(), String.t()) ::
           {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()} | {:error, ErrorMessage.t()}

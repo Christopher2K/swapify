@@ -18,4 +18,12 @@ defmodule SwapifyApi.Accounts.UserRepo do
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
   end
+
+  @spec get_by_id(String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
+  def get_by_id(id) do
+    User.queryable()
+    |> User.filter_by(:id, id)
+    |> Repo.one()
+    |> Utils.from_nullable_to_tuple()
+  end
 end

@@ -225,16 +225,15 @@ defmodule SwapifyApi.Accounts do
   """
   @spec sign_up_new_user(map()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def sign_up_new_user(registration_data) do
-    # TODO: Email on registration
-    case UserRepo.create(registration_data) do
-      {:ok, user} ->
+    with {:ok, user} <- UserRepo.create(registration_data) do
+      Task.Supervisor.start_child(Task.Supervisor, fn ->
         SwapifyApi.Emails.welcome(user.email, user.username)
         |> SwapifyApi.Mailer.deliver()
+      end)
 
-        {:ok, user}
-
-      error ->
-        error
+      {:ok, user}
+    else
+      error -> error
     end
   end
 
@@ -254,4 +253,10 @@ defmodule SwapifyApi.Accounts do
       _ -> {:error, ErrorMessage.unauthorized("Invalid token.")}
     end
   end
+
+  @doc """
+  Get a user by id
+  """
+  @spec get_by_id(String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
+  def get_by_id(id), do: UserRepo.get_by_id(id)
 end

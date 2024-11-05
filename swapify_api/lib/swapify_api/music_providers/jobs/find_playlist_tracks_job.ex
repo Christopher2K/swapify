@@ -89,6 +89,26 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
     end
   end
 
+  defp on_job_finished(
+         user_id,
+         transfer_id
+       ) do
+    Task.Supervisor.start_child(Task.Supervisor, fn ->
+      with {:ok, %{email: email, username: username}} <- Accounts.get_by_id(user_id),
+           {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+        SwapifyApi.Emails.transfer_ready(email, username,
+          app_url: Application.fetch_env!(:swapify_api, :app_url),
+          username: username,
+          source_name: Atom.to_string(transfer.source),
+          destination_name: Atom.to_string(transfer.destination),
+          matched_tracks_length: transfer.matched_tracks,
+          playlist_length: transfer.source_tracks
+        )
+        |> SwapifyApi.Mailer.deliver()
+      end
+    end)
+  end
+
   def search_track(
         "spotify",
         %{
@@ -107,7 +127,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+             {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- on_job_finished(user_id, transfer_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
@@ -214,7 +235,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+             {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- on_job_finished(user_id, transfer_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_search_tracks_update(
