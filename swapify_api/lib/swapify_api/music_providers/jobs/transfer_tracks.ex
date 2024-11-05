@@ -40,6 +40,20 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
 
   defp handle_error({:error, %{details: %{status: 427}}}), do: {:error, :rate_limit}
 
+  defp on_job_success(user_id, transfer_id) do
+    Task.Supervisor.start_child(Task.Supervisor, fn ->
+      with {:ok, %{username: username}} <- Accounts.get_by_id(user_id),
+           {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+        SwapifyApi.Emails.transfer_done(transfer.email, username,
+          app_url: Application.fetch_env!(:swapify_api, :app_url),
+          username: username,
+          source_name: Atom.to_string(transfer.source),
+          destination_name: Atom.to_string(transfer.destination)
+        )
+      end
+    end)
+  end
+
   def transfer(
         "spotify",
         %{
@@ -54,7 +68,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_tracks(transfer_id, offset, @spotify_add_limit) do
       {:ok, []} ->
-        with {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+        with {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- on_job_success(transfer_id, job_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_transfer_tracks_update(
@@ -123,7 +138,8 @@ defmodule SwapifyApi.MusicProviders.Jobs.TransferTracksJob do
       ) do
     case TransferRepo.get_matched_track_by_index(transfer_id, offset) do
       {:error, %ErrorMessage{code: :not_found}} ->
-        with {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+        with {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- on_job_success(transfer_id, job_id) do
           {:ok,
            notification:
              JobUpdateNotification.new_transfer_tracks_update(
