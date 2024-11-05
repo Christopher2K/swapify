@@ -40,7 +40,7 @@ defmodule SwapifyApi.Accounts do
           create_or_update_integration_spotify_opts()
           | create_or_update_integration_applemusic_opts()
         ) ::
-          {:ok, map()} | {:error, ErrorMessage.t()}
+          {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
   def create_or_update_integration(:spotify = name, opts) do
     NimbleOptions.validate!(opts, @create_or_update_integration_spotify_opts_def)
 
@@ -64,6 +64,7 @@ defmodule SwapifyApi.Accounts do
         :created ->
           # When created for the first time we will try to synchronize the library data for this user
           MusicProviders.start_platform_sync(user_id, name)
+          {:ok, pc}
 
         _ ->
           {:ok, pc}
@@ -91,6 +92,7 @@ defmodule SwapifyApi.Accounts do
         :created ->
           # When created for the first time we will try to synchronize the library data for this user
           MusicProviders.start_platform_sync(user_id, name)
+          {:ok, pc}
 
         _ ->
           {:ok, pc}

@@ -151,7 +151,8 @@ defmodule SwapifyApi.PlaylistRepoTest do
     test "it should return the not found tuple if the track was not found", %{
       playlist: playlist
     } do
-      assert {:error, :not_found} = PlaylistRepo.get_playlist_track_by_index(playlist.id, 1000)
+      assert {:error, %ErrorMessage{code: :not_found}} =
+               PlaylistRepo.get_playlist_track_by_index(playlist.id, 1000)
     end
   end
 

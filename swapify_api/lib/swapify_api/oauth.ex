@@ -5,7 +5,7 @@ defmodule SwapifyApi.Oauth do
 
   @spec check_state(String.t(), String.t()) :: {:ok} | {:error, ErrorMessage.t()}
   def check_state(base_state, remote_state) do
-    if base_state == remote_state <> "_" do
+    if base_state == remote_state do
       {:ok}
     else
       {:error, ErrorMessage.bad_request("State mismatch")}

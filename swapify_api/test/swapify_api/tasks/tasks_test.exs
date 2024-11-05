@@ -78,7 +78,8 @@ defmodule SwapifyApi.TasksTest do
           "user_id" => user.id
         })
 
-      assert {:error, :transfer_cancel_error} = Tasks.cancel_transfer(user.id, transfer.id)
+      assert {:error, %ErrorMessage{code: :bad_request}} =
+               Tasks.cancel_transfer(user.id, transfer.id)
     end
   end
 end

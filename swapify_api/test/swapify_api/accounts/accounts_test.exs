@@ -181,7 +181,8 @@ defmodule SwapifyApi.SignInUserTest do
         password: password
       })
 
-      assert {:error, :auth_failed} = Accounts.sign_in_user(email, "fakepassword")
+      assert {:error, %ErrorMessage{code: :unauthorized}} =
+               Accounts.sign_in_user(email, "fakepassword")
     end
 
     test "it fails when the email is not the one expected" do
@@ -193,7 +194,8 @@ defmodule SwapifyApi.SignInUserTest do
         password: password
       })
 
-      assert {:error, :auth_failed} = Accounts.sign_in_user("fakeemail@test.fr", password)
+      assert {:error, %ErrorMessage{code: :unauthorized}} =
+               Accounts.sign_in_user("fakeemail@test.fr", password)
     end
   end
 
@@ -201,7 +203,7 @@ defmodule SwapifyApi.SignInUserTest do
     setup do
       user = user_fixture()
       pc = platform_connection_fixture(%{user_id: user.id, name: :spotify})
-      {:ok, user: user}
+      {:ok, user: user, pc: pc}
     end
 
     test "it should disable a partner integration", %{user: user} do

@@ -141,7 +141,7 @@ defmodule SwapifyApi.TransferRepoTest do
 
       transfer_id = transfer.id
 
-      {:error, :not_found} =
+      {:error, %ErrorMessage{code: :not_found}} =
         TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching)
     end
 
@@ -185,7 +185,7 @@ defmodule SwapifyApi.TransferRepoTest do
 
       transfer_id = transfer.id
 
-      {:error, :not_found} =
+      {:error, %ErrorMessage{code: :not_found}} =
         TransferRepo.get_transfer_by_step_and_id(transfer_id, :transfer)
     end
 
