@@ -260,5 +260,5 @@ defmodule SwapifyApi.Accounts do
   Get a user by id
   """
   @spec get_by_id(String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
-  def get_by_id(id), do: UserRepo.get_by_id(id)
+  def get_by_id(id), do: UserRepo.get_by(:id, id)
 end

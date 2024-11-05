@@ -7,7 +7,6 @@ defmodule SwapifyApi.UserRepoTest do
   import SwapifyApi.AccountsFixtures
 
   describe "create/1" do
-    @tag :wip
     test "it creates a new user" do
       assert {:ok, user} =
                UserRepo.create(%{
@@ -45,7 +44,7 @@ defmodule SwapifyApi.UserRepoTest do
     end
 
     test "it hashes the password" do
-      password = "password"
+      password = "password1234"
 
       assert {:ok, user} =
                UserRepo.create(%{
@@ -63,6 +62,11 @@ defmodule SwapifyApi.UserRepoTest do
       email = "chris@test.fr"
       user_fixture(%{email: email})
       assert {:ok, %User{email: ^email}} = UserRepo.get_by(:email, email)
+    end
+
+    test "it get an user by its id" do
+      %{id: user_id} = user_fixture()
+      assert {:ok, %User{id: ^user_id}} = UserRepo.get_by(:id, user_id)
     end
   end
 end
