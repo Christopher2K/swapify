@@ -125,4 +125,7 @@ if config_env() == :prod do
   #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+else
+  database_url = System.get_env("DATABASE_URL")
+  config :swapify_api, SwapifyApi.Repo, url: database_url
 end

@@ -50,6 +50,12 @@ tasks:
       - task: api
         vars: { CLI_ARGS: 'mix phx.server' }
 
+  api:test:
+    dotenv: [".env.test"]
+    dir: "./swapify_api"
+    cmds:
+      - "mix test {{ .CLI_ARGS }}"
+
   web:dev:
     cmds:
       - task: web

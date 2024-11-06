@@ -1,0 +1,54 @@
+name: Backend Tests
+on: 
+  push:
+    branches:
+      - main
+
+jobs: 
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      dbtest:
+        image: postgres:16.1
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: swapifypassword
+          POSTGRES_DB: swapify_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: jdx/mise-action@v2
+
+      - name: Get dependencies from cache
+        id: cache-mix
+        uses: actions/cache/restore@v4
+        with:
+          path: swapify_api/deps
+          key: ${{ runner.os }}-${{ hashFiles('./swapify_api/mix.lock') }}
+
+      - name: Install dependencies
+        if: steps.cache-mix.outputs.cache-hit != 'true'
+        working-directory: ./swapify_api
+        run: mix deps.get
+
+      - name: Save dependencies to cache
+        if: steps.cache-mix.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: swapify_api/deps
+          key: ${{ runner.os }}-${{ hashFiles('./swapify_api/mix.lock') }}
+
+      - name: Run tests
+        working-directory: ./swapify_api
+        env:
+          DATABASE_URL: postgres://admin:swapifypassword@localhost:5432/swapify_test
+          JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+          APPLE_MUSIC_PRIVATE_KEY: ${{ secrets.TEST_APPLE_MUSIC_PRIVATE_KEY }}
+        run: mix test
