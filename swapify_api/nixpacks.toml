@@ -19,4 +19,4 @@ cmds = [
 ]
 
 [start]
-cmd = "./_build/prod/rel/swapify_api/bin/migrate && ./_build/prod/rel/swapify_api/bin/server"
+cmd = "_build/prod/rel/swapify_api/bin/migrate && _build/prod/rel/swapify_api/bin/server"
