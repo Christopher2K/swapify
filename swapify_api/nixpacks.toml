@@ -1,5 +1,6 @@
 [variables]
 MIX_ENV = 'prod'
+PHX_SERVER = 'true'
 
 [phases.setup]
 nixPkgs = ['...', 'erlang_27', 'gnumake', 'gcc']
