@@ -1,0 +1,33 @@
+providers = ["node"]
+
+[variables]
+CADDY_VERSION = '2.8.2'
+NIXPACKS_NODE_VERSION = '20'
+
+
+[phases.caddy]
+dependsOn = ['setup']
+cmds = [
+        'curl -fsSLo caddy.tar.gz "https://github.com/caddyserver/caddy/releases/download/v${CADDY_VERSION}/caddy_${CADDY_VERSION}_linux_amd64.tar.gz"',
+        'tar -zxvf caddy.tar.gz caddy',
+        'chmod +x caddy'
+]
+
+[phases.codegen]
+dependsOn = ['install']
+cmds = [
+        'pnpm run prepare'
+]
+
+[phases.build]
+dependsOn = ["...", "codegen"]
+
+[phases.fmt]
+dependsOn = ['caddy']
+cmds = ['caddy fmt --overwrite Caddyfile']
+
+
+[start]
+runImage = 'ubuntu:20.04'
+onlyIncludeFiles = ['caddy', 'Caddyfile', 'dist']
+cmd = './caddy run --config Caddyfile --adapter caddyfile 2>&1'

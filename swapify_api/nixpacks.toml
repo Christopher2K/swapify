@@ -1,3 +1,5 @@
+providers = ['elixir']
+
 [variables]
 MIX_ENV = 'prod'
 PHX_SERVER = 'true'
