@@ -1,0 +1,22 @@
+[variables]
+MIX_ENV = 'prod'
+
+[phases.setup]
+nixPkgs = ['...', 'erlang_27', 'gnumake', 'gcc']
+nixpkgsArchive = '505ad1607f7e54426cfb2d804e48fa2c247f32ba'
+
+[phases.install]
+cmds = [
+  'mix local.hex --force',
+  'mix local.rebar --force',
+  'mix deps.get --only prod'
+]
+
+[phases.build]
+cmds = [
+  'mix compile',
+  'mix release',
+]
+
+[start]
+cmd = "./_build/prod/rel/swapify_api/bin/migrate && ./_build/prod/rel/swapify_api/bin/server"
