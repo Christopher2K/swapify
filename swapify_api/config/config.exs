@@ -1,27 +1,25 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
-
-# General application configuration
 import Config
+
+app_url = System.get_env("APP_URL")
+api_url = System.get_env("API_URL")
+platform_host = System.get_env("PLATFORM_HOST") || "localhost"
 
 config :swapify_api,
   ecto_repos: [SwapifyApi.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true],
-  api_url: "https://api.swapify.live",
-  app_url: "https://swapify.live",
-  cookie_domain: ".swapify.live"
+  http_client_opts: [],
+  app_url: app_url,
+  api_url: api_url,
+  cookie_domain:
+    if(platform_host == "localhost",
+      do: "localhost",
+      else: "." <> platform_host
+    )
 
 config :swapify_api, SwapifyApi.Repo, migration_primary_key: [name: :id, type: :binary_id]
 
-config :swapify_api,
-  http_client_opts: []
-
-# Configures the endpoint
 config :swapify_api, SwapifyApiWeb.Endpoint,
-  url: [host: "localhost"],
+  url: [host: platform_host],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [json: SwapifyApiWeb.ErrorJSON],
@@ -29,6 +27,11 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
   ],
   pubsub_server: SwapifyApi.PubSub,
   live_view: [signing_salt: "7XYblx6r"]
+
+config :swapify_api, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [sync_library: 50, sync_platform: 50, search_tracks: 100, transfer_tracks: 50],
+  repo: SwapifyApi.Repo
 
 # Configures the mailer
 #
@@ -46,11 +49,6 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
-
-config :swapify_api, Oban,
-  engine: Oban.Engines.Basic,
-  queues: [sync_library: 50, sync_platform: 50, search_tracks: 100, transfer_tracks: 50],
-  repo: SwapifyApi.Repo
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
