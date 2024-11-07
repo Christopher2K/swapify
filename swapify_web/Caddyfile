@@ -22,4 +22,6 @@
     encode gzip
 
     file_server
+
+    rewrite * /index.html
 }
