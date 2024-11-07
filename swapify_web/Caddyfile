@@ -23,5 +23,5 @@
 
     file_server
 
-    rewrite * /index.html
+    try_files {path} {file} /index.html
 }
