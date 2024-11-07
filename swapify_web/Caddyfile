@@ -1,0 +1,25 @@
+{ # global options
+    admin off
+    persist_config off
+    auto_https off
+    log {
+        format console
+    }
+    servers { # server options
+        trusted_proxies static private_ranges
+    }
+}
+
+:{$PORT} {
+    log {
+        format console
+    }
+
+    respond /health 200
+
+    root * dist
+
+    encode gzip
+
+    file_server
+}

@@ -6,7 +6,7 @@
     "prepare": "panda codegen",
     "panda:watch": "panda -w",
     "dev": "concurrently \"pnpm panda:watch\" \"pnpm vite\"",
-    "build": "tsc -b && vite build",
+    "build": "panda && tsc -b && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
