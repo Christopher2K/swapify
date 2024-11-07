@@ -3,7 +3,13 @@ import { initTsrReactQuery } from "@ts-rest/react-query/v5";
 
 import { contract } from "./api.types";
 
-export const queryClient = new QueryClient();
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export const tsr = initTsrReactQuery(contract, {
   baseUrl: import.meta.env.VITE_API_URL,

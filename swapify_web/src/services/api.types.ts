@@ -162,6 +162,8 @@ export const contract = c.router({
     responses: {
       200: APIResponseTemplate(APIUserSchema),
       422: APIErrorTemplate(APIFormErrorsSchema),
+      403: APIErrorSchema,
+      401: APIErrorSchema,
     },
     summary: "Sign up a new user",
   },

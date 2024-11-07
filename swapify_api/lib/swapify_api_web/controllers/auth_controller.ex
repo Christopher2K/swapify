@@ -4,18 +4,14 @@ defmodule SwapifyApiWeb.AuthController do
   alias SwapifyApi.Accounts
   alias SwapifyApi.Utils
 
-  # def sign_up(%Plug.Conn{} = conn, _) do
-  #   data = conn.body_params
-  #
-  #   with {:ok, user} <- Accounts.sign_up_new_user(data) do
-  #     conn
-  #     |> put_status(200)
-  #     |> render(:sign_up, user: user)
-  #   end
-  # end
+  def sign_up(%Plug.Conn{} = conn, _) do
+    data = conn.body_params
 
-  def sign_up(_conn, _) do
-    {:error, ErrorMessage.forbidden("Sign up is not allowed yet! We're in testing phase.")}
+    with {:ok, user} <- Accounts.sign_up_new_user(data) do
+      conn
+      |> put_status(200)
+      |> render(:sign_up, user: user)
+    end
   end
 
   def sign_in(%Plug.Conn{} = conn, _) do

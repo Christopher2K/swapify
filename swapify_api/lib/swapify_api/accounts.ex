@@ -203,6 +203,18 @@ defmodule SwapifyApi.Accounts do
   @spec is_password_valid?(String.t(), String.t()) :: boolean()
   def is_password_valid?(password_input, hash), do: Argon2.verify_pass(password_input, hash)
 
+  @spec is_login_authorized?(User.t()) :: :ok | {:error, ErrorMessage.t()}
+  def is_login_authorized?(%User{} = u) do
+    if u.role in [:admin, :beta] do
+      :ok
+    else
+      {:error,
+       ErrorMessage.forbidden(
+         "You are not authorized to login during our closed beta. Come back later!"
+       )}
+    end
+  end
+
   @doc """
   Sign in a user and generate an access and refresh token
   """
@@ -211,9 +223,13 @@ defmodule SwapifyApi.Accounts do
   def sign_in_user(email, password) do
     with {:ok, user} <- UserRepo.get_by(:email, email),
          true <- is_password_valid?(password, user.password),
+         :ok <- is_login_authorized?(user),
          {:ok, _, _, _} = user_auth_data <- genereate_auth_tokens(user) do
       user_auth_data
     else
+      {:error, %ErrorMessage{code: :forbidden}} = error ->
+        error
+
       _ ->
         {:error, ErrorMessage.unauthorized("Invalid email or password.")}
     end

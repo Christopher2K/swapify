@@ -55,8 +55,11 @@ export function ToastRoot() {
             {toast.title}
           </Toast.Title>
 
-          {/* @ts-expect-error */}
-          <Toast.Description className={textStyle({ type: toast.type })}>
+          <Toast.Description
+            /* @ts-expect-error */
+            className={textStyle({ type: toast.type })}
+            textAlign="center"
+          >
             {toast.description}
           </Toast.Description>
         </Toast.Root>

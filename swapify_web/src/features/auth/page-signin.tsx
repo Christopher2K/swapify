@@ -1,5 +1,4 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { isFetchError } from "@ts-rest/react-query/v5";
 
 import { ThemedAlert } from "#root/components/themed-alert";
 import { Card } from "#root/components/ui/card";
@@ -26,17 +25,7 @@ export function PageSignin() {
     try {
       await signInAsync({ body: data });
       navigate({ to: "/" });
-    } catch (error) {
-      if (error == null) return;
-      if (isFetchError(error)) return;
-      // @ts-expect-error
-      if (error.status === 401) {
-        form.setError("root", {
-          type: "manual",
-          message: "Invalid email or password",
-        });
-      }
-    }
+    } catch (error) {}
   }
 
   return (
@@ -48,14 +37,19 @@ export function PageSignin() {
         <Text textAlign="center" textStyle="xl" textWrap="balance">
           Sign in to start transferring your music now!
         </Text>
+        <ThemedAlert
+          severity="info"
+          title="Important information"
+          description="Swapify is in closed beta. You can still register but you won't be able to use the app before being approved."
+        />
       </VStack>
 
       <Card.Root w="full" maxW="lg" p="5">
         {justSignedUp && (
           <Card.Header>
             <ThemedAlert
-              title="Please sign in to continue"
-              description="Your account has been created!"
+              title="Thanks for signing up!"
+              description="Your account has been created but you cannot sign in yet. As we're in beta, we will let you know when we have an open spot!"
               severity="success"
             />
           </Card.Header>

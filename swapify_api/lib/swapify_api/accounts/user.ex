@@ -3,19 +3,23 @@ defmodule SwapifyApi.Accounts.User do
 
   alias SwapifyApi.Accounts.PlatformConnection
 
+  @type user_role :: :beta | :user | :admin
+
   @type t :: %__MODULE__{
           id: Ecto.UUID.t(),
           username: String.t(),
           email: String.t(),
           password: String.t(),
           inserted_at: DateTime.t(),
-          updated_at: DateTime.t()
+          updated_at: DateTime.t(),
+          role: user_role()
         }
 
   schema "users" do
     field :email, :string
     field :password, :string
     field :username, :string
+    field :role, Ecto.Enum, values: [:beta, :user, :admin]
     has_many :platform_connections, PlatformConnection
 
     timestamps(type: :utc_datetime)
@@ -24,7 +28,7 @@ defmodule SwapifyApi.Accounts.User do
   @doc "Default changeset"
   def changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password, :username])
+    |> cast(attrs, [:email, :password, :username, :role])
     |> validate_required([:email, :password, :username])
     |> hash_new_password()
   end
@@ -32,7 +36,7 @@ defmodule SwapifyApi.Accounts.User do
   @doc "Changaset user to create a new user"
   def create_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password, :username])
+    |> cast(attrs, [:email, :password, :username, :role])
     |> validate_required([:email, :password, :username])
     |> validate_format(:email, ~r/@/)
     |> validate_length(:password, min: 8, max: 30)
@@ -54,15 +58,6 @@ defmodule SwapifyApi.Accounts.User do
         put_change(changeset, :password, hash)
     end
   end
-
-  def to_map(%__MODULE__{} = user),
-    do: %{
-      "id" => user.id,
-      "username" => user.username,
-      "email" => user.email,
-      "insertedAt" => user.inserted_at,
-      "updatedAt" => user.updated_at
-    }
 
   def queryable(), do: from(account in __MODULE__, as: :account)
 

@@ -41,10 +41,17 @@
           • Synchronize your library to keep a backup somewhere<br />
           • And many more feature soon!<br />
         </mj-text>
+        <mj-text font-size="16px" line-height="24px">
+          Right now, we're in closed beta. We have a very limited set of user we can accept during this time. We will let you know if you can get in.
+        </mj-text>
+         <mj-text font-size="16px" line-height="24px">
+          In the meantime, you can follow the development of <a href="https://tv.llcoolchris.dev">Twitch</a> or <a href="https://twitter.com/LLCoolChris_">Twitter</a>
+        </mj-text>
       </mj-column>
     </mj-section>
 
     <!-- CTA Section -->
+    <!--
     <mj-section background-color="#ffffff">
       <mj-column>
         <mj-button background-color="#1DB954" color="white" font-size="16px" font-weight="bold" border-radius="25px" href="<%= app_url %>">
@@ -52,6 +59,7 @@
         </mj-button>
       </mj-column>
     </mj-section>
+		-->
 
     <!-- Features Section -->
     <!-- <mj-section background-color="#ffffff">

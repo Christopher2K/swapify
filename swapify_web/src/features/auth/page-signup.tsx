@@ -1,55 +1,43 @@
+import { useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { isFetchError } from "@ts-rest/react-query/v5";
 
 import { Card } from "#root/components/ui/card";
 import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
-import { tsr } from "#root/services/api";
 import { VStack } from "#style/jsx";
-import { toaster } from "#root/components/toast";
+import { ThemedAlert } from "#root/components/themed-alert";
 
 import {
   SignUpForm,
   SignUpFormData,
   useSignUpForm,
 } from "./components/sign-up-form";
+import { useSignUpMutation } from "./hooks/use-sign-up-mutation";
+import { isErrorResponse } from "@ts-rest/core";
 
 export function PageSignup() {
   const form = useSignUpForm();
   const navigate = useNavigate();
-  const { mutateAsync: signUpAsync, isPending } = tsr.signupUser.useMutation({
-    onSuccess: () => {
-      navigate({ to: "/sign-in", search: { justSignedUp: true } });
-    },
-    onError: (error) => {
-      if (isFetchError(error)) return;
-      if (error.status === 422) {
-        Object.entries(error.body.errors.form ?? {}).forEach(
-          ([field, errorMsg]) => {
-            // @ts-expect-error :(
-            form.setError(field, {
-              type: "manual",
-              message: errorMsg,
-            });
-          },
-        );
-        return;
-      }
-
-      if ("message" in (error.body as {})) {
-        toaster.create({
-          type: "error",
-          // TODO: Do better here
-          // @ts-expect-error
-          description: error.body.message,
-        });
-      }
-    },
-  });
+  const { signUpAsync, isPending, error } = useSignUpMutation();
 
   async function handleSubmit(data: SignUpFormData) {
-    signUpAsync({ body: data });
+    try {
+      await signUpAsync({ body: data });
+      navigate({ to: "/sign-in", search: { justSignedUp: true } });
+    } catch (_) {}
   }
+
+  useEffect(() => {
+    if (isErrorResponse(error) && error?.status === 422) {
+      for (const [field, errorMsg] of Object.entries(error.body.errors.form)) {
+        // @ts-expect-error :(
+        form.setError(field, {
+          type: "manual",
+          message: errorMsg,
+        });
+      }
+    }
+  }, [error]);
 
   return (
     <VStack w="100%">
@@ -60,6 +48,11 @@ export function PageSignup() {
         <Text textAlign="center" textStyle="xl" textWrap="balance">
           Create an account and start transfering your playing now!
         </Text>
+        <ThemedAlert
+          severity="info"
+          title="Important information"
+          description="Swapify is in closed beta. You can still register but you won't be able to use the app before being approved."
+        />
       </VStack>
 
       <Card.Root w="full" maxW="lg" p="5">
