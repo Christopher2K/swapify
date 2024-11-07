@@ -9,6 +9,7 @@ export const toaster = createToaster({
   overlap: true,
   gap: 16,
   duration: 10000,
+  max: 4,
 });
 
 const rootStyle = cva({
