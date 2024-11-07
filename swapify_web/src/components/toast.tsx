@@ -1,7 +1,5 @@
 import { createToaster, Toaster } from "@ark-ui/react/toast";
-import { XIcon } from "lucide-react";
 
-import { IconButton } from "#root/components/ui/icon-button";
 import { Toast } from "#root/components/ui/toast";
 
 import { cva } from "#style/css";
@@ -38,22 +36,6 @@ const textStyle = cva({
       },
       success: {
         color: "grass.9",
-      },
-      info: {},
-      loading: {},
-    },
-  },
-});
-
-const iconStyle = cva({
-  base: {},
-  variants: {
-    type: {
-      error: {
-        stroke: "red.9",
-      },
-      success: {
-        stroke: "grass.9",
       },
       info: {},
       loading: {},

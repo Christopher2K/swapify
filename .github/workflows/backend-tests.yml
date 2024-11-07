@@ -5,7 +5,7 @@ on:
       - main
 
 jobs: 
-  tests:
+  backend-tests:
     runs-on: ubuntu-latest
     services:
       dbtest:
@@ -48,10 +48,10 @@ jobs:
       - name: Run tests
         working-directory: ./swapify_api
         env:
+          API_URL: https://localhost:4000
+          APPLE_MUSIC_PRIVATE_KEY: ${{ secrets.TEST_APPLE_MUSIC_PRIVATE_KEY }}
+          APP_URL: https://localhost:5173
           DATABASE_URL: postgres://admin:swapifypassword@localhost:5432/swapify_test
           JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
-          APPLE_MUSIC_PRIVATE_KEY: ${{ secrets.TEST_APPLE_MUSIC_PRIVATE_KEY }}
           PLATFORM_HOST: localhost
-          API_URL: https://localhost:4000
-          APP_URL: https://localhost:5173
         run: mix test
