@@ -6,6 +6,7 @@ import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
 import { tsr } from "#root/services/api";
 import { VStack } from "#style/jsx";
+import { toaster } from "#root/components/toast";
 
 import {
   SignUpForm,
@@ -21,7 +22,6 @@ export function PageSignup() {
       navigate({ to: "/sign-in", search: { justSignedUp: true } });
     },
     onError: (error) => {
-      if (error == null) return;
       if (isFetchError(error)) return;
       if (error.status === 422) {
         Object.entries(error.body.errors.form ?? {}).forEach(
@@ -33,6 +33,16 @@ export function PageSignup() {
             });
           },
         );
+        return;
+      }
+
+      if ("message" in (error.body as {})) {
+        toaster.create({
+          type: "error",
+          // TODO: Do better here
+          // @ts-expect-error
+          description: error.body.message,
+        });
       }
     },
   });

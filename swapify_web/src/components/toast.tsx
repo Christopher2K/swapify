@@ -76,12 +76,6 @@ export function ToastRoot() {
           <Toast.Description className={textStyle({ type: toast.type })}>
             {toast.description}
           </Toast.Description>
-          <Toast.CloseTrigger asChild>
-            <IconButton size="sm" variant="link">
-              {/* @ts-expect-error */}
-              <XIcon className={iconStyle({ type: toast.type })} />
-            </IconButton>
-          </Toast.CloseTrigger>
         </Toast.Root>
       )}
     </Toaster>
