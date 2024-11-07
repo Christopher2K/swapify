@@ -31,7 +31,7 @@ defmodule SwapifyApiWeb.AuthControllerTest do
       email = "chris@test.fr"
       password = "Password1234"
 
-      user_fixture(%{email: email, password: password})
+      user_fixture(%{email: email, password: password, role: :beta})
       {:ok, email: email, password: password}
     end
 

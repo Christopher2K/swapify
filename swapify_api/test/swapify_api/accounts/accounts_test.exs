@@ -164,7 +164,8 @@ defmodule SwapifyApi.SignInUserTest do
 
       user_fixture(%{
         email: email,
-        password: password
+        password: password,
+        role: :beta
       })
 
       assert {:ok, user, _, _} = Accounts.sign_in_user(email, password)
