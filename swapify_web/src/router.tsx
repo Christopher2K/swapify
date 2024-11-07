@@ -1,10 +1,10 @@
+import { lazy, Suspense } from "react";
 import {
   Outlet,
   createRootRoute,
   createRoute,
   createRouter,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { z } from "zod";
 
 import { AppScreenLayout } from "#root/components/app-screen-layout";
@@ -21,11 +21,21 @@ import { PlaylistsPage } from "#root/features/playlists/playlists-page";
 import { Root } from "#root/root";
 import { TransfersPage } from "#root/features/transfers/transfers-page";
 
+const TanStackRouterDevtools = import.meta.env.DEV
+  ? lazy(() =>
+      import("@tanstack/router-devtools").then((res) => ({
+        default: res.TanStackRouterDevtools,
+      })),
+    )
+  : () => null;
+
 const rootRoute = createRootRoute({
   component: () => (
     <Root>
       <Outlet />
-      <TanStackRouterDevtools />
+      <Suspense>
+        <TanStackRouterDevtools />
+      </Suspense>
     </Root>
   ),
 });
