@@ -1,0 +1,40 @@
+name: Frontend Tests
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: jdx/mise-action@v2
+
+      - name: Get dependencies from cache
+        id: cache-pnpm
+        uses: actions/cache/restore@v4
+        with:
+          path: swapify_web/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('./swapify_web/pnpm-lock.yaml') }}
+
+      - name: Install dependencies
+        if: steps.cache-pnpm.outputs.cache-hit != 'true'
+        working-directory: ./swapify_web
+        run: pnpm i --frozen-lockfile
+
+      - name: Save dependencies to cache
+        if: steps.cache-mix.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: swapify_web/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('./swapify_api/pnpm-lock.yaml') }}
+
+      - name: Lint
+        working-directory: ./swapify_web
+        run: pnpm run lint
+
+      - name: Typecheck
+        working-directory: ./swapify_web
+        run: pnpm run typecheck

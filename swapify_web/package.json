@@ -9,7 +9,8 @@
     "build": "panda && tsc -b && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "prettier --check ."
   },
   "dependencies": {
     "@ark-ui/react": "~3.6.2",
