@@ -60,7 +60,7 @@ if config_env() == :prod do
   config :swapify_api, SwapifyApi.Mailer,
     adapter: Swoosh.Adapters.ZeptoMail,
     base_url: System.get_env("ZEPTO_BASE_URL"),
-    api_key: SYSTEM.get_env("ZEPTO_API_KEY")
+    api_key: System.get_env("ZEPTO_API_KEY")
 else
   database_url = System.get_env("DATABASE_URL")
   config :swapify_api, SwapifyApi.Repo, url: database_url
