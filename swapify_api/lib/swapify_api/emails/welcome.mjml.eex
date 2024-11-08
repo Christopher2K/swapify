@@ -37,12 +37,12 @@
         </mj-text>
 
         <mj-text font-size="16px" line-height="24px" padding-left="25px">
-          • Your music library in just a few click<br />
+          • Transfer your music library to another platform in just a few click<br />
           • Synchronize your library to keep a backup somewhere<br />
           • And many more feature soon!<br />
         </mj-text>
         <mj-text font-size="16px" line-height="24px">
-          Right now, we're in closed beta. We have a very limited set of user we can accept during this time. We will let you know if you can get in.
+          Right now, we're in closed beta. We have a very limited set of user we can accept during this time. We will let you know when you can get in.
         </mj-text>
          <mj-text font-size="16px" line-height="24px">
           In the meantime, you can follow the development of <a href="https://tv.llcoolchris.dev">Twitch</a> or <a href="https://twitter.com/LLCoolChris_">Twitter</a>

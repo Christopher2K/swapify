@@ -33,21 +33,12 @@ config :swapify_api, Oban,
   queues: [sync_library: 50, sync_platform: 50, search_tracks: 100, transfer_tracks: 50],
   repo: SwapifyApi.Repo
 
-# Configures the mailer
-#
-# By default it uses the "Local" adapter which stores the emails
-# locally. You can see the emails in your browser, at "/dev/mailbox".
-#
-# For production it's recommended to configure a different adapter
-# at the `config/runtime.exs`.
 config :swapify_api, SwapifyApi.Mailer, adapter: Swoosh.Adapters.Local
 
-# Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id, :status]
 
-# Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom

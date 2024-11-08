@@ -3,7 +3,7 @@ defmodule SwapifyApi.Emails do
 
   require EEx
 
-  @no_reply_sender {"Swapify", "noreply@swapify.live"}
+  @no_reply_sender {"Swapify - Notifications", "info@swapify.live"}
 
   EEx.function_from_file(
     :defp,
@@ -25,6 +25,8 @@ defmodule SwapifyApi.Emails do
     |> from(@no_reply_sender)
     |> subject("Thanks for choosing Swapify!")
     |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, false)
   end
 
   EEx.function_from_file(
@@ -65,6 +67,8 @@ defmodule SwapifyApi.Emails do
     |> from(@no_reply_sender)
     |> subject("Your transfer is ready!")
     |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, false)
   end
 
   EEx.function_from_file(
@@ -94,6 +98,8 @@ defmodule SwapifyApi.Emails do
     |> from(@no_reply_sender)
     |> subject("There was an error on your transfer")
     |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, true)
   end
 
   EEx.function_from_file(
@@ -123,5 +129,7 @@ defmodule SwapifyApi.Emails do
     |> from(@no_reply_sender)
     |> subject("Your transfer is done!")
     |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, true)
   end
 end
