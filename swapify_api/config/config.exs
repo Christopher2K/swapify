@@ -29,9 +29,14 @@ config :swapify_api, SwapifyApiWeb.Endpoint,
   live_view: [signing_salt: "7XYblx6r"]
 
 config :swapify_api, Oban,
+  repo: SwapifyApi.Repo,
   engine: Oban.Engines.Basic,
   queues: [sync_library: 50, sync_platform: 50, search_tracks: 100, transfer_tracks: 50],
-  repo: SwapifyApi.Repo
+  plugins: [
+    {Oban.Plugins.Pruner, max_age: 86_400},
+    Oban.Plugins.Reindexer,
+    {Oban.Plugins.Lifeline, rescue_after: :timer.minutes(2)}
+  ]
 
 config :swapify_api, SwapifyApi.Mailer, adapter: Swoosh.Adapters.Local
 
