@@ -1,11 +1,14 @@
 defmodule SwapifyApi.Accounts do
   require Logger
 
+  alias SwapifyApi.Accounts.PasswordResetRequest
+  alias SwapifyApi.Accounts.PasswordResetRequestRepo
   alias SwapifyApi.Accounts.PlatformConnection
   alias SwapifyApi.Accounts.PlatformConnectionRepo
   alias SwapifyApi.Accounts.Token
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.Accounts.UserRepo
+  alias SwapifyApi.Emails
   alias SwapifyApi.MusicProviders
   alias SwapifyApi.MusicProviders.AppleMusic
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
@@ -277,4 +280,50 @@ defmodule SwapifyApi.Accounts do
   """
   @spec get_by_id(String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
   def get_by_id(id), do: UserRepo.get_by(:id, id)
+
+  @doc """
+  Create a new password reset request
+  """
+  @spec create_new_password_reset_request(String.t()) ::
+          {:ok, PasswordResetRequest.t()} | {:error, ErrorMessage.t()}
+  def create_new_password_reset_request(user_email) do
+    with {:ok, user} <- UserRepo.get_by(:email, user_email),
+         {:ok, password_reset_request} <- PasswordResetRequestRepo.create(user.id),
+         {:ok, _} <-
+           Emails.password_reset_request(user.email, user.username,
+             code: password_reset_request.code
+           )
+           |> SwapifyApi.Mailer.deliver() do
+      {:ok, password_reset_request}
+    end
+  end
+
+  @doc """
+  Confirm a password reset request
+  TODO: Make this live in a transaction
+  """
+  @spec confirm_password_reset_request(String.t(), String.t()) ::
+          {:ok, User.t()} | {:error, ErrorMessage.t()}
+  def confirm_password_reset_request(code, password) do
+    with {:ok, password_reset_request} <- PasswordResetRequestRepo.get_by_code(code),
+         {:is_valid, true} <- {:is_valid, PasswordResetRequest.is_valid?(password_reset_request)},
+         {:ok, user} <- UserRepo.update(password_reset_request.user, %{"password" => password}) do
+      case PasswordResetRequestRepo.mark_as_used(code) do
+        {1, _} ->
+          {:ok, user}
+
+        error ->
+          error
+      end
+    else
+      {:is_valid, false} ->
+        {:error, ErrorMessage.bad_request("The password reset request is no longer valid.")}
+
+      {:error, %Ecto.Changeset{} = e} ->
+        {:error, e}
+
+      error ->
+        error
+    end
+  end
 end

@@ -137,6 +137,21 @@ const APITransferPayloadSchema = z.object({
   destination: APIPlatformNameSchema,
 });
 
+const APIPasswordResetRequestPayloadSchema = z.object({
+  email: z.string(),
+});
+export type APIPasswordResetRequestPayload = z.infer<
+  typeof APIPasswordResetRequestPayloadSchema
+>;
+
+const APIPasswordResetConfirmationPayloadSchema = z.object({
+  password: z.string(),
+  code: z.string(),
+});
+export type APIPasswordResetConfirmationPayload = z.infer<
+  typeof APIPasswordResetConfirmationPayloadSchema
+>;
+
 const c = initContract();
 
 export const contract = c.router({
@@ -281,5 +296,24 @@ export const contract = c.router({
       200: APIResponseTemplate(APITransferSchema),
     },
     summary: "Cancel a playlist transfer",
+  },
+  passwordResetRequest: {
+    method: "POST",
+    path: "/api/auth/password-reset",
+    body: APIPasswordResetRequestPayloadSchema,
+    responses: {
+      200: APIResponseTemplate(APISuccessSchema),
+    },
+    summary: "Request a password reset",
+  },
+  passwordResetConfirmation: {
+    method: "PATCH",
+    path: "/api/auth/password-reset",
+    body: APIPasswordResetConfirmationPayloadSchema,
+    responses: {
+      200: APIResponseTemplate(APISuccessSchema),
+      400: APIErrorTemplate(APIErrorSchema),
+    },
+    summary: "Confirm a password reset",
   },
 });

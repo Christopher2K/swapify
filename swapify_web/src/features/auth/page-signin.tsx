@@ -4,6 +4,7 @@ import { ThemedAlert } from "#root/components/themed-alert";
 import { Card } from "#root/components/ui/card";
 import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
+import { css } from "#style/css";
 import { VStack } from "#style/jsx";
 
 import {
@@ -14,7 +15,7 @@ import {
 import { useSignInMutation } from "./hooks/use-sign-in-mutation";
 
 export function PageSignin() {
-  const { justSignedUp } = useSearch({
+  const { from } = useSearch({
     from: "/unauthenticated/sign-in",
   });
   const form = useSignInForm();
@@ -45,11 +46,21 @@ export function PageSignin() {
       </VStack>
 
       <Card.Root w="full" maxW="lg" p="5">
-        {justSignedUp && (
+        {from === "sign-up" && (
           <Card.Header>
             <ThemedAlert
               title="Thanks for signing up!"
               description="Your account has been created but you cannot sign in yet. As we're in beta, we will let you know when we have an open spot!"
+              severity="success"
+            />
+          </Card.Header>
+        )}
+
+        {from === "password-reset" && (
+          <Card.Header>
+            <ThemedAlert
+              title="Your password has been changed!"
+              description="Try to sign in with your new password."
               severity="success"
             />
           </Card.Header>
@@ -61,8 +72,18 @@ export function PageSignin() {
             isLoading={isPending}
           />
         </Card.Body>
-        <Card.Footer>
-          <Link to="/sign-up">Don't have an account?</Link>
+        <Card.Footer
+          flexDirection={["column", undefined, "row"]}
+          justifyContent={["flex-start", undefined, "space-between"]}
+          alignItems={["center", undefined, "flex-start"]}
+          gap="4"
+        >
+          <Link to="/password-reset" className={css({ textAlign: "center" })}>
+            Reset your password
+          </Link>
+          <Link to="/sign-up" className={css({ textAlign: "center" })}>
+            Don't have an account?
+          </Link>
         </Card.Footer>
       </Card.Root>
     </VStack>

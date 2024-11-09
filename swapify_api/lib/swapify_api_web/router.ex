@@ -17,6 +17,8 @@ defmodule SwapifyApiWeb.Router do
     post "/signup", AuthController, :sign_up
     post "/signin", AuthController, :sign_in
     get "/signout", AuthController, :sign_out
+    post "/password-reset", AuthController, :new_password_reset_request
+    patch "/password-reset", AuthController, :confirm_password_reset_request
   end
 
   scope "/api/users", SwapifyApiWeb do

@@ -48,4 +48,14 @@ defmodule SwapifyApi.EmailsTest do
                )
     end
   end
+
+  describe "password_reset_request/2" do
+    test "it should render html" do
+      assert %Swoosh.Email{to: [{"test", "test@test.fr"}]} =
+               SwapifyApi.Emails.password_reset_request("test@test.fr", "test",
+                 username: "Username",
+                 code: "1234"
+               )
+    end
+  end
 end

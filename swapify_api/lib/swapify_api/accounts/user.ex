@@ -39,12 +39,23 @@ defmodule SwapifyApi.Accounts.User do
     |> cast(attrs, [:email, :password, :username, :role])
     |> validate_required([:email, :password, :username])
     |> validate_format(:email, ~r/@/)
-    |> validate_length(:password, min: 8, max: 30)
+    |> validate_password()
     |> validate_length(:username, min: 3, max: 20)
     |> unique_constraint(:email, message: "Email is already taken")
     |> unique_constraint(:username, message: "Username is already taken")
     |> hash_new_password()
   end
+
+  @doc "Changeset to update an existing user"
+  def update_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:password])
+    |> validate_required([:password])
+    |> validate_password()
+    |> hash_new_password()
+  end
+
+  defp validate_password(changeset), do: validate_length(changeset, :password, min: 8, max: 30)
 
   defp hash_new_password(changeset) do
     clear_password = get_change(changeset, :password)

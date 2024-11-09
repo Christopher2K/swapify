@@ -36,4 +36,22 @@ defmodule SwapifyApiWeb.AuthController do
     |> delete_session(:refresh_token)
     |> redirect(external: Utils.get_app_url("/"))
   end
+
+  def new_password_reset_request(conn, _) do
+    %{"email" => email} = conn.body_params
+    Accounts.create_new_password_reset_request(email)
+    :ok
+  end
+
+  def confirm_password_reset_request(%Plug.Conn{} = conn, _) do
+    %{"code" => code, "password" => password} = conn.body_params
+
+    case Accounts.confirm_password_reset_request(code, password) do
+      {:ok, _} ->
+        :ok
+
+      error ->
+        error
+    end
+  end
 end

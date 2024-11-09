@@ -13,6 +13,13 @@ defmodule SwapifyApiWeb.FallbackController do
     |> render(:"200")
   end
 
+  def call(conn, :ok) do
+    conn
+    |> put_status(200)
+    |> put_view(json: SwapifyApiWeb.SuccessJSON)
+    |> render(:"200")
+  end
+
   def call(conn, {:error, %Ecto.Changeset{errors: errors}}) do
     errors_map =
       Enum.reduce(errors, %{}, fn {key, {message, _}}, errors_map ->

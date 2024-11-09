@@ -132,4 +132,34 @@ defmodule SwapifyApi.Emails do
     |> put_provider_option(:track_clicks, false)
     |> put_provider_option(:track_opens, true)
   end
+
+  EEx.function_from_file(
+    :defp,
+    :password_reset_request_template,
+    "lib/swapify_api/emails/password_reset_request.mjml.eex",
+    [
+      :username,
+      :reset_link
+    ]
+  )
+
+  def password_reset_request(email, name, opts \\ []) do
+    code = Keyword.get(opts, :code)
+
+    app_url = Application.fetch_env!(:swapify_api, :app_url)
+
+    reset_url = app_url <> "/password-reset/#{code}"
+
+    {:ok, template} =
+      password_reset_request_template(name, reset_url)
+      |> Mjml.to_html()
+
+    new()
+    |> to({name, email})
+    |> from(@no_reply_sender)
+    |> subject("Password reset request")
+    |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, true)
+  end
 end

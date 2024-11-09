@@ -1,5 +1,6 @@
 defmodule SwapifyApi.Accounts.UserRepo do
   @moduledoc "User model repository"
+
   alias SwapifyApi.Repo
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.Utils
@@ -17,5 +18,15 @@ defmodule SwapifyApi.Accounts.UserRepo do
     |> User.filter_by(field, value)
     |> Repo.one()
     |> Utils.from_nullable_to_tuple()
+  end
+
+  @doc """
+  Update a user
+  """
+  @spec update(User.t(), map()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
+  def update(user, attrs) do
+    user
+    |> User.update_changeset(attrs)
+    |> Repo.update(returning: true)
   end
 end

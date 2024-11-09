@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { isErrorResponse } from "@ts-rest/core";
 
 import { Card } from "#root/components/ui/card";
 import { Heading } from "#root/components/ui/heading";
@@ -13,7 +14,6 @@ import {
   useSignUpForm,
 } from "./components/sign-up-form";
 import { useSignUpMutation } from "./hooks/use-sign-up-mutation";
-import { isErrorResponse } from "@ts-rest/core";
 
 export function PageSignup() {
   const form = useSignUpForm();
@@ -23,7 +23,7 @@ export function PageSignup() {
   async function handleSubmit(data: SignUpFormData) {
     try {
       await signUpAsync({ body: data });
-      navigate({ to: "/sign-in", search: { justSignedUp: true } });
+      navigate({ to: "/sign-in", search: { from: "sign-up" } });
     } catch (_) {}
   }
 

@@ -36,6 +36,7 @@ defmodule SwapifyApi.MixProject do
       {:bandit, "~> 1.2"},
       {:cors_plug, "~> 3.0"},
       {:dns_cluster, "~> 0.1.1"},
+      {:ecto_identifier, "~> 0.2.0"},
       {:ecto_sql, "~> 3.10"},
       {:error_message, "~> 0.2.0"},
       {:faker, "~> 0.18", only: :test},
@@ -45,6 +46,7 @@ defmodule SwapifyApi.MixProject do
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
       {:mjml, "~> 4.0"},
+      {:nimble_options, "~> 1.0"},
       {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
@@ -54,8 +56,7 @@ defmodule SwapifyApi.MixProject do
       {:req, "~> 0.5.0"},
       {:swoosh, "~> 1.5"},
       {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      {:nimble_options, "~> 1.0"}
+      {:telemetry_poller, "~> 1.0"}
     ]
   end
 

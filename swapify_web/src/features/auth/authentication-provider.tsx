@@ -36,8 +36,6 @@ export function AuthenticationProvider({
 }: AuthenticationProviderProps) {
   const { user, isError } = useUserQuery();
 
-  console.log({ user });
-
   if (isError) {
     return renderIfUnauthenticated();
   }

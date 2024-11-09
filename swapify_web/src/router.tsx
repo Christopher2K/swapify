@@ -18,8 +18,10 @@ import { IntegrationConfigurationPage } from "#root/features/integrations/integr
 import { IntegrationsPage } from "#root/features/integrations/integrations-page";
 import { MetaProvider } from "#root/features/meta/components/meta-provider";
 import { PlaylistsPage } from "#root/features/playlists/playlists-page";
-import { Root } from "#root/root";
 import { TransfersPage } from "#root/features/transfers/transfers-page";
+import { PasswordResetConfirmPage } from "#root/features/auth/password-reset-confirm-page";
+import { PasswordResetRequestPage } from "#root/features/auth/password-reset-request-page";
+import { Root } from "#root/root";
 
 const TanStackRouterDevtools = import.meta.env.DEV
   ? lazy(() =>
@@ -79,7 +81,7 @@ const unauthenticatedLayoutRoute = createRoute({
 });
 
 const signInRouteSearch = z.object({
-  justSignedUp: z.boolean().optional(),
+  from: z.enum(["sign-up", "password-reset"]).optional(),
 });
 
 const signinRoute = createRoute({
@@ -93,6 +95,18 @@ const signupRoute = createRoute({
   getParentRoute: () => unauthenticatedLayoutRoute,
   path: "/sign-up",
   component: PageSignup,
+});
+
+const passwordResetRequestRoute = createRoute({
+  getParentRoute: () => unauthenticatedLayoutRoute,
+  path: "/password-reset",
+  component: PasswordResetRequestPage,
+});
+
+const passwordResetConfirmRoute = createRoute({
+  getParentRoute: () => unauthenticatedLayoutRoute,
+  path: "/password-reset/$code",
+  component: PasswordResetConfirmPage,
 });
 
 const indexRoute = createRoute({
@@ -131,7 +145,12 @@ const transfersRoute = createRoute({
 });
 
 const routeTree = rootRoute.addChildren([
-  unauthenticatedLayoutRoute.addChildren([signinRoute, signupRoute]),
+  unauthenticatedLayoutRoute.addChildren([
+    signinRoute,
+    signupRoute,
+    passwordResetRequestRoute,
+    passwordResetConfirmRoute,
+  ]),
   authenticatedLayoutRoute.addChildren([integrationConfigurationRoute]),
   appScreenLayoutRoute.addChildren([
     indexRoute,

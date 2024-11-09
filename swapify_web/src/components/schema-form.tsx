@@ -51,13 +51,15 @@ type SchemaFormContainerProps = PropsWithChildren<{
   submitText?: string;
   isLoading?: boolean;
   hideSubmitButton?: boolean;
+  isSubmitDisabled?: boolean;
   globalError?: string;
   onSubmit: () => void;
 }>;
 export function SchemaFormContainer({
   id,
-  submitText,
+  submitText = "Submit",
   isLoading,
+  isSubmitDisabled,
   hideSubmitButton = false,
   globalError,
   onSubmit,
@@ -79,7 +81,13 @@ export function SchemaFormContainer({
       )}
       <div className={formItemsContainerClassName}>{children}</div>
       {!hideSubmitButton && (
-        <Button loading={isLoading} type="submit" w="full" size="xl">
+        <Button
+          loading={isLoading}
+          type="submit"
+          w="full"
+          size="xl"
+          disabled={isSubmitDisabled}
+        >
           {submitText}
         </Button>
       )}
