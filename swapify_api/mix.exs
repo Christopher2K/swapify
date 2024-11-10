@@ -9,7 +9,16 @@ defmodule SwapifyApi.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        swapify_api: [
+          applications: [
+            swapify_api: :permanent,
+            opentelemetry_exporter: :permanent,
+            opentelemetry: :temporary
+          ]
+        ]
+      ]
     ]
   end
 
@@ -46,9 +55,15 @@ defmodule SwapifyApi.MixProject do
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
       {:mjml, "~> 4.0"},
-      {:new_relic_agent, "~> 1.27"},
       {:nimble_options, "~> 1.0"},
       {:oban, "~> 2.17"},
+      {:open_telemetry_decorator, "~> 1.5"},
+      {:opentelemetry, "~> 1.5.0"},
+      {:opentelemetry_api, "~> 1.4.0"},
+      {:opentelemetry_ecto, "~> 1.2.0"},
+      {:opentelemetry_exporter, "~> 1.8.0"},
+      {:opentelemetry_oban, "~> 1.1.1"},
+      {:opentelemetry_phoenix, "~> 1.2.0"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
       {:phoenix_live_dashboard, "~> 0.8.3"},

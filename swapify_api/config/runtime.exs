@@ -61,6 +61,17 @@ if config_env() == :prod do
     adapter: Swoosh.Adapters.ZeptoMail,
     base_url: System.get_env("ZEPTO_BASE_URL"),
     api_key: System.get_env("ZEPTO_API_KEY")
+
+  config :opentelemetry,
+    span_processor: :batch,
+    exporter: :otlp
+
+  config :opentelemetry_exporter,
+    otlp_protocol: :http_protobuf,
+    otlp_endpoint: "https://otel.highlight.io:4318",
+    otlp_headers: [
+      {"x-highlight-project", System.get_env("HIGHLIGHT_PROJECT_ID")}
+    ]
 else
   database_url = System.get_env("DATABASE_URL")
   config :swapify_api, SwapifyApi.Repo, url: database_url

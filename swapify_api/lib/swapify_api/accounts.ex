@@ -1,5 +1,4 @@
 defmodule SwapifyApi.Accounts do
-  use NewRelic.Tracer
   require Logger
 
   alias SwapifyApi.Accounts.PasswordResetRequest
@@ -45,7 +44,6 @@ defmodule SwapifyApi.Accounts do
           | create_or_update_integration_applemusic_opts()
         ) ::
           {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
-  @trace {:create_or_update_integration, args: false}
   def create_or_update_integration(:spotify = name, opts) do
     NimbleOptions.validate!(opts, @create_or_update_integration_spotify_opts_def)
 
@@ -77,7 +75,6 @@ defmodule SwapifyApi.Accounts do
     end
   end
 
-  @trace {:create_or_update_integration, args: false}
   def create_or_update_integration(:applemusic = name, opts) do
     NimbleOptions.validate!(opts, @create_or_update_integration_applemusic_opts_def)
 
@@ -113,7 +110,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec genereate_auth_tokens(User.t()) ::
           {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | {:error, ErrorMessage.t()}
-  @trace :genereate_auth_tokens
   def genereate_auth_tokens(user) do
     now = DateTime.utc_now() |> DateTime.to_unix()
 
@@ -145,7 +141,6 @@ defmodule SwapifyApi.Accounts do
   Generate a socket token for a given user
   """
   @spec generate_socket_token(String.t()) :: {:ok, String.t()}
-  @trace :generate_socket_token
   def generate_socket_token(user_id) do
     secret =
       Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
@@ -163,7 +158,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec disable_partner_integration(String.t(), PlatformConnection.platform_name()) ::
           {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
-  @trace :disable_partner_integration
   def disable_partner_integration(user_id, platform_name) do
     case PlatformConnectionRepo.invalidate(user_id, platform_name) do
       {:error, _} ->
@@ -182,7 +176,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec refresh_partner_integration(String.t(), PlatformConnection.platform_name(), String.t()) ::
           {:ok, PlatformConnection.t()} | {:error, ErrorMessage.t()}
-  @trace {:refresh_partner_integration, args: false}
   def refresh_partner_integration(user_id, :spotify = name, refresh_token) do
     with {:ok,
           %Oauth.AccessToken{
@@ -205,18 +198,15 @@ defmodule SwapifyApi.Accounts do
   Hash a password
   """
   @spec hash_password(String.t()) :: String.t()
-  @trace {:hash_password, args: false}
   def hash_password(password), do: Argon2.hash_pwd_salt(password)
 
   @doc """
   Verify a password
   """
   @spec is_password_valid?(String.t(), String.t()) :: boolean()
-  @trace {:is_password_valid?, args: false}
   def is_password_valid?(password_input, hash), do: Argon2.verify_pass(password_input, hash)
 
   @spec is_login_authorized?(User.t()) :: :ok | {:error, ErrorMessage.t()}
-  @trace :is_login_authorized?
   def is_login_authorized?(%User{} = u) do
     if u.role in [:admin, :beta] do
       :ok
@@ -233,7 +223,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec sign_in_user(String.t(), String.t()) ::
           {:ok, User.t(), Joken.bearer_token(), Joken.bearer_token()} | {:error, ErrorMessage.t()}
-  @trace {:sign_in_user, args: false}
   def sign_in_user(email, password) do
     with {:ok, user} <- UserRepo.get_by(:email, email),
          true <- is_password_valid?(password, user.password),
@@ -256,7 +245,6 @@ defmodule SwapifyApi.Accounts do
   - password
   """
   @spec sign_up_new_user(map()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  @trace {:sign_up_new_user, args: false}
   def sign_up_new_user(registration_data) do
     with {:ok, user} <- UserRepo.create(registration_data) do
       Task.Supervisor.start_child(Task.Supervisor, fn ->
@@ -277,7 +265,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec validate_socket_token(String.t()) ::
           {:ok, String.t()} | {:error, ErrorMessage.t()}
-  @trace {:validate_socket_token, args: false}
   def validate_socket_token(token) do
     secret =
       Keyword.get(Application.get_env(:swapify_api, SwapifyApiWeb.Endpoint), :secret_key_base)
@@ -292,7 +279,6 @@ defmodule SwapifyApi.Accounts do
   Get a user by id
   """
   @spec get_by_id(String.t()) :: {:ok, User.t()} | {:error, ErrorMessage.t()}
-  @trace :get_by_id
   def get_by_id(id), do: UserRepo.get_by(:id, id)
 
   @doc """
@@ -300,7 +286,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec create_new_password_reset_request(String.t()) ::
           {:ok, PasswordResetRequest.t()} | {:error, ErrorMessage.t()}
-  @trace :create_new_password_reset_request
   def create_new_password_reset_request(user_email) do
     with {:ok, user} <- UserRepo.get_by(:email, user_email),
          {:ok, password_reset_request} <- PasswordResetRequestRepo.create(user.id),
@@ -319,7 +304,6 @@ defmodule SwapifyApi.Accounts do
   """
   @spec confirm_password_reset_request(String.t(), String.t()) ::
           {:ok, User.t()} | {:error, ErrorMessage.t()}
-  @trace {:confirm_password_reset_request, args: false}
   def confirm_password_reset_request(code, password) do
     with {:ok, password_reset_request} <- PasswordResetRequestRepo.get_by_code(code),
          {:is_valid, true} <- {:is_valid, PasswordResetRequest.is_valid?(password_reset_request)},
