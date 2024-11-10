@@ -20,6 +20,7 @@ H.init(import.meta.env.VITE_HIGHLIGHT_PROJECT_ID, {
   debug: import.meta.env.DEV,
   reportConsoleErrors: true,
   // manualStart: import.meta.env.DEV,
+  environment: import.meta.env.DEV ? "local" : "production",
   tracingOrigins: true,
   networkRecording: {
     enabled: true,
