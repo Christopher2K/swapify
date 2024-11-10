@@ -16,8 +16,8 @@ if (window.MusicKit) {
 
 H.init(import.meta.env.VITE_HIGHLIGHT_PROJECT_ID, {
   serviceName: "SwapifyWeb",
-  version: "1.0.0",
-  debug: import.meta.env.VITE_APP_VERSION,
+  version: import.meta.env.VITE_APP_VERSION,
+  debug: import.meta.env.DEV,
   reportConsoleErrors: true,
   // manualStart: import.meta.env.DEV,
   tracingOrigins: true,
