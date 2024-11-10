@@ -46,6 +46,7 @@ defmodule SwapifyApi.MixProject do
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
       {:mjml, "~> 4.0"},
+      {:new_relic_agent, "~> 1.27"},
       {:nimble_options, "~> 1.0"},
       {:oban, "~> 2.17"},
       {:phoenix, "~> 1.7.11"},
