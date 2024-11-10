@@ -60,6 +60,7 @@ defmodule SwapifyApi.MixProject do
       {:open_telemetry_decorator, "~> 1.5"},
       {:opentelemetry, "~> 1.5.0"},
       {:opentelemetry_api, "~> 1.4.0"},
+      {:opentelemetry_bandit, "~> 0.1.4"},
       {:opentelemetry_ecto, "~> 1.2.0"},
       {:opentelemetry_exporter, "~> 1.8.0"},
       {:opentelemetry_oban, "~> 1.1.1"},
