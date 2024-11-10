@@ -45,12 +45,14 @@ if config_env() == :prod do
       """
 
   host = System.get_env("PLATFORM_HOST")
+  app_url = System.get_env("APP_URL")
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :swapify_api, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :swapify_api, SwapifyApiWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
+    check_origin: [app_url],
     http: [
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
