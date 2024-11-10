@@ -4,6 +4,10 @@ providers = ["node"]
 CADDY_VERSION = '2.8.2'
 NIXPACKS_NODE_VERSION = '20'
 
+[phases.setup]
+nixPkgs = ['...', 'jq']
+nixpkgsArchive = '505ad1607f7e54426cfb2d804e48fa2c247f32ba'
+
 [phases.caddy]
 dependsOn = ['setup']
 cmds = [
