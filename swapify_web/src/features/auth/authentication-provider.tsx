@@ -1,4 +1,10 @@
-import { type PropsWithChildren, createContext, useContext } from "react";
+import { H } from "highlight.run";
+import {
+  type PropsWithChildren,
+  createContext,
+  useContext,
+  useEffect,
+} from "react";
 
 import { LoadingContainer } from "#root/components/loading-container";
 import { useUserQuery } from "#root/features/auth/hooks/use-user-query";
@@ -35,6 +41,15 @@ export function AuthenticationProvider({
   renderIfUnauthenticated,
 }: AuthenticationProviderProps) {
   const { user, isError } = useUserQuery();
+
+  useEffect(() => {
+    if (user) {
+      H.identify(user.id, {
+        email: user.email,
+        username: user.username,
+      });
+    }
+  }, [user]);
 
   if (isError) {
     return renderIfUnauthenticated();

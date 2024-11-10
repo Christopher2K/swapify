@@ -11,6 +11,9 @@ importers:
       '@ark-ui/react':
         specifier: ~3.6.2
         version: 3.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@highlight-run/react':
+        specifier: ~7.0.2
+        version: 7.0.2(highlight.run@9.5.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@hookform/resolvers':
         specifier: ~3.9.0
         version: 3.9.0(react-hook-form@7.52.2(react@18.3.1))
@@ -35,6 +38,9 @@ importers:
       date-fns:
         specifier: ~4.1.0
         version: 4.1.0
+      highlight.run:
+        specifier: ~9.5.2
+        version: 9.5.2
       javascript-time-ago:
         specifier: ~2.5.11
         version: 2.5.11
@@ -1268,6 +1274,13 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+
+  '@highlight-run/react@7.0.2':
+    resolution: {integrity: sha512-Q+HPdYjmcH53vxQvXDlu6TuQCOiZR6++tFz7OPqveD2SkoLRnDZmUdRv0LUxGovATs1b8LhVRxZSX7NG/5l06g==}
+    peerDependencies:
+      highlight.run: 9.5.2
+      react: '>=16'
+      react-dom: '>=16'
 
   '@hookform/resolvers@3.9.0':
     resolution: {integrity: sha512-bU0Gr4EepJ/EQsH/IwEzYLsT/PEj5C0ynLQ4m+GSHS+xKH4TfSelhluTgOaoc4kA5s7eCsQbM4wvZLzELmWzUg==}
@@ -3325,6 +3338,9 @@ packages:
   hermes-profile-transformer@0.0.6:
     resolution: {integrity: sha512-cnN7bQUm65UWOy6cbGcCcZ3rpwW8Q/j4OP5aWRhEry4Z2t2aR1cjrbp0BS+KiBN0smvP1caBgAuxutvyvJILzQ==}
     engines: {node: '>=8'}
+
+  highlight.run@9.5.2:
+    resolution: {integrity: sha512-AJztMQWwuigNz4RmdaThAtk5DPQBYeVwBUx0jMG+y2nLiwjATXAWscJbKoPgBq5ER67q5OV2ymVDZOtjMLIybw==}
 
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
@@ -7046,6 +7062,12 @@ snapshots:
     dependencies:
       '@hapi/hoek': 9.3.0
 
+  '@highlight-run/react@7.0.2(highlight.run@9.5.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      highlight.run: 9.5.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@hookform/resolvers@3.9.0(react-hook-form@7.52.2(react@18.3.1))':
     dependencies:
       react-hook-form: 7.52.2(react@18.3.1)
@@ -10169,6 +10191,8 @@ snapshots:
   hermes-profile-transformer@0.0.6:
     dependencies:
       source-map: 0.7.4
+
+  highlight.run@9.5.2: {}
 
   hookable@5.5.3: {}
 
