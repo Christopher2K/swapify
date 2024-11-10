@@ -31,7 +31,7 @@ dependsOn = ['build']
 cmds = [
         "export VITE_APP_VERSION=$(cat package.json | jq -r '.version')",
         'npx --yes @highlight-run/sourcemap-uploader upload --apiKey ${HIGHLIGHT_API_KEY} --path ./dist --appVersion ${VITE_APP_VERSION}',
-        "find build -name '*.js.map' -type f -delete"
+        "find dist -name '*.js.map' -type f -delete"
 ]
 
 [phases.fmt]
