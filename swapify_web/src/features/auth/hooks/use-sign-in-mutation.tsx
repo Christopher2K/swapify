@@ -14,7 +14,6 @@ export function useSignInMutation() {
     },
     onError: (error) => {
       handleApiError(error);
-      return error;
     },
   });
 

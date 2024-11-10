@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { tsr } from "#root/services/api";
+import { handleApiError } from "#root/services/api.utils";
 
 export function useConfirmTransferMutation() {
   const queryClient = tsr.useQueryClient();
@@ -9,8 +10,8 @@ export function useConfirmTransferMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries();
     },
-    onError: (_) => {
-      // TODO: Handle error with a generic handler
+    onError: (error) => {
+      handleApiError(error);
     },
   });
 

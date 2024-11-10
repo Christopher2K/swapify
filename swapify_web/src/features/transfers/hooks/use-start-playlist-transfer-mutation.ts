@@ -1,4 +1,5 @@
 import { tsr } from "#root/services/api";
+import { handleApiError } from "#root/services/api.utils";
 
 export function useStartPlaylistTransferMutation() {
   const queryClient = tsr.useQueryClient();
@@ -7,8 +8,8 @@ export function useStartPlaylistTransferMutation() {
       onSuccess: async () => {
         await queryClient.invalidateQueries();
       },
-      onError: (_) => {
-        // TODO: Handle error with a generic handler
+      onError: (error) => {
+        handleApiError(error);
       },
     });
 
