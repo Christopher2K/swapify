@@ -5,6 +5,7 @@ defmodule SwapifyApi.AccountsFixtures do
   alias SwapifyApi.Repo
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.Accounts.PlatformConnection
+  alias SwapifyApi.Accounts.PasswordResetRequest
 
   def user_fixture(attrs \\ %{}) do
     attrs =
@@ -43,5 +44,18 @@ defmodule SwapifyApi.AccountsFixtures do
       |> Repo.insert()
 
     platform_connection
+  end
+
+  def password_reset_request_fixture(attrs \\ %{}) do
+    attrs =
+      attrs
+      |> Enum.into(%{})
+
+    {:ok, password_reset_request} =
+      %PasswordResetRequest{}
+      |> PasswordResetRequest.changeset(attrs)
+      |> Repo.insert()
+
+    password_reset_request
   end
 end

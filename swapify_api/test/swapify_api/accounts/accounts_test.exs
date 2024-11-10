@@ -5,6 +5,7 @@ defmodule SwapifyApi.SignInUserTest do
   import SwapifyApi.AccountsFixtures
 
   alias SwapifyApi.Accounts
+  alias SwapifyApi.Accounts.PasswordResetRequest
   alias SwapifyApi.ExternalAPITools
   alias SwapifyApi.SpotifyAPIFixtures
   alias SwapifyApi.AppleMusicAPIFixtures
@@ -212,6 +213,63 @@ defmodule SwapifyApi.SignInUserTest do
                Accounts.disable_partner_integration(user.id, :spotify)
 
       assert not is_nil(pc.invalidated_at)
+    end
+  end
+
+  describe "create_new_password_reset_request/1" do
+    setup do
+      user = user_fixture(%{email: "test@test.fr"})
+      {:ok, user: user}
+    end
+
+    test "it should create a new password reset request", %{user: user} do
+      user_id = user.id
+
+      assert {:ok, %PasswordResetRequest{user_id: ^user_id}} =
+               Accounts.create_new_password_reset_request(user.email)
+    end
+
+    test "it should return an error when the email is not found" do
+      assert {:error, %ErrorMessage{code: :not_found}} =
+               Accounts.create_new_password_reset_request("no_existing_user@test.fr")
+    end
+  end
+
+  describe "confirm_password_reset_request/2" do
+    setup do
+      user = user_fixture(%{email: "test@test.fr"})
+      password_reset_request = password_reset_request_fixture(%{"user_id" => user.id})
+      {:ok, user: user, password_reset_request: password_reset_request}
+    end
+
+    test "it should confirm a password reset request", %{
+      password_reset_request: password_reset_request
+    } do
+      assert {:ok, user} =
+               Accounts.confirm_password_reset_request(
+                 password_reset_request.code,
+                 "new_password"
+               )
+
+      assert Accounts.is_password_valid?("new_password", user.password)
+    end
+
+    test "it should return an error when the password reset request is no longer valid", %{
+      user: user
+    } do
+      datetime_three_hours_ago = DateTime.utc_now() |> DateTime.add(-3, :hour)
+
+      password_reset_request =
+        password_reset_request_fixture(%{
+          "user_id" => user.id,
+          "inserted_at" => datetime_three_hours_ago
+        })
+
+      assert {:error, %ErrorMessage{code: :bad_request}} =
+               Accounts.confirm_password_reset_request(
+                 password_reset_request.code,
+                 "new_password"
+               )
     end
   end
 end

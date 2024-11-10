@@ -23,7 +23,7 @@ defmodule SwapifyApi.Accounts.PasswordResetRequest do
   def changeset(password_reset_request, attrs \\ %{}),
     do:
       password_reset_request
-      |> cast(attrs, [:user_id, :is_used])
+      |> cast(attrs, [:user_id, :is_used, :inserted_at])
       |> validate_required([:user_id])
 
   def create_changeset(password_reset_request, attrs \\ %{}) do
