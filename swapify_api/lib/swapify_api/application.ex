@@ -14,7 +14,7 @@ defmodule SwapifyApi.Application do
     OpentelemetryBandit.setup()
     OpentelemetryPhoenix.setup(adapter: :bandit)
     OpentelemetryEcto.setup([:swapify_api, :repo], db_statement: :enabled)
-    OpentelemetryOban.setup(trace: [:jobs])
+    # OpentelemetryOban.setup(trace: [:jobs])
 
     children = [
       SwapifyApiWeb.Telemetry,
