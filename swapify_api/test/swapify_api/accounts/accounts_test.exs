@@ -1,4 +1,4 @@
-defmodule SwapifyApi.SignInUserTest do
+defmodule SwapifyApi.AccountsTest do
   use SwapifyApi.DataCase
   alias SwapifyApi.Accounts.PlatformConnection
 
