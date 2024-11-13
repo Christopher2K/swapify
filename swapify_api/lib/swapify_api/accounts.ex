@@ -14,6 +14,7 @@ defmodule SwapifyApi.Accounts do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Spotify
   alias SwapifyApi.Oauth
+  alias SwapifyApi.Repo
 
   @create_or_update_integration_spotify_opts_def NimbleOptions.new!(
                                                    user_id: [type: :string, required: true],
@@ -305,25 +306,27 @@ defmodule SwapifyApi.Accounts do
   @spec confirm_password_reset_request(String.t(), String.t()) ::
           {:ok, User.t()} | {:error, ErrorMessage.t()}
   def confirm_password_reset_request(code, password) do
-    with {:ok, password_reset_request} <- PasswordResetRequestRepo.get_by_code(code),
-         {:is_valid, true} <- {:is_valid, PasswordResetRequest.is_valid?(password_reset_request)},
-         {:ok, user} <- UserRepo.update(password_reset_request.user, %{"password" => password}) do
-      case PasswordResetRequestRepo.mark_as_used(code) do
-        {1, _} ->
-          {:ok, user}
+    SwapifyApi.Repo.transaction(fn ->
+      with {:ok, password_reset_request} <- PasswordResetRequestRepo.get_by_code(code),
+           {:is_valid, true} <-
+             {:is_valid, PasswordResetRequest.is_valid?(password_reset_request)},
+           {:ok, user} <- UserRepo.update(password_reset_request.user, %{"password" => password}),
+           {1, _} <- PasswordResetRequestRepo.mark_as_used(code) do
+        user
+      else
+        {:is_valid, false} ->
+          ErrorMessage.bad_request("The password reset request is no longer valid.")
+          |> Repo.rollback()
+
+        {:error, %Ecto.Changeset{} = e} ->
+          Repo.rollback(e)
+
+        {:error, e} ->
+          Repo.rollback(e)
 
         error ->
-          error
+          Repo.rollback(error)
       end
-    else
-      {:is_valid, false} ->
-        {:error, ErrorMessage.bad_request("The password reset request is no longer valid.")}
-
-      {:error, %Ecto.Changeset{} = e} ->
-        {:error, e}
-
-      error ->
-        error
-    end
+    end)
   end
 end

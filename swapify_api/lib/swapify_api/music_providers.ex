@@ -7,8 +7,8 @@ defmodule SwapifyApi.MusicProviders do
   alias SwapifyApi.MusicProviders.Jobs.SyncLibraryJob
   alias SwapifyApi.MusicProviders.Jobs.SyncPlatformJob
   alias SwapifyApi.MusicProviders.PlaylistRepo
-  alias SwapifyApi.Tasks
   alias SwapifyApi.Tasks.JobRepo
+  alias SwapifyApi.Repo
 
   @doc """
   Mark a playlist transfer as failed
@@ -24,30 +24,43 @@ defmodule SwapifyApi.MusicProviders do
   @spec start_library_sync(String.t(), PlatformConnection.platform_name()) ::
           {:ok, Playlist.t()} | {:error, ErrorMessage.t()}
   def start_library_sync(user_id, platform_name) do
-    with {:ok, playlist} <- PlaylistRepo.get_user_library(user_id, platform_name),
-         {:ok, pc} <- PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name),
-         job_args <-
-           SyncLibraryJob.args(
-             playlist.id,
-             platform_name,
-             user_id,
-             pc.access_token,
-             pc.refresh_token
-           ),
-         {:ok, db_job} <-
-           JobRepo.create(%{
-             "name" => "sync_library",
-             "status" => :started,
-             "user_id" => user_id,
-             "oban_job_args" =>
-               Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }),
-         {:ok, _} <- PlaylistRepo.update_status(playlist.id, :syncing) do
-      Map.merge(job_args, %{"job_id" => db_job.id})
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:playlist, fn _, _changes ->
+      PlaylistRepo.get_user_library(user_id, platform_name)
+    end)
+    |> Ecto.Multi.run(:pc, fn _, _changes ->
+      PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name)
+    end)
+    |> Ecto.Multi.run(:job_args, fn _, %{playlist: playlist, pc: pc} ->
+      {:ok,
+       SyncLibraryJob.args(
+         playlist.id,
+         platform_name,
+         user_id,
+         pc.access_token,
+         pc.refresh_token
+       )}
+    end)
+    |> Ecto.Multi.run(:job, fn _, %{job_args: job_args} ->
+      JobRepo.create(%{
+        "name" => "sync_library",
+        "status" => :started,
+        "user_id" => user_id,
+        "oban_job_args" =>
+          Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
+      })
+    end)
+    |> Ecto.Multi.run(:oban, fn _, %{job: job, job_args: job_args} ->
+      Map.merge(job_args, %{"job_id" => job.id})
       |> SyncLibraryJob.new()
       |> Oban.insert()
-      |> Tasks.handle_oban_insertion_error(db_job)
-    end
+      |> SwapifyApi.Tasks.check_oban_insertion_result()
+    end)
+    |> Ecto.Multi.run(:result, fn _, %{job: job} ->
+      {:ok, job}
+    end)
+    |> Repo.transaction()
+    |> handle_transaction_result()
   end
 
   @doc """
@@ -56,22 +69,33 @@ defmodule SwapifyApi.MusicProviders do
   @spec start_platform_sync(String.t(), PlatformConnection.platform_name()) ::
           {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   def start_platform_sync(user_id, platform_name) do
-    with {:ok, pc} <- PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name),
-         job_args <-
-           SyncPlatformJob.args(platform_name, user_id, pc.access_token, pc.refresh_token, true),
-         {:ok, db_job} <-
-           JobRepo.create(%{
-             "name" => "sync_platform",
-             "status" => :started,
-             "user_id" => user_id,
-             "oban_job_args" =>
-               Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }) do
-      Map.merge(job_args, %{"job_id" => db_job.id})
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:pc, fn _, _changes ->
+      PlatformConnectionRepo.get_by_user_id_and_platform(user_id, platform_name)
+    end)
+    |> Ecto.Multi.run(:job_args, fn _, %{pc: pc} ->
+      {:ok, SyncPlatformJob.args(platform_name, user_id, pc.access_token, pc.refresh_token, true)}
+    end)
+    |> Ecto.Multi.run(:job, fn _, %{job_args: job_args} ->
+      JobRepo.create(%{
+        "name" => "sync_platform",
+        "status" => :started,
+        "user_id" => user_id,
+        "oban_job_args" =>
+          Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
+      })
+    end)
+    |> Ecto.Multi.run(:oban, fn _, %{job: job, job_args: job_args} ->
+      Map.merge(job_args, %{"job_id" => job.id})
       |> SyncPlatformJob.new()
       |> Oban.insert()
-      |> Tasks.handle_oban_insertion_error(db_job)
-    end
+      |> SwapifyApi.Tasks.check_oban_insertion_result()
+    end)
+    |> Ecto.Multi.run(:result, fn _, %{job: job} ->
+      {:ok, job}
+    end)
+    |> Repo.transaction()
+    |> handle_transaction_result()
   end
 
   @doc """
@@ -81,4 +105,8 @@ defmodule SwapifyApi.MusicProviders do
           {:ok, Playlist.t()} | {:error, Changeset.t()}
   def sync_playlist_metadata(platform_name, user_id, tracks_total),
     do: PlaylistRepo.create_or_update(platform_name, user_id, user_id, tracks_total)
+
+  defp handle_transaction_result({:ok, %{result: job}}), do: {:ok, job}
+  defp handle_transaction_result({:error, _, reason, _}), do: {:error, reason}
+  defp handle_transaction_result(error), do: error
 end

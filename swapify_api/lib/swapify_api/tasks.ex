@@ -14,11 +14,34 @@ defmodule SwapifyApi.Tasks do
   alias SwapifyApi.Tasks.TransferRepo
 
   @doc """
+  Handle Oban insertion errors
+  """
+  @spec check_oban_insertion_result(any()) :: {:ok, Oban.Job.t()} | {:error, ErrorMessage.t()}
+  def check_oban_insertion_result(result) do
+    case result do
+      {:ok, %{id: nil, conflict?: true}} ->
+        {:error, ErrorMessage.bad_request("Failed to start the operation. Please try again.")}
+
+      {:ok, %{conflict?: true}} ->
+        {:error, ErrorMessage.conflict("A similar operation is already in progress.")}
+
+      {:ok, oban_job} ->
+        {:ok, oban_job}
+
+      {:error, error} ->
+        {:error,
+         ErrorMessage.internal_server_error("A similar operation is already in progress.", %{
+           details: error
+         })}
+    end
+  end
+
+  @doc """
   Handle Oban insertion error when a domain job is involved
   """
   @spec handle_oban_insertion_error(any(), Job.t(), any()) ::
           {:ok, Job.t()} | {:error, ErrorMessage.t()}
-  def handle_oban_insertion_error(result, %Job{} = job, on_error \\ fn _ -> :ok end) do
+  def handle_oban_insertion_error(result, %Job{} = job, on_error \\ fn -> :ok end) do
     case result do
       {:ok, %{id: nil, conflict?: true}} ->
         JobRepo.update(job.id, %{
