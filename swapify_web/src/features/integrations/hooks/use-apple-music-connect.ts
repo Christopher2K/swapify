@@ -1,5 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 
+import { toaster } from "#root/components/toast";
+
 import { useIntegrationsQuery } from "./use-integrations-query";
 
 export function useAppleMusicConnect() {
@@ -18,11 +20,15 @@ export function useAppleMusicConnect() {
       if (event.data?.integration !== "applemusic") return;
       switch (event.data.eventType) {
         case "success":
-          console.debug("Apple Music success");
+          toaster.success({
+            description: "Connected to Apple Music",
+          });
 
           break;
         case "error":
-          console.debug("Apple Music error");
+          toaster.error({
+            description: "Failed to connect to Apple Music. Please try again.",
+          });
           break;
       }
       window.removeEventListener("message", handleMessage);

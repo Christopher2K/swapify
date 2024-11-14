@@ -19,17 +19,14 @@ export function useSpotifyConnect() {
       if (event.data?.integration !== "spotify") return;
       switch (event.data.eventType) {
         case "success":
-          toaster.create({
-            title: "Spotify connected",
-            type: "success",
+          toaster.success({
+            description: "Connected to Spotify.",
           });
 
           break;
         case "error":
-          toaster.create({
-            title: "Spotify connection failed",
-            description: event.data.message,
-            type: "error",
+          toaster.error({
+            description: "Failed to connect to Spotify. Please try again.",
           });
           break;
       }
