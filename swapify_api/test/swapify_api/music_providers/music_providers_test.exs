@@ -6,6 +6,7 @@ defmodule SwapifyApi.MusicProvidersTest do
 
   alias SwapifyApi.MusicProviders
   alias SwapifyApi.Tasks.Job
+  alias SwapifyApi.Repo
 
   describe "start_library_sync/2" do
     setup do
@@ -37,7 +38,8 @@ defmodule SwapifyApi.MusicProvidersTest do
 
     test "it should start a platforn sync job for a given user", %{
       user: user,
-      spotify_pc: spotify_pc
+      spotify_pc: spotify_pc,
+      spotify_library: spotify_library
     } do
       assert {:ok, %Job{} = job} = MusicProviders.start_library_sync(user.id, :spotify)
 
@@ -52,6 +54,8 @@ defmodule SwapifyApi.MusicProvidersTest do
           "user_id" => user.id
         }
       )
+
+      assert %{sync_status: :syncing} = Repo.reload!(spotify_library)
     end
 
     test "it should not start a platform sync twice", %{user: user} do

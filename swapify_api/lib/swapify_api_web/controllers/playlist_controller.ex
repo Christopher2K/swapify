@@ -33,9 +33,6 @@ defmodule SwapifyApiWeb.PlaylistController do
   def start_sync_library_job(conn, %{"platform_name" => platform_name}) do
     user_id = conn.assigns[:user_id]
 
-    # TODO: Check if a synchronization job is already running
-    # Since one `Job` is expected to contain multiple Oban.Job
-    # I need my own uniqueness job layer
     with {:ok, job} <- MusicProviders.start_library_sync(user_id, String.to_atom(platform_name)) do
       conn
       |> put_status(200)

@@ -50,6 +50,9 @@ defmodule SwapifyApi.MusicProviders do
           Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
       })
     end)
+    |> Ecto.Multi.run(:update_playlist, fn _, %{playlist: playlist} ->
+      PlaylistRepo.update_status(playlist.id, :syncing)
+    end)
     |> Ecto.Multi.run(:oban, fn _, %{job: job, job_args: job_args} ->
       Map.merge(job_args, %{"job_id" => job.id})
       |> SyncLibraryJob.new()
