@@ -37,15 +37,20 @@ export function PlatformButton({
           <PlatformButtonLoading loadingText={loadingLabel} />
         ) : undefined
       }
+      height="auto"
+      py="2"
       variant="outline"
     >
       <styled.span maxW="24px" width="full" height="auto" flexShrink={0}>
         {icon}
       </styled.span>
-      <Text textStyle="md">{label}</Text>
+      <Text textStyle="md" textWrap="wrap">
+        {label}
+      </Text>
       {isDone && (
         <CircleCheck
           className={css({
+            flexShrink: 0,
             stroke: "green",
           })}
         />
