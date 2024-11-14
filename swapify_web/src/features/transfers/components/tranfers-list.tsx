@@ -1,5 +1,8 @@
+import { Button } from "#root/components/ui/button";
+import { Text } from "#root/components/ui/text";
 import type { APITransfer } from "#root/services/api.types";
 import { VStack } from "#style/jsx";
+import { Link } from "@tanstack/react-router";
 import { TransferItem } from "./transfer-item";
 
 type TransfersListProps = {
@@ -17,6 +20,17 @@ export function TransfersList({
     : transfers;
 
   if (!displayedTransfers) return null;
+
+  if (displayedTransfers.length === 0) {
+    return (
+      <VStack width="100%" justifyContent="flex-start" alignItems="flex-start">
+        <Text>No transfers has been started yet!</Text>
+        <Button asChild>
+          <Link to="/">Go to dashboard</Link>
+        </Button>
+      </VStack>
+    );
+  }
 
   return (
     <VStack width="100%" gap="4" justifyContent="center" alignItems="center">

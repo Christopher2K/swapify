@@ -17,9 +17,9 @@ import { APIPlatformName } from "#root/services/api.types";
 import { css } from "#style/css";
 import { HStack, Stack, styled, VStack } from "#style/jsx";
 import { toaster } from "#root/components/toast";
+import { useStartLibrarySyncMutation } from "#root/features/job/hooks/use-start-library-sync-mutation";
 
 import { PlatformButton } from "./platform-button";
-import { useStartLibrarySyncMutation } from "#root/features/job/hooks/use-start-library-sync-mutation";
 
 export function Onboarding() {
   const { addJobUpdateEventListener } = useJobUpdateContext();
