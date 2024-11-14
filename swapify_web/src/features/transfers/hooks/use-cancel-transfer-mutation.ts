@@ -10,9 +10,7 @@ export function useCancelTransferMutation() {
     onSuccess: async () => {
       await queryClient.invalidateQueries();
     },
-    onError: (error) => {
-      handleApiError(error);
-    },
+    onError: handleApiError,
   });
 
   const cancelTransferAsync = useCallback(

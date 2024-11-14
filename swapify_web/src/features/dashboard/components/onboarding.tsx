@@ -13,12 +13,13 @@ import { onJobUpdate } from "#root/features/job/utils/on-job-update";
 import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { TransferForm } from "#root/features/transfers/components/transfer-form";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
-import { tsr } from "#root/services/api";
 import { APIPlatformName } from "#root/services/api.types";
 import { css } from "#style/css";
 import { HStack, Stack, styled, VStack } from "#style/jsx";
+import { toaster } from "#root/components/toast";
 
 import { PlatformButton } from "./platform-button";
+import { useStartLibrarySyncMutation } from "#root/features/job/hooks/use-start-library-sync-mutation";
 
 export function Onboarding() {
   const { addJobUpdateEventListener } = useJobUpdateContext();
@@ -192,7 +193,7 @@ const IntegrationStep = () => {
 const SynchronizationStep = () => {
   const { addJobUpdateEventListener } = useJobUpdateContext();
   const { libraries, refetch: refetchLibraries } = useLibrariesQuery();
-  const { mutateAsync: syncLibrary } = tsr.startSyncLibraryJob.useMutation({});
+  const { startLibrarySyncJobAsync } = useStartLibrarySyncMutation();
 
   const { isConnected: isAppleMusicConnected } = useAppleMusicConnect();
   const { isConnected: isSpotifyConnected } = useSpotifyConnect();
@@ -210,12 +211,12 @@ const SynchronizationStep = () => {
 
   async function handleSyncLibrary(platformName: APIPlatformName) {
     try {
-      await syncLibrary({ params: { platformName } });
+      await startLibrarySyncJobAsync({ params: { platformName } });
       await refetchLibraries();
-      // TODO: toast success
-    } catch (e) {
-      // TODO: error toast
-    }
+      toaster.success({
+        description: `Synchronizing ${getPlatformName(platformName)} library`,
+      });
+    } catch (_) {}
   }
 
   useEffect(

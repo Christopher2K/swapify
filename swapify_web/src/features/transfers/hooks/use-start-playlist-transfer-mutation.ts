@@ -8,9 +8,7 @@ export function useStartPlaylistTransferMutation() {
       onSuccess: async () => {
         await queryClient.invalidateQueries();
       },
-      onError: (error) => {
-        handleApiError(error);
-      },
+      onError: handleApiError,
     });
 
   return { startPlaylistTransferAsync, isPending };
