@@ -54,13 +54,13 @@ defmodule SwapifyApi.MusicProviders do
       Map.merge(job_args, %{"job_id" => job.id})
       |> SyncLibraryJob.new()
       |> Oban.insert()
-      |> SwapifyApi.Tasks.check_oban_insertion_result()
+      |> SwapifyApi.Utils.check_oban_insertion_result()
     end)
     |> Ecto.Multi.run(:result, fn _, %{job: job} ->
       {:ok, job}
     end)
     |> Repo.transaction()
-    |> handle_transaction_result()
+    |> SwapifyApi.Utils.handle_transaction_result()
   end
 
   @doc """
@@ -89,13 +89,13 @@ defmodule SwapifyApi.MusicProviders do
       Map.merge(job_args, %{"job_id" => job.id})
       |> SyncPlatformJob.new()
       |> Oban.insert()
-      |> SwapifyApi.Tasks.check_oban_insertion_result()
+      |> SwapifyApi.Utils.check_oban_insertion_result()
     end)
     |> Ecto.Multi.run(:result, fn _, %{job: job} ->
       {:ok, job}
     end)
     |> Repo.transaction()
-    |> handle_transaction_result()
+    |> SwapifyApi.Utils.handle_transaction_result()
   end
 
   @doc """
@@ -105,8 +105,4 @@ defmodule SwapifyApi.MusicProviders do
           {:ok, Playlist.t()} | {:error, Changeset.t()}
   def sync_playlist_metadata(platform_name, user_id, tracks_total),
     do: PlaylistRepo.create_or_update(platform_name, user_id, user_id, tracks_total)
-
-  defp handle_transaction_result({:ok, %{result: job}}), do: {:ok, job}
-  defp handle_transaction_result({:error, _, reason, _}), do: {:error, reason}
-  defp handle_transaction_result(error), do: error
 end

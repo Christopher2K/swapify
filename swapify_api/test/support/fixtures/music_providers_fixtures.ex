@@ -11,12 +11,12 @@ defmodule SwapifyApi.MusicProvidersFixtures do
     attrs =
       attrs
       |> Enum.into(%{
-        "user_id" => Faker.UUID.v4(),
-        "name" => Faker.Internet.user_name(),
-        "platform_name" => random_platform_name(),
-        "platform_id" => Faker.UUID.v4(),
-        "tracks_total" => 0,
-        "sync_status" => random_playlist_status()
+        user_id: Faker.UUID.v4(),
+        name:  Faker.Internet.user_name(),
+        platform_name: random_platform_name(),
+        platform_id: Faker.UUID.v4(),
+        tracks_total: 0,
+        sync_status: random_playlist_status()
       })
 
     {:ok, playlist} =

@@ -12,7 +12,7 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "create_or_update/3" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
+      playlist = playlist_fixture(%{user_id: user.id})
       {:ok, user: user, playlist: playlist}
     end
 
@@ -32,8 +32,8 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "add_matched_tracks/2" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
-      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      playlist = playlist_fixture(%{user_id: user.id})
+      transfer = transfer_fixture(%{user_id: user.id, source_playlist_id: playlist.id})
       {:ok, user: user, playlist: playlist, transfer: transfer}
     end
 
@@ -53,9 +53,9 @@ defmodule SwapifyApi.TransferRepoTest do
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "source_playlist_id" => playlist.id,
-          "matched_tracks" => matched_tracks
+          user_id: user.id,
+          source_playlist_id: playlist.id,
+          matched_tracks: matched_tracks
         })
 
       assert {:ok, _} = TransferRepo.add_matched_tracks(transfer.id, new_matched_tracks)
@@ -67,8 +67,8 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "add_not_found_tracks/2" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
-      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      playlist = playlist_fixture(%{user_id: user.id})
+      transfer = transfer_fixture(%{user_id: user.id, source_playlist_id: playlist.id})
       {:ok, user: user, playlist: playlist, transfer: transfer}
     end
 
@@ -84,17 +84,17 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "update/2" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
-      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      playlist = playlist_fixture(%{user_id: user.id})
+      transfer = transfer_fixture(%{user_id: user.id, source_playlist_id: playlist.id})
       {:ok, user: user, playlist: playlist, transfer: transfer}
     end
 
     test "it should update an existing transfer", %{transfer: transfer, user: user} do
-      %{id: job_id} = job_fixture(%{"user_id" => user.id})
+      %{id: job_id} = job_fixture(%{user_id: user.id})
 
       assert {:ok, %Transfer{matching_step_job_id: ^job_id}} =
                TransferRepo.update(transfer, %{
-                 "matching_step_job_id" => job_id
+                 matching_step_job_id: job_id
                })
     end
   end
@@ -102,7 +102,7 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "get_tranfer_by_step_and_id/2" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
+      playlist = playlist_fixture(%{user_id: user.id})
       {:ok, user: user, playlist: playlist}
     end
 
@@ -110,13 +110,13 @@ defmodule SwapifyApi.TransferRepoTest do
       user: user,
       playlist: playlist
     } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      matching_job = job_fixture(%{user_id: user.id, status: "done"})
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "source_playlist_id" => playlist.id
+          user_id: user.id,
+          matching_step_job_id: matching_job.id,
+          source_playlist_id: playlist.id
         })
 
       transfer_id = transfer.id
@@ -130,13 +130,13 @@ defmodule SwapifyApi.TransferRepoTest do
            user: user,
            playlist: playlist
          } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
+      matching_job = job_fixture(%{user_id: user.id, status: "started"})
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "source_playlist_id" => playlist.id
+          user_id: user.id,
+          matching_step_job_id: matching_job.id,
+          source_playlist_id: playlist.id
         })
 
       transfer_id = transfer.id
@@ -150,15 +150,15 @@ defmodule SwapifyApi.TransferRepoTest do
            user: user,
            playlist: playlist
          } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      matching_job = job_fixture(%{user_id: user.id, status: "done"})
+      transfer_job = job_fixture(%{user_id: user.id, status: "done"})
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "transfer_step_job_id" => transfer_job.id,
-          "source_playlist_id" => playlist.id
+          user_id: user.id,
+          matching_step_job_id: matching_job.id,
+          transfer_step_job_id: transfer_job.id,
+          source_playlist_id: playlist.id
         })
 
       transfer_id = transfer.id
@@ -172,15 +172,15 @@ defmodule SwapifyApi.TransferRepoTest do
            user: user,
            playlist: playlist
          } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "started"})
+      matching_job = job_fixture(%{user_id: user.id, status: "done"})
+      transfer_job = job_fixture(%{user_id: user.id, status: "started"})
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "transfer_step_job_id" => transfer_job.id,
-          "source_playlist_id" => playlist.id
+          user_id: user.id,
+          matching_step_job_id: matching_job.id,
+          transfer_step_job_id: transfer_job.id,
+          source_playlist_id: playlist.id
         })
 
       transfer_id = transfer.id
@@ -193,15 +193,15 @@ defmodule SwapifyApi.TransferRepoTest do
       user: user,
       playlist: playlist
     } do
-      matching_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
-      transfer_job = job_fixture(%{"user_id" => user.id, "status" => "done"})
+      matching_job = job_fixture(%{user_id: user.id, status: "done"})
+      transfer_job = job_fixture(%{user_id: user.id, status: "done"})
 
       transfer =
         transfer_fixture(%{
-          "user_id" => user.id,
-          "matching_step_job_id" => matching_job.id,
-          "transfer_step_job_id" => transfer_job.id,
-          "source_playlist_id" => playlist.id
+          user_id: user.id,
+          matching_step_job_id: matching_job.id,
+          transfer_step_job_id: transfer_job.id,
+          source_playlist_id: playlist.id
         })
 
       {:ok, transfer} =
@@ -216,8 +216,8 @@ defmodule SwapifyApi.TransferRepoTest do
   describe "get_transfer_infos/1" do
     setup do
       user = user_fixture()
-      playlist = playlist_fixture(%{"user_id" => user.id})
-      transfer = transfer_fixture(%{"user_id" => user.id, "source_playlist_id" => playlist.id})
+      playlist = playlist_fixture(%{user_id: user.id})
+      transfer = transfer_fixture(%{user_id: user.id, source_playlist_id: playlist.id})
       {:ok, user: user, playlist: playlist, transfer: transfer}
     end
 

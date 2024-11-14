@@ -10,7 +10,7 @@ defmodule SwapifyApi.TasksFixtures do
     attrs =
       attrs
       |> Enum.into(%{
-        "destination" => random_platform_name()
+        destination: random_platform_name()
       })
 
     {:ok, transfer} =
@@ -42,9 +42,9 @@ defmodule SwapifyApi.TasksFixtures do
     attrs =
       attrs
       |> Enum.into(%{
-        "name" => Faker.Lorem.word(),
-        "status" => random_job_status(),
-        "oban_job_args" => %{}
+        name: Faker.Lorem.word(),
+        status: random_job_status(),
+        oban_job_args: %{}
       })
 
     {:ok, job} =

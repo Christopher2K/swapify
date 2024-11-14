@@ -38,7 +38,11 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
 
   use Oban.Worker,
     queue: :search_tracks,
-    max_attempts: 6
+    max_attempts: 6,
+    unique: [
+      keys: [:user_id, :playlist_id, :offset, :access_token],
+      states: [:available, :scheduled, :executing, :retryable]
+    ]
 
   use TaskEventHandler, job_module: Utils.get_module_name(__MODULE__)
 

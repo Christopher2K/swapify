@@ -35,4 +35,36 @@ defmodule SwapifyApi.Utils do
   end
 
   def get_app_url("/" <> _path = path), do: Application.fetch_env!(:swapify_api, :app_url) <> path
+
+  @doc """
+  Handle Oban insertion errors
+  """
+  @spec check_oban_insertion_result(any()) :: {:ok, Oban.Job.t()} | {:error, ErrorMessage.t()}
+  def check_oban_insertion_result(result) do
+    case result do
+      {:ok, %{id: nil, conflict?: true}} ->
+        {:error, ErrorMessage.bad_request("Failed to start the operation. Please try again.")}
+
+      {:ok, %{conflict?: true}} ->
+        {:error, ErrorMessage.conflict("A similar operation is already in progress.")}
+
+      {:ok, oban_job} ->
+        {:ok, oban_job}
+
+      {:error, error} ->
+        {:error,
+         ErrorMessage.internal_server_error("A similar operation is already in progress.", %{
+           details: error
+         })}
+    end
+  end
+
+  @doc """
+  Flatten results after a Ecto.Multi transaction
+  """
+  @spec handle_transaction_result({:ok, map()} | {:error, any(), any(), any()}) ::
+          {:ok, any()} | {:error, ErrorMessage.t()}
+  def handle_transaction_result({:ok, %{result: result}}), do: {:ok, result}
+  def handle_transaction_result({:error, _, reason, _}), do: {:error, reason}
+  def handle_transaction_result(error), do: error
 end

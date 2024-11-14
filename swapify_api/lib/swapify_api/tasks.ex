@@ -13,71 +13,6 @@ defmodule SwapifyApi.Tasks do
   alias SwapifyApi.Tasks.Transfer
   alias SwapifyApi.Tasks.TransferRepo
 
-  @doc """
-  Handle Oban insertion errors
-  """
-  @spec check_oban_insertion_result(any()) :: {:ok, Oban.Job.t()} | {:error, ErrorMessage.t()}
-  def check_oban_insertion_result(result) do
-    case result do
-      {:ok, %{id: nil, conflict?: true}} ->
-        {:error, ErrorMessage.bad_request("Failed to start the operation. Please try again.")}
-
-      {:ok, %{conflict?: true}} ->
-        {:error, ErrorMessage.conflict("A similar operation is already in progress.")}
-
-      {:ok, oban_job} ->
-        {:ok, oban_job}
-
-      {:error, error} ->
-        {:error,
-         ErrorMessage.internal_server_error("A similar operation is already in progress.", %{
-           details: error
-         })}
-    end
-  end
-
-  @doc """
-  Handle Oban insertion error when a domain job is involved
-  """
-  @spec handle_oban_insertion_error(any(), Job.t(), any()) ::
-          {:ok, Job.t()} | {:error, ErrorMessage.t()}
-  def handle_oban_insertion_error(result, %Job{} = job, on_error \\ fn -> :ok end) do
-    case result do
-      {:ok, %{id: nil, conflict?: true}} ->
-        JobRepo.update(job.id, %{
-          "status" => :error
-        })
-
-        on_error.()
-
-        {:error, ErrorMessage.bad_request("Failed to start the operation. Please try again.")}
-
-      {:ok, %{conflict?: true}} ->
-        JobRepo.update(job.id, %{
-          "status" => :error
-        })
-
-        on_error.()
-
-        {:error, ErrorMessage.conflict("A similar operation is already in progress.")}
-
-      {:ok, _} ->
-        {:ok, job}
-
-      {:error, error} ->
-        JobRepo.update(job.id, %{
-          "status" => :error
-        })
-
-        on_error.()
-
-        {:error,
-         ErrorMessage.internal_server_error("A similar operation is already in progress.", %{
-           details: error
-         })}
-    end
-  end
-
   @doc "Update a job status and timestamps if needed"
   @spec update_job_status(String.t(), Job.job_status()) ::
           {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
@@ -101,108 +36,130 @@ defmodule SwapifyApi.Tasks do
   def update_job_status(job_id, new_status),
     do: JobRepo.update(job_id, %{"status" => new_status})
 
-  @spec start_find_playlist_tracks(
-          String.t(),
-          PlatformConnection.platform_name(),
-          String.t(),
-          String.t()
-        ) ::
-          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
-  defp start_find_playlist_tracks(user_id, target_platform, playlist_id, transfer_id) do
-    with {:ok, pc} <-
-           PlatformConnectionRepo.get_by_user_id_and_platform(user_id, target_platform),
-         job_args <-
-           FindPlaylistTracksJob.args(
-             playlist_id,
-             target_platform,
-             transfer_id,
-             user_id,
-             pc.access_token,
-             pc.refresh_token
-           ),
-         {:ok, db_job} <-
-           JobRepo.create(%{
-             "name" => "search_tracks",
-             "status" => :started,
-             "user_id" => user_id,
-             "oban_job_args" =>
-               Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }) do
-      Map.merge(job_args, %{"job_id" => db_job.id})
-      |> FindPlaylistTracksJob.new()
-      |> Oban.insert()
-      |> handle_oban_insertion_error(db_job)
-    end
-  end
-
   @doc """
   Start a playlist transfer first step: matching job
+  Returns a map %{transfer: Transfer.t(), job: Job.t()}
   """
   @spec start_playlist_transfer_matching_step(
           String.t(),
           String.t(),
           PlatformConnection.platform_name()
         ) ::
-          {:ok, Transfer.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, map()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
   def start_playlist_transfer_matching_step(
         user_id,
         playlist_id,
         destination
       ) do
-    with {:ok, playlist} <- PlaylistRepo.get_by_id(playlist_id),
-         {:ok, transfer} <-
-           TransferRepo.create(%{
-             "source_playlist_id" => playlist.id,
-             "destination" => destination,
-             "user_id" => user_id
-           }),
-         {:ok, job} <- start_find_playlist_tracks(user_id, destination, playlist.id, transfer.id),
-         {:ok, transfer} <- TransferRepo.update(transfer, %{"matching_step_job_id" => job.id}) do
-      {:ok, Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist])}
-    end
-  end
-
-  defp start_transfer_playlist_tracks(user_id, transfer) do
-    with {:ok, pc} <-
-           PlatformConnectionRepo.get_by_user_id_and_platform(user_id, transfer.destination),
-         job_args <-
-           TransferTracksJob.args(
-             user_id,
-             transfer.id,
-             transfer.destination,
-             user_id == transfer.source_playlist.platform_id,
-             pc.access_token,
-             pc.refresh_token
-           ),
-         {:ok, db_job} <-
-           JobRepo.create(%{
-             "name" => "transfer_tracks",
-             "status" => :started,
-             "user_id" => user_id,
-             "oban_job_args" =>
-               Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
-           }) do
-      Map.merge(job_args, %{"job_id" => db_job.id})
-      |> TransferTracksJob.new()
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:playlist, fn _, _ -> PlaylistRepo.get_by_id(playlist_id) end)
+    |> Ecto.Multi.run(:pc, fn _, _ ->
+      PlatformConnectionRepo.get_by_user_id_and_platform(user_id, destination)
+    end)
+    |> Ecto.Multi.run(:transfer, fn _, %{playlist: playlist} ->
+      TransferRepo.create(%{
+        "source_playlist_id" => playlist.id,
+        "destination" => destination,
+        "user_id" => user_id
+      })
+    end)
+    |> Ecto.Multi.run(:job_args, fn _, %{transfer: transfer, pc: pc, playlist: playlist} ->
+      {:ok,
+       FindPlaylistTracksJob.args(
+         playlist.id,
+         destination,
+         transfer.id,
+         user_id,
+         pc.access_token,
+         pc.refresh_token
+       )}
+    end)
+    |> Ecto.Multi.run(:job, fn _, %{job_args: job_args} ->
+      JobRepo.create(%{
+        "name" => "search_tracks",
+        "status" => :started,
+        "user_id" => user_id,
+        "oban_job_args" =>
+          Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
+      })
+    end)
+    |> Ecto.Multi.run(:transfer_update, fn _, %{transfer: transfer, job: job} ->
+      TransferRepo.update(transfer, %{"matching_step_job_id" => job.id})
+    end)
+    |> Ecto.Multi.run(:oban, fn _, %{job: job, job_args: job_args} ->
+      Map.merge(job_args, %{"job_id" => job.id})
+      |> FindPlaylistTracksJob.new()
       |> Oban.insert()
-      |> handle_oban_insertion_error(db_job)
-    end
+      |> SwapifyApi.Utils.check_oban_insertion_result()
+    end)
+    |> Ecto.Multi.run(:result, fn _, %{job: job, transfer_update: transfer} ->
+      {:ok,
+       %{
+         transfer:
+           Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist]),
+         job: job
+       }}
+    end)
+    |> Repo.transaction()
+    |> SwapifyApi.Utils.handle_transaction_result()
   end
 
   @doc """
   Start a playlist transfer transfer step: transfer job
   """
   @spec start_playlist_transfer_transfer_step(String.t(), String.t()) ::
-          {:ok, Job.t()} | {:error, ErrorMessage.t()} | {:error, Ecto.Changeset.t()}
+          {:ok, %{transfer: Transfer, job: Job.t()}}
+          | {:error, ErrorMessage.t()}
+          | {:error, Ecto.Changeset.t()}
   def start_playlist_transfer_transfer_step(user_id, transfer_id) do
-    with {:ok, transfer} <-
-           TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching,
-             includes: [:source_playlist]
-           ),
-         {:ok, db_job} <- start_transfer_playlist_tracks(user_id, transfer),
-         {:ok, _} <- TransferRepo.update(transfer, %{"transfer_step_job_id" => db_job.id}) do
-      {:ok, Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist])}
-    end
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:transfer, fn _, _ ->
+      TransferRepo.get_transfer_by_step_and_id(transfer_id, :matching,
+        includes: [:source_playlist]
+      )
+    end)
+    |> Ecto.Multi.run(:pc, fn _, %{transfer: transfer} ->
+      PlatformConnectionRepo.get_by_user_id_and_platform(user_id, transfer.destination)
+    end)
+    |> Ecto.Multi.run(:job_args, fn _, %{transfer: transfer, pc: pc} ->
+      {:ok,
+       TransferTracksJob.args(
+         user_id,
+         transfer.id,
+         transfer.destination,
+         user_id == transfer.source_playlist.platform_id,
+         pc.access_token,
+         pc.refresh_token
+       )}
+    end)
+    |> Ecto.Multi.run(:job, fn _, %{job_args: job_args} ->
+      JobRepo.create(%{
+        "name" => "transfer_tracks",
+        "status" => :started,
+        "user_id" => user_id,
+        "oban_job_args" =>
+          Map.split(job_args, ["access_token", "refresh_token"]) |> Kernel.elem(1)
+      })
+    end)
+    |> Ecto.Multi.run(:transfer_update, fn _, %{job: job, transfer: transfer} ->
+      TransferRepo.update(transfer, %{"transfer_step_job_id" => job.id})
+    end)
+    |> Ecto.Multi.run(:oban, fn _, %{job_args: job_args, job: job} ->
+      Map.merge(job_args, %{"job_id" => job.id})
+      |> TransferTracksJob.new()
+      |> Oban.insert()
+      |> SwapifyApi.Utils.check_oban_insertion_result()
+    end)
+    |> Ecto.Multi.run(:result, fn _, %{job: job, transfer_update: transfer} ->
+      {:ok,
+       %{
+         transfer:
+           Repo.preload(transfer, [:matching_step_job, :transfer_step_job, :source_playlist]),
+         job: job
+       }}
+    end)
+    |> Repo.transaction()
+    |> SwapifyApi.Utils.handle_transaction_result()
   end
 
   @doc "List all transfers for a given user"
@@ -222,8 +179,6 @@ defmodule SwapifyApi.Tasks do
   @spec cancel_transfer(String.t(), String.t()) ::
           {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()} | {:error, ErrorMessage.t()}
   def cancel_transfer(user_id, transfer_id) do
-    # 2. Check for domain invariants
-    # 3. If possible, cancel the transfer
     with {:ok, transfer} <- TransferRepo.get_user_transfer_by_id(user_id, transfer_id) do
       if Transfer.can_be_cancelled?(transfer) do
         with {:ok, _} <- update_job_status(transfer.matching_step_job_id, :canceled) do

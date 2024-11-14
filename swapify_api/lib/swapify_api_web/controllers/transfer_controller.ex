@@ -36,7 +36,8 @@ defmodule SwapifyApiWeb.TransferController do
       }) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, transfer} <- Tasks.start_playlist_transfer_transfer_step(user_id, transfer_id) do
+    with {:ok, %{transfer: transfer}} <-
+           Tasks.start_playlist_transfer_transfer_step(user_id, transfer_id) do
       conn
       |> put_status(200)
       |> render(:show, transfer: transfer)

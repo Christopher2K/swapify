@@ -15,16 +15,16 @@ defmodule SwapifyApi.MusicProvidersTest do
 
       spotify_library =
         playlist_fixture(%{
-          "user_id" => user.id,
-          "platform_name" => :spotify,
-          "platform_id" => user.id
+          user_id: user.id,
+          platform_name: :spotify,
+          platform_id: user.id
         })
 
       am_library =
         playlist_fixture(%{
-          "user_id" => user.id,
-          "platform_name" => :applemusic,
-          "platform_id" => user.id
+          user_id: user.id,
+          platform_name: :applemusic,
+          platform_id: user.id
         })
 
       {:ok,
