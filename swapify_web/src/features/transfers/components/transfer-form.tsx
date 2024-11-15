@@ -42,6 +42,7 @@ export const TransferForm = ({ onSuccess, onError }: TransferFormProps) => {
   const values = form.watch();
   const { libraries = [] } = useLibrariesQuery({
     status: ["synced", "error"],
+    refetchOnMount: true,
   });
   const { integrations = [] } = useIntegrationsQuery();
   const { startPlaylistTransferAsync, isPending } =

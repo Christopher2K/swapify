@@ -9,9 +9,12 @@ export const QUERY_KEY = "libraries";
 export function useLibrariesQuery({
   platformName,
   status,
+  // This should not be exposed. It should be replaced by the invalidation mechanism
+  refetchOnMount,
 }: {
   platformName?: APIPlatformName;
   status?: APIPlaylistSyncStatus[];
+  refetchOnMount?: boolean;
 } = {}) {
   const { data, isError, isLoading, refetch } =
     tsr.searchUserLibraries.useQuery({
@@ -21,7 +24,7 @@ export function useLibrariesQuery({
           status,
         },
       },
-      refetchOnMount: false,
+      refetchOnMount,
       retry: 0,
       queryKey: [QUERY_KEY, platformName, status],
     });
