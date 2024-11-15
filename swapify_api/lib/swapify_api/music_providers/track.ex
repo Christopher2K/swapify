@@ -2,18 +2,23 @@ defmodule SwapifyApi.MusicProviders.Track do
   @moduledoc "Business representation of a track"
   @derive Jason.Encoder
 
-  use SwapifyApi.Schema
+  use Ecto.Schema
+
+  import Ecto.Changeset
 
   @type t :: %__MODULE__{
           isrc: String.t() | nil,
+          href: String.t() | nil,
           name: String.t(),
           artists: list(String.t()),
           # Apparently, Apple Music, sometimes, doesn't return the album name
           album: String.t() | nil
         }
 
+  @primary_key false
   embedded_schema do
     field :isrc, :string, default: nil
+    field :href, :string, default: nil
     field :name, :string
     field :album, :string
     field :artists, {:array, :string}
@@ -22,7 +27,7 @@ defmodule SwapifyApi.MusicProviders.Track do
   @doc "Default changeset"
   def changeset(track, attrs) do
     track
-    |> cast(attrs, [:isrc, :name, :album, :artists])
+    |> cast(attrs, [:isrc, :name, :album, :artists, :href])
     |> validate_required([:name, :artists])
   end
 
@@ -33,7 +38,8 @@ defmodule SwapifyApi.MusicProviders.Track do
       album: track["album"]["name"],
       artists: track["artists"] |> Enum.map(fn artist -> artist["name"] end),
       isrc: track["external_ids"]["isrc"],
-      name: track["name"]
+      name: track["name"],
+      href: track["external_urls"]["spotify"]
     }
 
   @doc "Convert a Apple Music track to a business representation"
@@ -41,7 +47,7 @@ defmodule SwapifyApi.MusicProviders.Track do
   def from_apple_music_track(track) do
     catalog_track =
       if length(track["relationships"]["catalog"]["data"]) > 0 do
-        track["relationships"]["catalog"]["data"] |> List.first() |> Map.get("attributes")
+        track["relationships"]["catalog"]["data"] |> List.first()
       else
         %{}
       end
@@ -52,7 +58,8 @@ defmodule SwapifyApi.MusicProviders.Track do
         track["attributes"]["artistName"]
       ],
       name: track["attributes"]["name"],
-      isrc: catalog_track |> Map.get("isrc", nil)
+      isrc: catalog_track["attributes"]["isrc"],
+      href: catalog_track["href"]
     }
   end
 
