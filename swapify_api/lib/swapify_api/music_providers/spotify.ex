@@ -79,7 +79,8 @@ defmodule SwapifyApi.MusicProviders.Spotify do
       {"response_type", "code"},
       {"redirect_uri", get_redirect_uri()},
       {"scope", @authentication_scope},
-      {"state", state}
+      {"state", state},
+      {"show_dialog", "true"}
     ]
 
     uri = URI.parse(@account_url <> "/authorize")
