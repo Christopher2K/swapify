@@ -43,6 +43,7 @@ defmodule SwapifyApiWeb do
 
       import Plug.Conn
       import SwapifyApiWeb.Gettext
+      import SwapifyApi.RateLimiter
 
       action_fallback SwapifyApiWeb.FallbackController
 

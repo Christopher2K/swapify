@@ -6,15 +6,22 @@ defmodule SwapifyApi.Application do
 
   require Logger
   require TaskEventHandler
+  require Config
 
   use Application
 
   @impl true
   def start(_type, _args) do
+    # OpenTelemetry setup
     OpentelemetryBandit.setup()
     OpentelemetryPhoenix.setup(adapter: :bandit)
     OpentelemetryEcto.setup([:swapify_api, :repo], db_statement: :enabled)
     # OpentelemetryOban.setup(trace: [:jobs])
+
+    # Rate limiting storage setup
+    if Config.config_env() == :prod do
+      Hammer.Backend.Mnesia.create_mnesia_table()
+    end
 
     children = [
       SwapifyApiWeb.Telemetry,

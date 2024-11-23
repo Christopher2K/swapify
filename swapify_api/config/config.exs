@@ -48,6 +48,11 @@ config :phoenix, :json_library, Jason
 
 config :o11y, :attribute_namespace, "swapify.app"
 
+config :hammer,
+  # Expiry: 4 hours
+  # Cleanup: Every 10 minutes
+  backend: {Hammer.Backend.Mnesia, [expiry_ms: 60_000 * 60 * 4, cleanup_interval_ms: 60_000 * 10]}
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

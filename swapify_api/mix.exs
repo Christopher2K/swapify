@@ -41,6 +41,7 @@ defmodule SwapifyApi.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      # {:opentelemetry_oban, "~> 1.1.1"},
       {:argon2_elixir, "~> 4.0"},
       {:bandit, "~> 1.2"},
       {:cors_plug, "~> 3.0"},
@@ -51,6 +52,9 @@ defmodule SwapifyApi.MixProject do
       {:faker, "~> 0.18", only: :test},
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
+      {:hammer, "~> 6.2.1"},
+      {:hammer_backend_mnesia, "~> 0.6"},
+      {:hammer_plug, "~> 3.0"},
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
@@ -63,7 +67,6 @@ defmodule SwapifyApi.MixProject do
       {:opentelemetry_bandit, "~> 0.2.0-rc.2"},
       {:opentelemetry_ecto, "~> 1.2.0"},
       {:opentelemetry_exporter, "~> 1.8.0"},
-      # {:opentelemetry_oban, "~> 1.1.1"},
       {:opentelemetry_phoenix, "~> 2.0.0-rc.1"},
       {:phoenix, "~> 1.7.11"},
       {:phoenix_ecto, "~> 4.4"},
