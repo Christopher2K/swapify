@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-neutral-50">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <title>Swapify Admin</title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="antialiased min-h-[100vh] relative">
+    <%= @inner_content %>
+  </body>
+</html>

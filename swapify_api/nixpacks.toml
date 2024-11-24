@@ -18,7 +18,8 @@ cmds = [
 [phases.build]
 cmds = [
   'mix compile',
-  'mix release',
+  'mix assets.deploy',
+  'mix release'
 ]
 
 [start]

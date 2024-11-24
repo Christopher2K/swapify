@@ -7,10 +7,12 @@ defmodule SwapifyApi.Plugs.Authenticated do
 
   import Plug.Conn
 
-  def init(default), do: default
+  def init(nil), do: [roles: [:beta, :user, :admin]]
+  def init([]), do: [roles: [:beta, :user, :admin]]
+  def init(opts), do: opts
 
-  def call(%Plug.Conn{} = conn, _) do
-    Tracer.set_attribute("user.id", "something")
+  def call(%Plug.Conn{} = conn, opts) do
+    roles = Keyword.get(opts, :roles) |> Enum.map(&Atom.to_string/1)
 
     case get_session(conn, :access_token) do
       nil ->
@@ -18,16 +20,17 @@ defmodule SwapifyApi.Plugs.Authenticated do
         halt_request(conn)
 
       access_token ->
-        case Token.verify_and_validate(access_token) do
-          {:ok, %{"user_id" => user_id, "user_email" => user_email}} ->
-            Tracer.set_attribute("user.id", user_id)
+        with {:ok, %{"user_id" => user_id, "user_email" => user_email, "user_role" => user_role}} <-
+               Token.verify_and_validate(access_token),
+             true <- user_role in roles do
+          Tracer.set_attribute("user.id", user_id)
 
-            conn
-            |> assign(:user_id, user_id)
-            |> assign(:user_email, user_email)
-
-          _ ->
-            halt_request(conn)
+          conn
+          |> assign(:user_id, user_id)
+          |> assign(:user_email, user_email)
+          |> assign(:user_role, user_role)
+        else
+          _ -> halt_request(conn)
         end
     end
   end

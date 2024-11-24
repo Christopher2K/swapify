@@ -119,13 +119,15 @@ defmodule SwapifyApi.Accounts do
         "iat" => now,
         "exp" => now + @access_token_validity,
         "user_id" => user.id,
-        "user_email" => user.email
+        "user_email" => user.email,
+        "user_role" => user.role
       },
       "refresh" => %{
         "iat" => now,
         "exp" => now + @refresh_token_validity,
         "user_id" => user.id,
-        "user_email" => user.email
+        "user_email" => user.email,
+        "user_role" => user.role
       }
     }
 

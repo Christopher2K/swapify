@@ -6,7 +6,6 @@ defmodule SwapifyApi.Application do
 
   require Logger
   require TaskEventHandler
-  require Config
 
   use Application
 
@@ -19,9 +18,9 @@ defmodule SwapifyApi.Application do
     # OpentelemetryOban.setup(trace: [:jobs])
 
     # Rate limiting storage setup
-    if Config.config_env() == :prod do
-      Hammer.Backend.Mnesia.create_mnesia_table()
-    end
+    # if Config.config_env() == :prod do
+    #   Hammer.Backend.Mnesia.create_mnesia_table()
+    # end
 
     children = [
       SwapifyApiWeb.Telemetry,

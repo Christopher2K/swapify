@@ -12,8 +12,35 @@ defmodule SwapifyApiWeb.Router do
     plug SwapifyApi.Plugs.Authenticated
   end
 
+  pipeline :admin do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :put_root_layout, html: {SwapifyApiWeb.Layouts, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug :fetch_flash
+  end
+
+  pipeline :admin_protected do
+    plug SwapifyApi.Plugs.Authenticated, roles: [:admin]
+  end
+
+  scope "/admin", SwapifyApiWeb do
+    pipe_through :admin
+
+    get "/signin", AdminAuthController, :sign_in
+    post "/signin", AdminAuthController, :sign_in_form
+    get "/signout", AdminAuthController, :sign_out
+  end
+
+  scope "/admin", SwapifyApiWeb do
+    pipe_through [:admin, :admin_protected]
+    get "/", AdminDashboardController, :index
+  end
+
   scope "/api/auth", SwapifyApiWeb do
     pipe_through :api
+
     post "/signup", AuthController, :sign_up
     post "/signin", AuthController, :sign_in
     get "/signout", AuthController, :sign_out

@@ -53,6 +53,25 @@ config :hammer,
   # Cleanup: Every 10 minutes
   backend: {Hammer.Backend.Mnesia, [expiry_ms: 60_000 * 60 * 4, cleanup_interval_ms: 60_000 * 10]}
 
+config :esbuild,
+  version: "0.23.0",
+  default: [
+    args: ~w(js/app.ts --bundle --target=es2017 --outdir=../priv/static/assets),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
+
+config :tailwind,
+  version: "3.3.2",
+  default: [
+    args: ~w(
+      --config=js/tailwind.config.js
+      --input=js/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

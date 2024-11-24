@@ -49,6 +49,7 @@ defmodule SwapifyApi.MixProject do
       {:ecto_identifier, "~> 0.2.0"},
       {:ecto_sql, "~> 3.10"},
       {:error_message, "~> 0.2.0"},
+      {:esbuild, "~> 0.8.2"},
       {:faker, "~> 0.18", only: :test},
       {:finch, "~> 0.13"},
       {:gettext, "~> 0.20"},
@@ -58,6 +59,7 @@ defmodule SwapifyApi.MixProject do
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
+      {:lucide_live_view, "~> 0.1.1"},
       {:mjml, "~> 4.0"},
       {:nimble_options, "~> 1.0"},
       {:oban, "~> 2.17"},
@@ -75,6 +77,7 @@ defmodule SwapifyApi.MixProject do
       {:recase, "~> 0.8.1"},
       {:req, "~> 0.5.0"},
       {:swoosh, "~> 1.5"},
+      {:tailwind, "~> 0.2.4"},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"}
     ]
@@ -88,9 +91,12 @@ defmodule SwapifyApi.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "assets.setup", "assets.build", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
+      "assets.build": ["esbuild default", "tailwind default"],
+      "assets.deploy": ["esbuild default --minify", "tailwind default --minify", "phx.digest"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
