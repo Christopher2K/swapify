@@ -13,7 +13,7 @@ defmodule SwapifyApiWeb.Forms do
     </div>
     """
 
-  attr :rest, :global
+  attr :rest, :global, include: ~w(name)
   attr :type, :string, default: "text", values: ["text", "password", "email"]
 
   def text_input(assigns),

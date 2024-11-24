@@ -19,7 +19,7 @@ defmodule SwapifyApi.Accounts.User do
     field :email, :string
     field :password, :string
     field :username, :string
-    field :role, Ecto.Enum, values: [:beta, :user, :admin]
+    field :role, Ecto.Enum, values: [:beta, :user, :admin], default: :user
     has_many :platform_connections, PlatformConnection
 
     timestamps(type: :utc_datetime)

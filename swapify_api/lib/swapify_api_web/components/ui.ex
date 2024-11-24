@@ -16,7 +16,7 @@ defmodule SwapifyApiWeb.UI do
   attr :size, :string, values: ["sm", "md"], default: "md"
   attr :full_width, :boolean, default: false
   attr :as, :string, values: ["button", "a"], default: "button"
-  attr :rest, :global
+  attr :rest, :global, include: ~w(href)
 
   def button(assigns),
     do: ~H"""
