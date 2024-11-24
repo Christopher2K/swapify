@@ -30,17 +30,16 @@ defmodule SwapifyApi.Plugs.Authenticated do
           |> assign(:user_email, user_email)
           |> assign(:user_role, user_role)
         else
-          _ -> halt_request(conn)
+          _ ->
+            halt_request(conn)
         end
     end
   end
 
-  defp halt_request(conn) do
-    %{code: code} = error = ErrorMessage.unauthorized("Unauthorized")
-
-    conn
-    |> put_status(code)
-    |> Phoenix.Controller.json(ErrorMessage.to_jsonable_map(error))
-    |> halt()
-  end
+  defp halt_request(conn),
+    do:
+      SwapifyApiWeb.FallbackController.call(
+        conn,
+        {:error, ErrorMessage.unauthorized("Unauthorized")}
+      )
 end

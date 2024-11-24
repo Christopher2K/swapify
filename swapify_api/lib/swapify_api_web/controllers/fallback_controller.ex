@@ -35,10 +35,13 @@ defmodule SwapifyApiWeb.FallbackController do
   def call(conn, {:error, %ErrorMessage{code: code} = e}) do
     conn
     |> put_status(code)
-    |> json(ErrorMessage.to_jsonable_map(e))
+    |> put_layout(html: {SwapifyApiWeb.Layouts, :error})
+    |> put_view(json: SwapifyApiWeb.ErrorJSON, html: SwapifyApiWeb.ErrorHTML)
+    |> render("error.json", error: e, user_id: conn.assigns[:user_id])
+    |> halt()
   end
 
-  def call(conn, error) do
+  def call(%Plug.Conn{} = conn, error) do
     Logger.error("Unknown error occurred", error: error)
 
     conn

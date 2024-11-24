@@ -59,4 +59,12 @@ defmodule SwapifyApiWeb.Layouts do
     </main>
     """
   end
+
+  def error(assigns) do
+    ~H"""
+    <main class='flex flex-col justify-center items-center w-full h-[100vh]'>
+      <%= @inner_content %>
+    </main>
+    """
+  end
 end

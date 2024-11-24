@@ -19,7 +19,7 @@ defmodule SwapifyApi.Application do
 
     # Rate limiting storage setup
     # if Config.config_env() == :prod do
-    #   Hammer.Backend.Mnesia.create_mnesia_table()
+    # Hammer.Backend.Mnesia.create_mnesia_table()
     # end
 
     children = [
