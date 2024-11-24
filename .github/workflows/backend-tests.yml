@@ -34,7 +34,6 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('./swapify_api/mix.lock') }}
 
       - name: Install dependencies
-        if: steps.cache-mix.outputs.cache-hit != 'true'
         working-directory: ./swapify_api
         run: mix deps.get
 
