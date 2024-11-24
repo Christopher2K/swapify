@@ -5,14 +5,15 @@ MIX_ENV = 'prod'
 PHX_SERVER = 'true'
 
 [phases.setup]
-nixPkgs = ['...', 'erlang_27', 'gnumake', 'gcc']
+nixPkgs = ['...', 'erlang_27', 'gnumake', 'gcc', 'nodejs_20']
 nixpkgsArchive = '505ad1607f7e54426cfb2d804e48fa2c247f32ba'
 
 [phases.install]
 cmds = [
   'mix local.hex --force',
   'mix local.rebar --force',
-  'mix deps.get --only prod'
+  'mix deps.get --only prod',
+  'cd assets/js && npm i',
 ]
 
 [phases.build]
