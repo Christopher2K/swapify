@@ -14,6 +14,7 @@ defmodule SwapifyApiWeb.Router do
 
   pipeline :admin do
     plug :accepts, ["html"]
+    plug :put_format, "html"
     plug :fetch_session
     plug :put_root_layout, html: {SwapifyApiWeb.Layouts, :root}
     plug :protect_from_forgery

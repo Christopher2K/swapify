@@ -29,15 +29,15 @@ defmodule SwapifyApiWeb.FallbackController do
     conn
     |> put_status(422)
     |> put_view(json: SwapifyApiWeb.ErrorJSON)
-    |> render("forms.json", errors: errors_map)
+    |> render(:form, errors: errors_map)
   end
 
-  def call(conn, {:error, %ErrorMessage{code: code} = e}) do
+  def call(conn, {:error, %ErrorMessage{code: code} = error}) do
     conn
     |> put_status(code)
     |> put_layout(html: {SwapifyApiWeb.Layouts, :error})
     |> put_view(json: SwapifyApiWeb.ErrorJSON, html: SwapifyApiWeb.ErrorHTML)
-    |> render("error.json", error: e, user_id: conn.assigns[:user_id])
+    |> render(:error, error: error, user_id: conn.assigns[:user_id])
     |> halt()
   end
 
