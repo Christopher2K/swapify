@@ -7,14 +7,11 @@ defmodule SwapifyApiWeb.Router do
   end
 
   pipeline :api_protected do
-    plug :accepts, ["json"]
-    plug :fetch_session
     plug SwapifyApi.Plugs.Authenticated
   end
 
   pipeline :admin do
     plug :accepts, ["html"]
-    plug :put_format, "html"
     plug :fetch_session
     plug :put_root_layout, html: {SwapifyApiWeb.Layouts, :root}
     plug :protect_from_forgery
@@ -36,7 +33,9 @@ defmodule SwapifyApiWeb.Router do
 
   scope "/admin", SwapifyApiWeb do
     pipe_through [:admin, :admin_protected]
+
     get "/", AdminDashboardController, :index
+    get "/users", AdminUserController, :index
   end
 
   scope "/api/auth", SwapifyApiWeb do
@@ -49,44 +48,28 @@ defmodule SwapifyApiWeb.Router do
     patch "/password-reset", AuthController, :confirm_password_reset_request
   end
 
-  scope "/api/users", SwapifyApiWeb do
-    pipe_through :api_protected
-    get "/me", UserController, :me
-  end
+  scope "/api", SwapifyApiWeb do
+    pipe_through [:api, :api_protected]
 
-  scope "/api/meta", SwapifyApiWeb do
-    pipe_through :api_protected
-    get "/", MetaController, :index
-  end
+    get "/meta", MetaController, :index
+    get "/users/me", UserController, :me
 
-  scope "/api/integrations", SwapifyApiWeb do
-    pipe_through :api_protected
+    get "/integrations", IntegrationController, :index
+    get "/integrations/spotify/login", IntegrationController, :spotify_login
+    get "/integrations/spotify/callback", IntegrationController, :spotify_callback
+    get "/integrations/applemusic/login", IntegrationController, :apple_music_login
+    post "/integrations/applemusic/callback", IntegrationController, :apple_music_callback
 
-    get "/", IntegrationController, :index
-    get "/spotify/login", IntegrationController, :spotify_login
-    get "/spotify/callback", IntegrationController, :spotify_callback
-    get "/applemusic/login", IntegrationController, :apple_music_login
-    post "/applemusic/callback", IntegrationController, :apple_music_callback
-  end
+    get "/playlists/library", PlaylistController, :search_library
+    post "/playlists/sync-platform/:platform_name", PlaylistController, :start_sync_platform_job
+    post "/playlists/sync-library/:platform_name", PlaylistController, :start_sync_library_job
 
-  scope "/api/playlists", SwapifyApiWeb do
-    pipe_through :api_protected
+    get "/transfers/", TransferController, :index
+    post "/transfers/", TransferController, :start_transfer
 
-    get "/library", PlaylistController, :search_library
-
-    post "/sync-platform/:platform_name", PlaylistController, :start_sync_platform_job
-    post "/sync-library/:platform_name", PlaylistController, :start_sync_library_job
-  end
-
-  scope "/api/transfers", SwapifyApiWeb do
-    pipe_through :api_protected
-
-    get "/", TransferController, :index
-    post "/", TransferController, :start_transfer
-
-    get "/:transfer_id", TransferController, :get_transfer
-    patch "/:transfer_id/confirm", TransferController, :confirm_transfer
-    patch "/:transfer_id/cancel", TransferController, :cancel_transfer
+    get "/transfers/:transfer_id", TransferController, :get_transfer
+    patch "/transfers/:transfer_id/confirm", TransferController, :confirm_transfer
+    patch "/transfers/:transfer_id/cancel", TransferController, :cancel_transfer
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

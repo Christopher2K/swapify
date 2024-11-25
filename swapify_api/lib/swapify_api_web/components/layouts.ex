@@ -9,7 +9,7 @@ defmodule SwapifyApiWeb.Layouts do
   defp nav_item(assigns) do
     ~H"""
     <li class='px-4 py-2 w-full'>
-      <.link class='inline-block'>
+      <.link class='inline-block' href={@href}>
         <%= render_slot(@inner_block) %>
       </.link>
     </li>
@@ -37,7 +37,7 @@ defmodule SwapifyApiWeb.Layouts do
             Dashboard
           </.nav_item>
 
-          <.nav_item href={~p"/admin"}>
+          <.nav_item href={~p"/admin/users"}>
             Users
           </.nav_item>
 
