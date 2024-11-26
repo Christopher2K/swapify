@@ -52,6 +52,7 @@ defmodule SwapifyApiWeb.ConnCase do
         )
         |> Plug.Conn.fetch_session()
         |> Plug.Conn.put_session(:access_token, access)
+        |> Plug.Conn.put_session(:refresh_token, refresh)
 
       {:ok, conn: conn, access_token: access, refresh_token: refresh, user: user}
     else
