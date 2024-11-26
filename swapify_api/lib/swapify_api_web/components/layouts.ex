@@ -8,8 +8,8 @@ defmodule SwapifyApiWeb.Layouts do
 
   defp nav_item(assigns) do
     ~H"""
-    <li class='px-4 py-2 w-full'>
-      <.link class='inline-block' href={@href}>
+    <li class="w-full px-4 py-2">
+      <.link class="inline-block" href={@href}>
         <%= render_slot(@inner_block) %>
       </.link>
     </li>
@@ -26,13 +26,16 @@ defmodule SwapifyApiWeb.Layouts do
 
   def admin(assigns) do
     ~H"""
-    <main class='w-full'>
-      <nav class="w-full h-16 border border-solid border-neutral-200 px-4 flex flex-row justify-between items-center relative">
+    <main class="min-h-[100vh] w-full">
+      <nav class="relative flex h-16 w-full flex-row items-center justify-between border border-solid border-neutral-200 px-4">
         <a href={~p"/admin"} class="text-xl font-bold">
           Swapify
         </a>
 
-        <ul id='nav-menu' class="flex flex-col justify-start items-center w-full absolute top-full left-0 right-0 bg-gray-50 invisible md:flex-row md:static md:w-fit md:visible">
+        <ul
+          id="nav-menu"
+          class="invisible absolute top-full right-0 left-0 flex w-full flex-col items-center justify-start bg-gray-50 md:visible md:static md:w-fit md:flex-row"
+        >
           <.nav_item href={~p"/admin"}>
             Dashboard
           </.nav_item>
@@ -48,12 +51,12 @@ defmodule SwapifyApiWeb.Layouts do
           </li>
         </ul>
 
-        <button id='menu-toggle' class='block md:hidden' type="button">
-          <Lucide.menu_square stroke-width={1} width="32" height="32"/>
+        <button id="menu-toggle" class="block md:hidden" type="button">
+          <Lucide.menu_square stroke-width={1} width="32" height="32" />
         </button>
       </nav>
 
-      <div class="max-w-[1100px] min-h-[100vh] mx-auto p-4">
+      <div class="max-w-[1100px] mx-auto p-4">
         <%= @inner_content %>
       </div>
     </main>
@@ -62,7 +65,7 @@ defmodule SwapifyApiWeb.Layouts do
 
   def error(assigns) do
     ~H"""
-    <main class='flex flex-col justify-center items-center w-full h-[100vh]'>
+    <main class="h-[100vh] flex w-full flex-col items-center justify-center">
       <%= @inner_content %>
     </main>
     """

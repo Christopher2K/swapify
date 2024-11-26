@@ -331,4 +331,16 @@ defmodule SwapifyApi.Accounts do
       end
     end)
   end
+
+  @doc """
+  Returns a map with 2 keys
+  %{users: list(Users.t()), count: pos_integer()}
+  """
+  @spec list_users(pos_integer(), pos_integer()) :: {:ok, map()}
+  def list_users(offset \\ 0, limit \\ 20) do
+    with {:ok, users} <- UserRepo.list(offset, limit),
+         {:ok, count} <- UserRepo.count() do
+      {:ok, %{users: users, count: count}}
+    end
+  end
 end

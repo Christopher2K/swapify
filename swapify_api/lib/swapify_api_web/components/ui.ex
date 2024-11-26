@@ -7,7 +7,7 @@ defmodule SwapifyApiWeb.UI do
 
   def h1(assigns),
     do: ~H"""
-    <h1 class={"text-2xl font-medium #{@class}"} {@rest}>
+    <h1 class={"#{@class} text-2xl font-medium"} {@rest}>
       <%= render_slot(@inner_block) %>
     </h1>
     """
@@ -20,11 +20,15 @@ defmodule SwapifyApiWeb.UI do
 
   def button(assigns),
     do: ~H"""
-    <.dynamic_tag name={@as} class={[
-      "w-full inline-flex flex-row justify-center items-center font-medium bg-neutral-950 text-neutral-50 rounded-md whitespace-nowrap",
-      button_size(@size),
-      if(@full_width, do: "w-full", else: "")
-    ]} {@rest}>
+    <.dynamic_tag
+      name={@as}
+      class={[
+        "w-full inline-flex flex-row justify-center items-center font-medium bg-neutral-950 text-neutral-50 rounded-md whitespace-nowrap",
+        button_size(@size),
+        if(@full_width, do: "w-full", else: "")
+      ]}
+      {@rest}
+    >
       <%= render_slot(@inner_block) %>
     </.dynamic_tag>
     """
@@ -35,4 +39,22 @@ defmodule SwapifyApiWeb.UI do
       "md" -> "py-2 px-4 text-lg"
     end
   end
+
+  slot :inner_block, required: true
+
+  def th(assigns),
+    do: ~H"""
+    <th class="p-2 text-left text-sm font-bold">
+      <%= render_slot(@inner_block) %>
+    </th>
+    """
+
+  slot :inner_block, required: true
+
+  def td(assigns),
+    do: ~H"""
+    <td class="p-2">
+      <%= render_slot(@inner_block) %>
+    </td>
+    """
 end

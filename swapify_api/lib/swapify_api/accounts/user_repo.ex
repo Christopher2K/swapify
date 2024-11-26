@@ -2,6 +2,8 @@ defmodule SwapifyApi.Accounts.UserRepo do
   @moduledoc "User model repository"
   use OpenTelemetryDecorator
 
+  import Ecto.Query
+
   alias SwapifyApi.Repo
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.Utils
@@ -32,5 +34,34 @@ defmodule SwapifyApi.Accounts.UserRepo do
     user
     |> User.update_changeset(attrs)
     |> Repo.update(returning: true)
+  end
+
+  @doc """
+  List users
+  """
+  @spec list(pos_integer(), pos_integer()) :: {:ok, list(User.t())}
+  @decorate with_span("user_repo.list")
+  def list(offset \\ 0, limit \\ 20) do
+    query =
+      from user in User,
+        offset: ^offset,
+        limit: ^limit,
+        order_by: [desc: user.inserted_at]
+
+    {:ok, Repo.all(query)}
+  end
+
+  @doc """
+  Count users
+  """
+  @spec count() :: {:ok, pos_integer()}
+  @decorate with_span("user_repo.count")
+  def count() do
+    query =
+      from user in User,
+        select: count("*")
+
+    Repo.one(query)
+    |> Utils.from_nullable_to_tuple()
   end
 end

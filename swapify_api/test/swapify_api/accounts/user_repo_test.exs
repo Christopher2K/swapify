@@ -69,4 +69,30 @@ defmodule SwapifyApi.UserRepoTest do
       assert {:ok, %User{id: ^user_id}} = UserRepo.get_by(:id, user_id)
     end
   end
+
+  describe "list/2" do
+    test "it returns 20 users max by default" do
+      for _ <- 0..40, do: user_fixture()
+      {:ok, result} = UserRepo.list()
+      assert length(result) == 20
+    end
+
+    test "it limits the possible results" do
+      for _ <- 0..40, do: user_fixture()
+      {:ok, result} = UserRepo.list(0, 10)
+      assert length(result) == 10
+    end
+
+    test "it returns an empty array" do
+      assert {:ok, []} = UserRepo.list()
+    end
+  end
+
+  describe "count/0" do
+    test "it returns the whole table count" do
+      for _ <- 0..39, do: user_fixture()
+      {:ok, result} = UserRepo.count()
+      assert result == 40
+    end
+  end
 end

@@ -78,6 +78,7 @@ defmodule SwapifyApi.MixProject do
       {:req, "~> 0.5.0"},
       {:swoosh, "~> 1.5"},
       {:tailwind, "~> 0.2.4"},
+      {:tailwind_formatter, "~> 0.4.0", only: [:dev, :test], runtime: false},
       {:telemetry_metrics, "~> 0.6"},
       {:telemetry_poller, "~> 1.0"}
     ]

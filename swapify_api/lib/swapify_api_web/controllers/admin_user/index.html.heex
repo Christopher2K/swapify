@@ -1,1 +1,43 @@
-Again
+<div class="flex w-full flex-col items-start justify-start gap-10">
+  <header class="flex flex-col items-start justify-start gap-2">
+    <.h1>Users</.h1>
+    <p class="text-gray-500">
+      <%= @count %> registered users
+    </p>
+  </header>
+
+  <%= if length(@users) == 0 do %>
+    <p>No results found</p>
+  <% else %>
+    <div class="overflow-x h-full w-full">
+      <table class="w-full">
+        <thead class="w-full">
+          <tr class="border-b-solid border-b border-b-gray-200">
+            <.th class="py-2 text-left">Id</.th>
+            <.th class="text-left">Username</.th>
+            <.th class="text-left">Email</.th>
+            <.th class="text-left">Role</.th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for user <- @users do %>
+            <tr class="odd:bg-gray-100">
+              <.td>
+                <%= String.slice(user.id, 0..5) %>
+              </.td>
+              <.td>
+                <%= user.email %>
+              </.td>
+              <.td>
+                <%= user.username %>
+              </.td>
+              <.td>
+                <%= user.role %>
+              </.td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
