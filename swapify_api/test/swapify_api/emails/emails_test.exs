@@ -58,4 +58,11 @@ defmodule SwapifyApi.EmailsTest do
                )
     end
   end
+
+  describe "beta_welcome/2" do
+    test "it should render html" do
+      assert %Swoosh.Email{to: [{"test", "test@test.fr"}]} =
+               SwapifyApi.Emails.welcome_beta("test@test.fr", "test")
+    end
+  end
 end

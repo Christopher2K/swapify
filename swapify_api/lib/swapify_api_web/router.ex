@@ -36,6 +36,8 @@ defmodule SwapifyApiWeb.Router do
 
     get "/", AdminDashboardController, :index
     get "/users", AdminUserController, :index
+    get "/users/:id", AdminUserController, :show
+    post "/users/:id/update-role", AdminUserController, :update_role
   end
 
   scope "/api/auth", SwapifyApiWeb do

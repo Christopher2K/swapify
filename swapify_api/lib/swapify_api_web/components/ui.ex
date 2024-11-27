@@ -3,13 +3,24 @@ defmodule SwapifyApiWeb.UI do
 
   slot :inner_block, required: true
   attr :class, :string, default: ""
-  attr :rest, :global
+  attr :rest, :global, include: ~w(id class)
 
   def h1(assigns),
     do: ~H"""
     <h1 class={"#{@class} text-2xl font-medium"} {@rest}>
       <%= render_slot(@inner_block) %>
     </h1>
+    """
+
+  slot :inner_block, required: true
+  attr :class, :string, default: ""
+  attr :rest, :global, include: ~w(id class)
+
+  def h2(assigns),
+    do: ~H"""
+    <h2 class={"#{@class} text-xl font-medium"} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </h2>
     """
 
   slot :inner_block, required: true
@@ -41,6 +52,7 @@ defmodule SwapifyApiWeb.UI do
   end
 
   slot :inner_block, required: true
+  attr :rest, :global, include: ~w(id class)
 
   def th(assigns),
     do: ~H"""
@@ -50,6 +62,7 @@ defmodule SwapifyApiWeb.UI do
     """
 
   slot :inner_block, required: true
+  attr :rest, :global, include: ~w(id class)
 
   def td(assigns),
     do: ~H"""
@@ -57,4 +70,17 @@ defmodule SwapifyApiWeb.UI do
       <%= render_slot(@inner_block) %>
     </td>
     """
+
+  def description_list(assigns) do
+    ~H"""
+    <dl class="flex-start flex flex-col items-start gap-2">
+      <%= for {title, value} <- @items do %>
+        <div class="flex w-full flex-col items-start justify-start">
+          <dt class="text-sm font-bold"><%= title %></dt>
+          <dd><%= value %></dd>
+        </div>
+      <% end %>
+    </dl>
+    """
+  end
 end

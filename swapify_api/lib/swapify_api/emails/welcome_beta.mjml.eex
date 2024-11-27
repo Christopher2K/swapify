@@ -1,0 +1,60 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Swapify - Transfer Your Music Seamlessly</mj-title>
+    <mj-font name="Roboto" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <mj-attributes>
+      <mj-all font-family="Roboto, Arial, sans-serif" />
+    </mj-attributes>
+    <mj-style>
+      .link-nostyle { color: inherit; text-decoration: none }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <!-- Header Section -->
+    <mj-section background-color="#1DB954" padding-bottom="0">
+      <mj-column>
+        <mj-text color="#ffffff" font-size="32px" align="center" font-weight="bold">
+          Welcome to Swapify
+        </mj-text>
+        <mj-text color="#ffffff" font-size="20px" align="center">
+          Your Music, Your Way
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="20px">
+      <mj-column>
+        <mj-text font-size="16px" line-height="24px">
+          Hi <%= username %>,
+        </mj-text>
+        <mj-text font-size="16px" line-height="24px">
+          Thanks for choosing Swapify! We're excited to help you transfer your music between Spotify and Apple Music effortlessly.
+        </mj-text>
+
+        <mj-text font-size="16px" line-height="24px">
+          Your beta access as been granted! You can now access https://app.swpaify.live and start transfering libraries. New features are coming up soon, stay tuned!
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Section -->
+    <mj-section background-color="#ffffff">
+      <mj-column>
+        <mj-button background-color="#1DB954" color="white" font-size="16px" font-weight="bold" border-radius="25px" href="<%= app_url %>">
+          Start Transferring Now
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+
+    <!-- Footer Section -->
+    <mj-section background-color="#f4f4f4">
+      <mj-column>
+        <mj-text color="#666666" font-size="12px" align="center">
+          © 2024 Swapify. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

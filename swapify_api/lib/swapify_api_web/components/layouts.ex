@@ -27,7 +27,7 @@ defmodule SwapifyApiWeb.Layouts do
   def admin(assigns) do
     ~H"""
     <main class="min-h-[100vh] w-full">
-      <nav class="relative flex h-16 w-full flex-row items-center justify-between border border-solid border-neutral-200 px-4">
+      <nav class="relative flex h-16 w-full flex-row items-center justify-between border-b border-solid border-neutral-200 px-4">
         <a href={~p"/admin"} class="text-xl font-bold">
           Swapify
         </a>

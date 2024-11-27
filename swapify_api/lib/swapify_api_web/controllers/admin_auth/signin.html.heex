@@ -1,18 +1,18 @@
-<div class='h-[100vh] flex flex-col justify-center items-center'>
-  <.form 
+<div class="h-[100vh] flex flex-col items-center justify-center">
+  <.form
     for={%{}}
     action={~p"/admin/signin"}
-    class='w-full flex flex-col justify-start items-start gap-6 max-w-lg bg-white p-10 border border-solid border-neutral-200 rounded-md shadow-sm mx-auto'
+    class="w-full flex flex-col justify-start items-start gap-6 max-w-lg bg-white p-10 border border-solid border-neutral-200 rounded-md shadow-sm mx-auto"
   >
-    <.h1 class='text-center w-full'>Swapify Admin</.h1>
+    <.h1 class="text-center w-full">Swapify Admin</.h1>
 
-    <div class="w-full flex flex-col justify-start items-start gap-4">
-      <.form_field label="Email" name='email'>
-        <.text_input name='email' type='email'/>
+    <div class="flex w-full flex-col items-start justify-start gap-4">
+      <.form_field label="Email" name="email">
+        <.text_input name="email" type="email" />
       </.form_field>
 
-      <.form_field label="Password" name='password'>
-        <.text_input name='password' type='password'/>
+      <.form_field label="Password" name="password">
+        <.text_input name="password" type="password" />
       </.form_field>
     </div>
 

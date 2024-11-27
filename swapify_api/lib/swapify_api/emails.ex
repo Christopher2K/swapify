@@ -162,4 +162,30 @@ defmodule SwapifyApi.Emails do
     |> put_provider_option(:track_clicks, false)
     |> put_provider_option(:track_opens, true)
   end
+
+  EEx.function_from_file(
+    :defp,
+    :welcome_beta_template,
+    "lib/swapify_api/emails/welcome_beta.mjml.eex",
+    [
+      :username,
+      :app_url
+    ]
+  )
+
+  def welcome_beta(email, name) do
+    app_url = Application.fetch_env!(:swapify_api, :app_url)
+
+    {:ok, template} =
+      welcome_beta_template(name, app_url)
+      |> Mjml.to_html()
+
+    new()
+    |> to({name, email})
+    |> from(@no_reply_sender)
+    |> subject("You're now a Swapify beta user!")
+    |> html_body(template)
+    |> put_provider_option(:track_clicks, false)
+    |> put_provider_option(:track_opens, true)
+  end
 end

@@ -49,7 +49,7 @@ defmodule SwapifyApi.Accounts.User do
   @doc "Changeset to update an existing user"
   def update_changeset(user, attrs) do
     user
-    |> cast(attrs, [:password])
+    |> cast(attrs, [:password, :role])
     |> validate_required([:password])
     |> validate_password()
     |> hash_new_password()

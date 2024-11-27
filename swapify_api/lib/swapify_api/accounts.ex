@@ -343,4 +343,26 @@ defmodule SwapifyApi.Accounts do
       {:ok, %{users: users, count: count}}
     end
   end
+
+  @doc """
+  Update a user role
+  """
+  @spec update_role(User.t(), User.role()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | ErrorMessage.t()}
+  def update_role(user, new_role) do
+    if user.role == new_role do
+      {:ok, user}
+    else
+      with {:ok, user} <- UserRepo.update(user, %{"role" => new_role}) do
+        if user.role == :beta do
+          Task.Supervisor.start_child(Task.Supervisor, fn ->
+            SwapifyApi.Emails.welcome_beta(user.email, user.username)
+            |> SwapifyApi.Mailer.deliver()
+          end)
+        end
+
+        {:ok, user}
+      end
+    end
+  end
 end

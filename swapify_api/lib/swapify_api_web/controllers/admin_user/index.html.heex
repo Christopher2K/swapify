@@ -17,13 +17,16 @@
             <.th class="text-left">Username</.th>
             <.th class="text-left">Email</.th>
             <.th class="text-left">Role</.th>
+            <.th class="text-left">Registered on</.th>
           </tr>
         </thead>
         <tbody>
           <%= for user <- @users do %>
             <tr class="odd:bg-gray-100">
               <.td>
-                <%= String.slice(user.id, 0..5) %>
+                <a href={~p"/admin/users/#{user.id}"} class="text-blue-500 hover:underline">
+                  <%= String.slice(user.id, 0..5) %>
+                </a>
               </.td>
               <.td>
                 <%= user.email %>
@@ -33,6 +36,9 @@
               </.td>
               <.td>
                 <%= user.role %>
+              </.td>
+              <.td>
+                <%= DateTime.to_string(user.inserted_at) %>
               </.td>
             </tr>
           <% end %>

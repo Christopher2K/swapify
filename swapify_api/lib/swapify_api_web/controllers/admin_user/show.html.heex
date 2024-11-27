@@ -1,0 +1,44 @@
+<div class="flex flex-col items-start justify-start gap-10">
+  <header>
+    <.h1>User <span class="font-bold"><%= @user.username %></span></.h1>
+    <p class="text-neutral-500"><%= @user.email %></p>
+  </header>
+
+  <div class="flex w-full flex-col items-start justify-start gap-10 md:flex-row">
+    <section class="w-full flex-1">
+      <.h2 class="mb-4">Details</.h2>
+      <.description_list items={[
+        {"ID", @user.id},
+        {"Email", @user.email},
+        {"Username", @user.username},
+        {"Role", @user.role},
+        {"Registered at", @user.inserted_at}
+      ]} />
+    </section>
+
+    <section class="w-full flex-1">
+      <.h2 class="mb-4">Actions</.h2>
+      <div class="flex flex-col items-start justify-start gap-2">
+        <.form
+          class="flex flex-row justify-start items-end gap-4"
+          for={%{}}
+          action={~p"/admin/users/#{@user.id}/update-role"}
+        >
+          <.form_field label="Change role" name="new_role">
+            <.select_input
+              value={@user.role}
+              options={[{"User", :user}, {"Admin", :admin}, {"Beta", :beta}]}
+              name="new_role"
+            />
+          </.form_field>
+          <.button type="submit">Update</.button>
+        </.form>
+      </div>
+    </section>
+  </div>
+
+  <div>
+    <.h2>Platform connections</.h2>
+    <p class="italic text-neutral-500">TBD</p>
+  </div>
+</div>
