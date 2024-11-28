@@ -119,6 +119,7 @@ const APISignupPayloadSchema = z.object({
   username: z.string(),
   email: z.string(),
   password: z.string(),
+  spotify_account_email: z.string().optional(),
 });
 export type APISignupPayload = z.infer<typeof APISignupPayloadSchema>;
 

@@ -12,7 +12,8 @@ defmodule SwapifyApi.Accounts.User do
           password: String.t(),
           inserted_at: DateTime.t(),
           updated_at: DateTime.t(),
-          role: user_role()
+          role: user_role(),
+          spotify_account_email: String.t() | nil
         }
 
   schema "users" do
@@ -20,6 +21,7 @@ defmodule SwapifyApi.Accounts.User do
     field :password, :string
     field :username, :string
     field :role, Ecto.Enum, values: [:beta, :user, :admin], default: :user
+    field :spotify_account_email, :string
     has_many :platform_connections, PlatformConnection
 
     timestamps(type: :utc_datetime)
@@ -36,7 +38,7 @@ defmodule SwapifyApi.Accounts.User do
   @doc "Changaset user to create a new user"
   def create_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :password, :username, :role])
+    |> cast(attrs, [:email, :password, :username, :role, :spotify_account_email])
     |> validate_required([:email, :password, :username])
     |> validate_format(:email, ~r/@/)
     |> validate_password()

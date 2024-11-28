@@ -21,7 +21,12 @@ export function PageSignup() {
 
   async function handleSubmit(data: SignUpFormData) {
     try {
-      await signUpAsync({ body: data });
+      await signUpAsync({
+        body: {
+          ...data,
+          spotify_account_email: data.spotifyAccountEmail,
+        },
+      });
       navigate({ to: "/app/sign-in", search: { from: "sign-up" } });
     } catch (_) {}
   }
