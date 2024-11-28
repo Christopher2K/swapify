@@ -12,7 +12,7 @@
     "panda:watch": "panda -w",
     "prepare": "panda codegen",
     "preview": "astro preview",
-    "typecheck": "noEmit"
+    "typecheck": "astro check"
   },
   "dependencies": {
     "@ark-ui/react": "~3.6.2",
