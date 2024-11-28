@@ -12,7 +12,7 @@ export const queryClient = new QueryClient({
 });
 
 export const tsr = initTsrReactQuery(contract, {
-  baseUrl: import.meta.env.VITE_API_URL,
+  baseUrl: import.meta.env.PUBLIC_API_URL,
   baseHeaders: {
     "x-swapify-application": "swapify-web",
     accept: "application/json",
@@ -22,5 +22,5 @@ export const tsr = initTsrReactQuery(contract, {
 });
 
 export function getApiUrl(path: `/${string}`) {
-  return import.meta.env.VITE_API_URL + path;
+  return import.meta.env.PUBLIC_API_URL + path;
 }

@@ -6,7 +6,7 @@ import { PlaylistStatus } from "#root/components/playlist-status";
 import { Button } from "#root/components/ui/button";
 import { Card } from "#root/components/ui/card";
 import { Text } from "#root/components/ui/text";
-import { APIPlatformName, APIPlaylist } from "#root/services/api.types";
+import type { APIPlatformName, APIPlaylist } from "#root/services/api.types";
 import { timeAgo } from "#root/services/time-ago";
 import { css } from "#style/css";
 import { Box, HStack, styled } from "#style/jsx";
@@ -34,7 +34,7 @@ export function PlaylistsTable({
       <Box>
         <Text>
           No playlist here yet. Try to connect a platform first{" "}
-          <RouterLink to="/integrations">here!</RouterLink>
+          <RouterLink to="/app/integrations">here!</RouterLink>
         </Text>
       </Box>
     );

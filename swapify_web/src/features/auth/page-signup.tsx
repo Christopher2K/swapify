@@ -10,7 +10,7 @@ import { ThemedAlert } from "#root/components/themed-alert";
 
 import {
   SignUpForm,
-  SignUpFormData,
+  type SignUpFormData,
   useSignUpForm,
 } from "./components/sign-up-form";
 import { useSignUpMutation } from "./hooks/use-sign-up-mutation";
@@ -23,7 +23,7 @@ export function PageSignup() {
   async function handleSubmit(data: SignUpFormData) {
     try {
       await signUpAsync({ body: data });
-      navigate({ to: "/sign-in", search: { from: "sign-up" } });
+      navigate({ to: "/app/sign-in", search: { from: "sign-up" } });
     } catch (_) {}
   }
 
@@ -64,7 +64,7 @@ export function PageSignup() {
           />
         </Card.Body>
         <Card.Footer>
-          <Link to="/sign-in">Already have an account?</Link>
+          <Link to="/app/sign-in">Already have an account?</Link>
         </Card.Footer>
       </Card.Root>
     </VStack>

@@ -17,8 +17,9 @@ type SidebarLinkProps = {
   to: ComponentProps<typeof Link>["to"];
   label: string;
   icon: ReactNode;
+  exact?: boolean;
 };
-const SidebarLink = ({ to, label, icon }: SidebarLinkProps) => {
+const SidebarLink = ({ to, label, icon, exact = true }: SidebarLinkProps) => {
   return (
     <Button
       variant="ghost"
@@ -28,7 +29,11 @@ const SidebarLink = ({ to, label, icon }: SidebarLinkProps) => {
       fontWeight="medium"
       asChild
     >
-      <Link to={to} activeProps={{ className: css({ bg: "accent.3" }) }}>
+      <Link
+        to={to}
+        activeProps={{ className: css({ bg: "accent.3" }) }}
+        activeOptions={{ exact: exact }}
+      >
         {icon}
         {label}
       </Link>
@@ -69,22 +74,22 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
     >
       <VStack flex="1" w="full" gap="1">
         <SidebarLink
-          to="/"
+          to="/app"
           label="Dashboard"
           icon={<LayoutDashboardIcon strokeWidth="2" />}
         />
         <SidebarLink
-          to="/transfers"
+          to="/app/transfers"
           label="Transfers"
           icon={<FolderSyncIcon strokeWidth="2" />}
         />
         <SidebarLink
-          to="/playlists"
+          to="/app/playlists"
           label="Playlists"
           icon={<MusicIcon strokeWidth="2" />}
         />
         <SidebarLink
-          to="/integrations"
+          to="/app/integrations"
           label="Music platforms"
           icon={<ToyBrickIcon strokeWidth="2" />}
         />

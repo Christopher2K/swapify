@@ -9,7 +9,7 @@ import { Text } from "#root/components/ui/text";
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { useJobUpdateContext } from "#root/features/job/components/job-update-context";
 import { onJobUpdate } from "#root/features/job/utils/on-job-update";
-import { APITransfer } from "#root/services/api.types";
+import type { APITransfer } from "#root/services/api.types";
 import { formatDateTime } from "#root/utils/date";
 import { css, cva } from "#style/css";
 import { HStack, Stack } from "#style/jsx";

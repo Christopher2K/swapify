@@ -28,7 +28,7 @@ function DashboardContent() {
         </Heading>
 
         <Button size="xs" variant="outline" asChild>
-          <Link to="/transfers">See all</Link>
+          <Link to="/app/transfers">See all</Link>
         </Button>
       </HStack>
       <TransfersList transfers={threeLastTransfers} refetchList={refetch} />

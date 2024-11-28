@@ -9,14 +9,14 @@ import { VStack } from "#style/jsx";
 
 import {
   SignInForm,
-  SignInFormData,
+  type SignInFormData,
   useSignInForm,
 } from "./components/sign-in-form";
 import { useSignInMutation } from "./hooks/use-sign-in-mutation";
 
 export function PageSignin() {
   const { from } = useSearch({
-    from: "/unauthenticated/sign-in",
+    from: "/app/unauthenticated/sign-in",
   });
   const form = useSignInForm();
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export function PageSignin() {
   async function handleSubmit(data: SignInFormData) {
     try {
       await signInAsync({ body: data });
-      navigate({ to: "/" });
+      navigate({ to: "/app" });
     } catch (error) {}
   }
 
@@ -78,10 +78,13 @@ export function PageSignin() {
           alignItems={["center", undefined, "flex-start"]}
           gap="4"
         >
-          <Link to="/password-reset" className={css({ textAlign: "center" })}>
+          <Link
+            to="/app/password-reset"
+            className={css({ textAlign: "center" })}
+          >
             Reset your password
           </Link>
-          <Link to="/sign-up" className={css({ textAlign: "center" })}>
+          <Link to="/app/sign-up" className={css({ textAlign: "center" })}>
             Don't have an account?
           </Link>
         </Card.Footer>

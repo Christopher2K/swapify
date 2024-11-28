@@ -8,13 +8,15 @@ import { toaster } from "#root/components/toast";
 
 import {
   PasswordResetConfirmationForm,
-  PasswordResetConfirmationFormData,
+  type PasswordResetConfirmationFormData,
 } from "./components/password-reset-confirmation-form";
 import { usePasswordResetConfirmationMutation } from "./hooks/use-password-reset-confirmation-mutation";
 
 export function PasswordResetConfirmPage() {
   const navigate = useNavigate();
-  const { code } = useParams({ from: "/unauthenticated/password-reset/$code" });
+  const { code } = useParams({
+    from: "/app/unauthenticated/password-reset/$code",
+  });
 
   const { passwordResetConfirmationAsync, isPending, isSuccess } =
     usePasswordResetConfirmationMutation();
@@ -33,7 +35,7 @@ export function PasswordResetConfirmPage() {
           "Password changed. You can now sign in with your new password.",
       });
 
-      navigate({ to: "/sign-in", search: { from: "password-reset" } });
+      navigate({ to: "/app/sign-in", search: { from: "password-reset" } });
     } catch (_) {}
   }
   return (

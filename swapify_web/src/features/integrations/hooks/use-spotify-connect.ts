@@ -34,7 +34,11 @@ export function useSpotifyConnect() {
       onProcessEnd();
     };
 
-    const popup = window.open("/integrations/spotify", "_blank", "popup=yes")!;
+    const popup = window.open(
+      "/app/integrations/spotify",
+      "_blank",
+      "popup=yes",
+    )!;
 
     popupRef.current = popup;
     setIsLoading(true);

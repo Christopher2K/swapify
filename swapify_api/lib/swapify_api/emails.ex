@@ -3,6 +3,8 @@ defmodule SwapifyApi.Emails do
 
   require EEx
 
+  alias SwapifyApi.Utils
+
   @no_reply_sender {"Swapify - Notifications", "info@swapify.live"}
 
   EEx.function_from_file(
@@ -16,7 +18,7 @@ defmodule SwapifyApi.Emails do
   )
 
   def welcome(email, name, options \\ []) do
-    app_url = Keyword.get(options, :app_url)
+    app_url = Utils.get_app_url()
     username = Keyword.get(options, :username)
     {:ok, template} = welcome_template(username, app_url) |> Mjml.to_html()
 
@@ -44,7 +46,7 @@ defmodule SwapifyApi.Emails do
   )
 
   def transfer_ready(email, name, options \\ []) do
-    app_url = Keyword.get(options, :app_url)
+    app_url = Utils.get_app_url()
     username = Keyword.get(options, :username)
     source_name = Keyword.get(options, :source_name)
     destination_name = Keyword.get(options, :destination_name)
@@ -84,7 +86,7 @@ defmodule SwapifyApi.Emails do
   )
 
   def transfer_error(email, name, options \\ []) do
-    app_url = Keyword.get(options, :app_url)
+    app_url = Utils.get_app_url()
     username = Keyword.get(options, :username)
     source_name = Keyword.get(options, :source_name)
     destination_name = Keyword.get(options, :destination_name)
@@ -115,7 +117,7 @@ defmodule SwapifyApi.Emails do
   )
 
   def transfer_done(email, name, options \\ []) do
-    app_url = Keyword.get(options, :app_url)
+    app_url = Utils.get_app_url()
     username = Keyword.get(options, :username)
     source_name = Keyword.get(options, :source_name)
     destination_name = Keyword.get(options, :destination_name)
@@ -144,10 +146,8 @@ defmodule SwapifyApi.Emails do
   )
 
   def password_reset_request(email, name, opts \\ []) do
+    app_url = Utils.get_app_url()
     code = Keyword.get(opts, :code)
-
-    app_url = Application.fetch_env!(:swapify_api, :app_url)
-
     reset_url = app_url <> "/password-reset/#{code}"
 
     {:ok, template} =
@@ -174,7 +174,7 @@ defmodule SwapifyApi.Emails do
   )
 
   def welcome_beta(email, name) do
-    app_url = Application.fetch_env!(:swapify_api, :app_url)
+    app_url = Utils.get_app_url()
 
     {:ok, template} =
       welcome_beta_template(name, app_url)

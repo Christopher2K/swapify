@@ -9,7 +9,7 @@ import type {
 import { tsr } from "#root/services/api";
 import { VStack } from "#style/jsx";
 
-import { APIPlatformName } from "#root/services/api.types";
+import type { APIPlatformName } from "#root/services/api.types";
 import { onJobUpdate } from "../job/utils/on-job-update";
 import { PlaylistsTable } from "./components/playlists-table";
 import { useLibrariesQuery } from "./hooks/use-libraries-query";

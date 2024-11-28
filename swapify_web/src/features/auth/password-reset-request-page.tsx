@@ -8,7 +8,7 @@ import { toaster } from "#root/components/toast";
 
 import {
   PasswordResetRequestForm,
-  PasswordResetRequestFormData,
+  type PasswordResetRequestFormData,
 } from "./components/password-reset-request-form";
 import { usePasswordResetRequestMutation } from "./hooks/use-password-reset-request-mutation";
 
@@ -51,7 +51,7 @@ export function PasswordResetRequestPage() {
           />
         </Card.Body>
         <Card.Footer>
-          <Link to="/sign-in">Already have an account?</Link>
+          <Link to="/app/sign-in">Already have an account?</Link>
         </Card.Footer>
       </Card.Root>
     </VStack>

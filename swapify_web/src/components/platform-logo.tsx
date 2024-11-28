@@ -1,6 +1,6 @@
-import { ComponentProps } from "react";
+import type { ComponentProps } from "react";
 
-import { APIPlatformName } from "#root/services/api.types";
+import type { APIPlatformName } from "#root/services/api.types";
 import { css, cx } from "#style/css";
 
 import AppleMusicIcon from "./icons/apple-music.svg.tsx";

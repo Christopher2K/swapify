@@ -26,7 +26,7 @@ export function TransfersList({
       <VStack width="100%" justifyContent="flex-start" alignItems="flex-start">
         <Text>No transfers has been started yet!</Text>
         <Button asChild>
-          <Link to="/">Go to dashboard</Link>
+          <Link to="/app">Go to dashboard</Link>
         </Button>
       </VStack>
     );

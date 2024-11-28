@@ -1,4 +1,4 @@
-import { APIPlaylistSyncStatus } from "#root/services/api.types";
+import type { APIPlaylistSyncStatus } from "#root/services/api.types";
 
 export type PlaylistStatusState = {
   status: APIPlaylistSyncStatus;

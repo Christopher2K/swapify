@@ -1,5 +1,5 @@
 import { createTsForm, createUniqueFieldSchema } from "@ts-react/form";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { z } from "zod";
 
 import { css } from "#style/css";

@@ -36,7 +36,7 @@ export function useAppleMusicConnect() {
     };
 
     const popup = window.open(
-      "/integrations/applemusic",
+      "/app/integrations/applemusic",
       "_blank",
       "popup=yes",
     )!;

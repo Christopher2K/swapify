@@ -34,7 +34,11 @@ defmodule SwapifyApi.Utils do
     |> Enum.join(".")
   end
 
-  def get_app_url("/" <> _path = path), do: Application.fetch_env!(:swapify_api, :app_url) <> path
+  def get_app_url("/" <> _path = path),
+    do: Application.fetch_env!(:swapify_api, :app_url) <> "/app" <> path
+
+  def get_app_url(),
+    do: Application.fetch_env!(:swapify_api, :app_url) <> "/app"
 
   @doc """
   Handle Oban insertion errors

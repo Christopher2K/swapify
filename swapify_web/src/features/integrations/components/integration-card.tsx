@@ -1,5 +1,5 @@
 import { SquareArrowOutUpRightIcon } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { ThemedAlert } from "#root/components/themed-alert";
 import { Button } from "#root/components/ui/button";

@@ -1,0 +1,39 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swapify</title>
+  </head>
+
+  <body>
+    <main id="root">
+      <slot />
+    </main>
+    <script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
+    ></script>
+    <script>
+      import "../../styled-system/styles.css";
+      import { H } from "highlight.run";
+
+      if (window.MusicKit) {
+        console.debug("[Debug] MusicKit loaded");
+      }
+
+      H.init(import.meta.env.PUBLIC_HIGHLIGHT_PROJECT_ID, {
+        serviceName: "SwapifyWeb",
+        version: import.meta.env.PUBLIC_APP_VERSION,
+        debug: import.meta.env.DEV,
+        reportConsoleErrors: true,
+        manualStart: import.meta.env.DEV,
+        environment: import.meta.env.DEV ? "local" : "production",
+        tracingOrigins: true,
+        networkRecording: {
+          enabled: true,
+          disableWebSocketEventRecordings: true,
+          urlBlocklist: [],
+        },
+      });
+    </script>
+  </body>
+</html>

@@ -1,4 +1,7 @@
-import { APIPlaylist, APIPlaylistSyncStatus } from "#root/services/api.types";
+import type {
+  APIPlaylist,
+  APIPlaylistSyncStatus,
+} from "#root/services/api.types";
 
 export const humanReadableSyncStatus: Record<APIPlaylistSyncStatus, string> = {
   error: "Synchronization Error",

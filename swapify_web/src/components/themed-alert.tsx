@@ -1,6 +1,6 @@
 import { cva, type RecipeVariantProps } from "#style/css";
 import { CircleCheckIcon, CircleXIcon, InfoIcon } from "lucide-react";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { Alert } from "./ui/alert";
 

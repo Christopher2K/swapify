@@ -10,7 +10,7 @@ export function UnauthenticatedLayout({ children }: PropsWithChildren) {
     <AuthenticationProvider
       renderIfUnauthenticated={() => <>{children}</>}
       renderIfAuthenticated={() => {
-        navigate({ to: "/", replace: true });
+        navigate({ to: "/app", replace: true });
         return null;
       }}
     />

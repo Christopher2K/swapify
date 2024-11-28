@@ -1,5 +1,5 @@
 import { useDescription, useTsController } from "@ts-react/form";
-import { RefCallBack } from "react-hook-form";
+import type { RefCallBack } from "react-hook-form";
 
 import { Field } from "./field";
 import { Field as BaseField } from "./ui/field";

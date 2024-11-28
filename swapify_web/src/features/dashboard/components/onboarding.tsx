@@ -1,5 +1,10 @@
 import { FolderSync, Music2Icon, RefreshCcw } from "lucide-react";
-import { PropsWithChildren, ReactNode, useEffect, useState } from "react";
+import {
+  type PropsWithChildren,
+  type ReactNode,
+  useEffect,
+  useState,
+} from "react";
 
 import { PlatformLogo } from "#root/components/platform-logo";
 import { Badge } from "#root/components/ui/badge";
@@ -13,7 +18,7 @@ import { onJobUpdate } from "#root/features/job/utils/on-job-update";
 import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { TransferForm } from "#root/features/transfers/components/transfer-form";
 import { useTransfersQuery } from "#root/features/transfers/hooks/use-transfers-query";
-import { APIPlatformName } from "#root/services/api.types";
+import { type APIPlatformName } from "#root/services/api.types";
 import { css } from "#style/css";
 import { HStack, Stack, styled, VStack } from "#style/jsx";
 import { toaster } from "#root/components/toast";

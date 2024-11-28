@@ -14,7 +14,7 @@ import { useIntegrationsQuery } from "#root/features/integrations/hooks/use-inte
 import { getPlatformName } from "#root/features/integrations/utils/get-platform-name";
 import { useLibrariesQuery } from "#root/features/playlists/hooks/use-libraries-query";
 import { useStartPlaylistTransferMutation } from "#root/features/transfers/hooks/use-start-playlist-transfer-mutation";
-import { APIPlatformName } from "#root/services/api.types";
+import type { APIPlatformName } from "#root/services/api.types";
 
 import { css } from "#style/css";
 import { styled } from "#style/jsx";

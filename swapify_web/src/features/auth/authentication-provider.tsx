@@ -8,7 +8,7 @@ import {
 
 import { LoadingContainer } from "#root/components/loading-container";
 import { useUserQuery } from "#root/features/auth/hooks/use-user-query";
-import { APIUser } from "#root/services/api.types";
+import { type APIUser } from "#root/services/api.types";
 
 const AuthenticatedUserCtx = createContext<APIUser | null>(null);
 function AuthenticatedUserProvider({

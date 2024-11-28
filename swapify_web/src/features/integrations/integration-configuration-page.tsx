@@ -10,7 +10,7 @@ import { integrationEnumValidator } from "#root/features/integrations/models/int
 
 export function IntegrationConfigurationPage() {
   const params = useParams({
-    from: "/authenticated/integrations/$integrationName",
+    from: "/app/authenticated/integrations/$integrationName",
   });
 
   const integrationName = useMemo(() => {

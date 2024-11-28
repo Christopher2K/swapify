@@ -1,5 +1,5 @@
 import { tsr } from "#root/services/api";
-import {
+import type {
   APIPlatformName,
   APIPlaylistSyncStatus,
 } from "#root/services/api.types";

@@ -3,9 +3,12 @@ import { useEffect, useRef, useState } from "react";
 
 import { useMeta } from "#root/features/meta/components/meta-provider";
 
-import { IncomingMessageRecord, OutgoingMessageRecord } from "./realtime.types";
+import type {
+  IncomingMessageRecord,
+  OutgoingMessageRecord,
+} from "./realtime.types";
 
-const socketURL = import.meta.env.VITE_API_URL + "/user_socket";
+const socketURL = import.meta.env.PUBLIC_API_URL + "/user_socket";
 
 function connectSocket(token: string) {
   const socket = new Socket(socketURL, {

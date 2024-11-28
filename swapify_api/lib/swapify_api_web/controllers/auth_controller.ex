@@ -5,12 +5,12 @@ defmodule SwapifyApiWeb.AuthController do
   alias SwapifyApi.Utils
 
   # Shared rate limit
-  rate_limit(
-    "auth",
-    [:sign_up, :new_password_reset_request, :confirm_password_reset_request],
-    :timer.minutes(30),
-    10
-  )
+  # rate_limit(
+  #   "auth",
+  #   [:sign_up, :new_password_reset_request, :confirm_password_reset_request],
+  #   :timer.minutes(30),
+  #   100
+  # )
 
   def sign_up(%Plug.Conn{} = conn, _) do
     data = conn.body_params
@@ -42,7 +42,7 @@ defmodule SwapifyApiWeb.AuthController do
     conn
     |> delete_session(:access_token)
     |> delete_session(:refresh_token)
-    |> redirect(external: Utils.get_app_url("/"))
+    |> redirect(external: Utils.get_app_url())
   end
 
   def new_password_reset_request(conn, _) do

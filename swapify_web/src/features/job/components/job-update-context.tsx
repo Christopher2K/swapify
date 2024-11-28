@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext } from "react";
+import { createContext, type PropsWithChildren, useContext } from "react";
 
 import { useJobUpdateSocket } from "../hooks/use-job-update-socket";
 

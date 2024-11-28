@@ -10,7 +10,7 @@ import { Text } from "#root/components/ui/text";
 import { css } from "#style/css";
 import { VStack } from "#style/jsx";
 
-const SPOTIFY_LOGIN_URL = `${import.meta.env.VITE_API_URL}/api/integrations/spotify/login`;
+const SPOTIFY_LOGIN_URL = `${import.meta.env.PUBLIC_API_URL}/api/integrations/spotify/login`;
 
 function formatPostMessage(eventType: string, message?: string) {
   return {
@@ -23,7 +23,7 @@ function formatPostMessage(eventType: string, message?: string) {
 export function SpotifyConfiguration() {
   const { current: opener } = useRef(window.opener as Window);
   const { result, error } = useSearch({
-    from: "/authenticated/integrations/$integrationName",
+    from: "/app/authenticated/integrations/$integrationName",
   });
 
   if (result === "success") {

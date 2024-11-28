@@ -1,23 +1,14 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "astro/tsconfigs/strict",
+  "include": ["src", "styled-system"],
   "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": ".",
+    "jsxImportSource": "react",
     "paths": {
       "#root/*": ["./src/*"],
       "#style/*": ["./styled-system/*"],
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "styled-system/*": ["./styled-system/*"]
     },
     /* Linting */
     "strict": true,
@@ -25,6 +16,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "types": ["vite-plugin-svgr/client", "musickit-js"]
-  },
-  "include": ["src", "styled-system"]
+  }
 }

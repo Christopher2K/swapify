@@ -101,7 +101,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       with {:ok, %{email: email, username: username}} <- Accounts.get_by_id(user_id),
            {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
         SwapifyApi.Emails.transfer_ready(email, username,
-          app_url: Application.fetch_env!(:swapify_api, :app_url),
           username: username,
           source_name: PlatformConnection.get_name(transfer.source),
           destination_name: PlatformConnection.get_name(transfer.destination),
@@ -133,7 +132,6 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
          {:ok, %{username: username}} <- Accounts.get_by_id(user_id),
          {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
       SwapifyApi.Emails.transfer_error(transfer.email, username,
-        app_url: Application.fetch_env!(:swapify_api, :app_url),
         username: username,
         source_name: PlatformConnection.get_name(transfer.source),
         destination_name: PlatformConnection.get_name(transfer.destination)
