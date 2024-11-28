@@ -34,8 +34,8 @@ export const Title = withContext<
 
 export {
   ToastContext as Context,
-  createToaster,
   Toaster,
+  createToaster,
   type ToastContextProps as ContextProps,
   type ToasterProps,
 } from "@ark-ui/react/toast";

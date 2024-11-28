@@ -46,6 +46,12 @@ const ButtonSpinner = () => (
     top="50%"
     insetStart="50%"
   >
-    <Spinner colorPalette="gray" />
+    <Spinner
+      width="1.1em"
+      height="1.1em"
+      borderWidth="1.5px"
+      borderTopColor="fg.disabled"
+      borderRightColor="fg.disabled"
+    />
   </Center>
 );
