@@ -165,7 +165,6 @@ export function TransferItem({
       borderStyle="solid"
       borderColor="gray.1"
       p="4"
-      boxShadow="xs"
     >
       <Stack gap="0">
         <Badge

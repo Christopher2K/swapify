@@ -6,7 +6,9 @@ import { cva } from "#style/css";
 import { Badge } from "./ui/badge";
 
 export const playlistStatusBadgeStyle = cva({
-  base: {},
+  base: {
+    borderColor: "transparent",
+  },
   variants: {
     syncStatus: {
       synced: {

@@ -5,7 +5,7 @@ import type {
 
 export const humanReadableSyncStatus: Record<APIPlaylistSyncStatus, string> = {
   error: "Synchronization Error",
-  unsynced: "Need synchronization",
+  unsynced: "Needs synchronization",
   synced: "Synchronized",
   syncing: "Sychronizing",
 };

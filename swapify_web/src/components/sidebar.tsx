@@ -31,7 +31,7 @@ const SidebarLink = ({ to, label, icon, exact = true }: SidebarLinkProps) => {
     >
       <Link
         to={to}
-        activeProps={{ className: css({ bg: "accent.3" }) }}
+        activeProps={{ className: css({ bg: "bg.emphasized" }) }}
         activeOptions={{ exact: exact }}
       >
         {icon}
@@ -56,7 +56,7 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
       left={0}
       width={["85%", "300px"]}
       height="100%"
-      bg="accent.1"
+      bg="bg.default"
       p="4"
       gap="4"
       zIndex="overlay"
@@ -65,7 +65,7 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
       transitionDuration="fast"
       borderRight={["thin", "none"]}
       borderStyle="solid"
-      borderColor="accent.4"
+      borderColor="border.default"
       transform={[
         isMobileOpen ? "translateX(0)" : "translateX(-100%)",
         "translateX(0)",
@@ -102,7 +102,7 @@ export function Sidebar({ navProps, isMobileOpen }: SidebarProps) {
           alignItems: "center",
         })}
       >
-        <Button width="full" size="sm">
+        <Button width="full" size="sm" variant="outline">
           Sign out
         </Button>
       </Link>

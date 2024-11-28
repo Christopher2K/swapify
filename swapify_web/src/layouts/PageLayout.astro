@@ -1,0 +1,18 @@
+---
+import RootLayout from "#root/layouts/RootLayout.astro";
+
+import { PageContainer } from "#root/features/marketing/components/page-container";
+
+export interface Props {
+  title?: string;
+}
+
+const defaultTitle = "Swapify | Your music, your choice";
+const { title = defaultTitle } = Astro.props;
+---
+
+<RootLayout title={title}>
+  <PageContainer>
+    <slot />
+  </PageContainer>
+</RootLayout>

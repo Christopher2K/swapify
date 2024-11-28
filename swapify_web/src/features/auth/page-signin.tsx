@@ -2,7 +2,6 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 
 import { ThemedAlert } from "#root/components/themed-alert";
 import { Card } from "#root/components/ui/card";
-import { Heading } from "#root/components/ui/heading";
 import { Text } from "#root/components/ui/text";
 import { css } from "#style/css";
 import { VStack } from "#style/jsx";
@@ -31,11 +30,8 @@ export function PageSignin() {
 
   return (
     <VStack w="100%">
-      <VStack py="10">
-        <Heading textAlign="center" as="h1" textStyle="6xl">
-          Swapify
-        </Heading>
-        <Text textAlign="center" textStyle="xl" textWrap="balance">
+      <VStack py="10" gap="5">
+        <Text as="h1" textStyle="3xl" textAlign="center" textWrap="balance">
           Sign in to start transferring your music now!
         </Text>
         <ThemedAlert

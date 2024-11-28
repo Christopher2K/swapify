@@ -23,6 +23,7 @@ import { TransfersPage } from "#root/features/transfers/transfers-page";
 import { PasswordResetConfirmPage } from "#root/features/auth/password-reset-confirm-page";
 import { PasswordResetRequestPage } from "#root/features/auth/password-reset-request-page";
 import { Root } from "#root/root";
+import { Navbar } from "./features/marketing/components/page-container";
 
 const TanStackRouterDevtools = import.meta.env.DEV
   ? lazy(() =>
@@ -99,6 +100,7 @@ const unauthenticatedLayoutRoute = createRoute({
   component: () => (
     <UnauthenticatedLayout>
       <Container>
+        <Navbar />
         <Outlet />
       </Container>
     </UnauthenticatedLayout>

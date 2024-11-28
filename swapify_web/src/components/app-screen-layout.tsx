@@ -25,8 +25,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
 
   return (
     <JobUpdateContextProvider>
-      {/* @ts-expect-error */}
-      <VStack height="100svh" width="full" as="main" gap="0">
+      <VStack height="100svh" width="full" gap="0" bg="bg.default">
         <HStack
           /* @ts-expect-error */
           as="nav"
@@ -36,7 +35,7 @@ export function AppScreenLayout({ children }: AppScreenLayoutProps) {
           justifyContent="space-between"
           borderBottom="thin"
           borderStyle="solid"
-          borderColor="accent.4"
+          borderColor="border.default"
         >
           <Text textStyle="xl" fontWeight="bold">
             Swapify

@@ -67,7 +67,7 @@ export function PlaylistsTable({
         const shouldDisableSyncButton = status === "syncing";
 
         return (
-          <Card.Root key={p.id}>
+          <Card.Root key={p.id} shadow="xs">
             <Card.Header gap="2">
               <Card.Title>
                 <HStack
