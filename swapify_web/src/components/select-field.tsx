@@ -4,7 +4,8 @@ import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
 import { styled } from "#style/jsx";
 
 import { Field } from "./field";
-import { Select } from "./ui/select";
+import { createListCollection, Select } from "./ui/select";
+import { useMemo } from "react";
 
 export type SelectFielProps = {
   id?: string;
@@ -29,13 +30,17 @@ export function SelectField({
   const { field, error } = useTsController<string>();
   const { label, placeholder } = useDescription();
 
+  const collection = useMemo(() => {
+    return createListCollection({ items });
+  }, [items]);
+
   return (
     <Field error={error?.errorMessage} helperText={helperText}>
       <Select.Root
         multiple={false}
         positioning={{ sameWidth: true }}
         width="full"
-        items={items}
+        collection={collection}
         id={id}
         name={field.name}
         ref={field.ref}
