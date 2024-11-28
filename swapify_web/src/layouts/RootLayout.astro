@@ -1,0 +1,75 @@
+---
+export interface Props {
+  title?: string;
+}
+
+const defaultTitle = "Swapify | Your music, your choice";
+const description =
+  "Transfer your music library between Spotify and Apple Music effortlessly. Beta access available now!";
+const { title = defaultTitle } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="swapify, music transfer, spotify to apple music, apple music to spotify, playlist transfer, music library sync"
+    />
+    <meta name="author" content="Christopher Katoyi" />
+    <link rel="canonical" href={import.meta.env.PUBLIC_APP_URL} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={import.meta.env.PUBLIC_APP_URL} />
+    <meta property="og:title" content={defaultTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={defaultTitle} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={import.meta.env.PUBLIC_APP_URL} />
+    <meta name="twitter:title" content={defaultTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:creator" content="@llcoolchris_" />
+
+    <script
+      is:inline
+      defer=""
+      data-domain="swapify.live"
+      src="https://plausible.lab.llcoolserver.dev/js/script.js"></script>
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <main id="root">
+      <slot />
+    </main>
+
+    <slot name="scripts" />
+
+    <script>
+      import "../../styled-system/styles.css";
+      import { H } from "highlight.run";
+
+      if (window.MusicKit) {
+        console.debug("[Debug] MusicKit loaded");
+      }
+
+      H.init(import.meta.env.PUBLIC_HIGHLIGHT_PROJECT_ID, {
+        serviceName: "SwapifyWeb",
+        version: import.meta.env.PUBLIC_APP_VERSION,
+        debug: import.meta.env.DEV,
+        reportConsoleErrors: true,
+        manualStart: import.meta.env.DEV,
+        environment: import.meta.env.DEV ? "local" : "production",
+        tracingOrigins: true,
+        networkRecording: {
+          enabled: true,
+          disableWebSocketEventRecordings: true,
+          urlBlocklist: [],
+        },
+      });
+    </script>
+  </body>
+</html>
