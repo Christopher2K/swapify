@@ -27,7 +27,7 @@ const SignUpFormSchema = z.object({
     .describe("Spotify account email"),
   consent: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms of service and privacy policy",
-  }),
+  }) as unknown as z.ZodBoolean,
 });
 export type SignUpFormData = z.infer<typeof SignUpFormSchema>;
 
