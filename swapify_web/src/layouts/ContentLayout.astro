@@ -1,0 +1,139 @@
+---
+import { css } from "#style/css";
+import { ContentContainer } from "#root/features/marketing/components/content-container";
+
+import PageLayout from "./PageLayout.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const contentStyles = css({
+  flex: 1,
+  "& h1": {
+    fontSize: "4xl",
+    fontWeight: "bold",
+    mb: "8",
+    mt: "2",
+  },
+  "& h2": {
+    fontSize: "3xl",
+    fontWeight: "semibold",
+    mb: "6",
+    mt: "12",
+  },
+  "& h3": {
+    fontSize: "2xl",
+    fontWeight: "semibold",
+    mb: "4",
+    mt: "8",
+  },
+  "& h4": {
+    fontSize: "xl",
+    fontWeight: "semibold",
+    mb: "4",
+    mt: "6",
+  },
+  "& p": {
+    mb: "6",
+    lineHeight: "relaxed",
+  },
+  "& ul": {
+    listStyleType: "disc",
+    pl: "6",
+    mb: "6",
+  },
+  "& ol": {
+    listStyleType: "decimal",
+    pl: "6",
+    mb: "6",
+  },
+  "& li": {
+    mb: "2",
+  },
+  "& a": {
+    color: "blue.600",
+    textDecoration: "underline",
+    _hover: {
+      color: "blue.800",
+    },
+    _dark: {
+      color: "blue.400",
+      _hover: {
+        color: "blue.300",
+      },
+    },
+  },
+  "& blockquote": {
+    borderLeftWidth: "4px",
+    borderColor: "gray.300",
+    pl: "4",
+    fontStyle: "italic",
+    my: "6",
+    _dark: {
+      borderColor: "gray.700",
+    },
+  },
+  "& pre": {
+    bg: "gray.100",
+    rounded: "lg",
+    p: "4",
+    mb: "6",
+    overflowX: "auto",
+    _dark: {
+      bg: "gray.800",
+    },
+  },
+  "& code": {
+    bg: "gray.100",
+    rounded: "sm",
+    px: "1.5",
+    py: "0.5",
+    fontSize: "sm",
+    _dark: {
+      bg: "gray.800",
+    },
+  },
+  "& table": {
+    width: "full",
+    mb: "6",
+    borderCollapse: "collapse",
+  },
+  "& th": {
+    border: "1px solid",
+    borderColor: "gray.300",
+    px: "4",
+    py: "2",
+    bg: "gray.100",
+    textAlign: "left",
+    _dark: {
+      borderColor: "gray.700",
+      bg: "gray.800",
+    },
+  },
+  "& td": {
+    border: "1px solid",
+    borderColor: "gray.300",
+    px: "4",
+    py: "2",
+    _dark: {
+      borderColor: "gray.700",
+    },
+  },
+  "& hr": {
+    borderColor: "gray.300",
+    my: "8",
+    _dark: {
+      borderColor: "gray.700",
+    },
+  },
+});
+---
+
+<PageLayout title={title}>
+  <ContentContainer flex={1} className={contentStyles}>
+    <slot />
+  </ContentContainer>
+</PageLayout>

@@ -44,8 +44,8 @@ export function PageSignup() {
   }, [error]);
 
   return (
-    <VStack w="100%">
-      <VStack py="10">
+    <VStack w="100%" pb="10">
+      <VStack py="10" gap="5">
         <Text as="h1" textStyle="3xl" textAlign="center" textWrap="balance">
           Create an account and start transfering your playing now!
         </Text>

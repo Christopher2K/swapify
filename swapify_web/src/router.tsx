@@ -99,8 +99,8 @@ const unauthenticatedLayoutRoute = createRoute({
   id: "unauthenticated",
   component: () => (
     <UnauthenticatedLayout>
+      <Navbar />
       <Container>
-        <Navbar />
         <Outlet />
       </Container>
     </UnauthenticatedLayout>

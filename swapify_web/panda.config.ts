@@ -13,7 +13,7 @@ export default defineConfig({
   preflight: true,
   presets: ["@pandacss/preset-base", parkUIPreset],
   jsxFramework: "react",
-  include: ["./src/**/*.{ts,tsx}"],
+  include: ["./src/**/*.{ts,tsx,astro}"],
   exclude: [],
   outdir: "styled-system",
   globalFontface: {
@@ -30,6 +30,12 @@ export default defineConfig({
     "--font-outfit": "Outfit, ui-sans-serif",
     "--global-font-body": "var(--font-outfit)",
   },
+  globalCss: {
+    "#root": {
+      width: "full",
+      minHeight: "100vh",
+    },
+  },
   theme: {
     extend: {
       slotRecipes: {
@@ -37,6 +43,13 @@ export default defineConfig({
           base: {
             root: {
               boxShadow: "sm",
+            },
+          },
+        },
+        checkbox: {
+          base: {
+            control: {
+              flexShrink: "0",
             },
           },
         },

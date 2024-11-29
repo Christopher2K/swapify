@@ -17,6 +17,7 @@
   "dependencies": {
     "@ark-ui/react": "~4.4.4",
     "@astrojs/check": "^0.9.4",
+    "@astrojs/mdx": "~3.1.9",
     "@astrojs/node": "^8.3.4",
     "@astrojs/react": "^3.6.3",
     "@highlight-run/react": "~7.0.2",

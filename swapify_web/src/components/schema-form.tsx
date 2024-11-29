@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import { APIPlatformNameSchema } from "#root/services/api.types";
 import { SelectField } from "./select-field";
 import { PasswordField, TextField } from "./textfield";
+import { CheckboxField } from "./checkbox-field";
 import { ThemedAlert } from "./themed-alert";
 
 export const PasswordSchema = createUniqueFieldSchema(
@@ -34,6 +35,7 @@ const mapping = [
   [PasswordSchema, PasswordField] as const,
   [PlatformNameSchema, SelectField] as const,
   [SelectSchema, SelectField] as const,
+  [z.boolean(), CheckboxField] as const,
 ] as const;
 
 const defaultFormItemsContainerClassName = css({

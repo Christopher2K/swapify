@@ -1,3 +1,6 @@
 .env
 
+.zed
+.vscode
+
 swapify_api/.env.test

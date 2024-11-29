@@ -4,14 +4,14 @@ import { SparklesIcon } from "lucide-react";
 import { Text } from "#root/components/ui/text";
 import { Button } from "#root/components/ui/button";
 import { css } from "#style/css";
-import { Box, HStack } from "#style/jsx";
+import { Box, HStack, type BoxProps } from "#style/jsx";
 
 import { ContentContainer } from "./content-container";
 
 export type PageContainerProps = PropsWithChildren<{}>;
 
-export const PageContainer = ({ children }: PageContainerProps) => (
-  <Box position="relative" bg="white">
+export const PageContainer = ({ children, ...props }: BoxProps) => (
+  <Box position="relative" bg="white" {...props}>
     <BetaBanner />
     <Navbar />
     {children}
@@ -61,12 +61,12 @@ const Footer = () => (
     <HStack w="full" py="12" justifyContent="space-between" alignItems="center">
       <Text>© 2024 Swapify. All rights reserved.</Text>
       <HStack>
-        {/* <Button variant="link" asChild> */}
-        {/*   <a href="/privacy-policy">Privacy policy</a> */}
-        {/* </Button> */}
-        {/* <Button variant="link"> */}
-        {/*   <a href="/terms-of-service">Terms of service</a> */}
-        {/* </Button> */}
+        <Button variant="link" asChild>
+          <a href="/privacy-policy">Privacy policy</a>
+        </Button>
+        <Button variant="link">
+          <a href="/terms-of-service">Terms of service</a>
+        </Button>
       </HStack>
     </HStack>
   </ContentContainer>

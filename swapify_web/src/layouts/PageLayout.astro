@@ -2,6 +2,7 @@
 import RootLayout from "#root/layouts/RootLayout.astro";
 
 import { PageContainer } from "#root/features/marketing/components/page-container";
+import { vstack } from "#style/patterns";
 
 export interface Props {
   title?: string;
@@ -12,7 +13,15 @@ const { title = defaultTitle } = Astro.props;
 ---
 
 <RootLayout title={title}>
-  <PageContainer>
+  <PageContainer
+    className={vstack({
+      minH: "100vh",
+      h: "fit-content",
+      gap: "0",
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
+    })}
+  >
     <slot />
   </PageContainer>
 </RootLayout>
