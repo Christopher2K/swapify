@@ -160,13 +160,13 @@ export function TransferItem({
       key={transfer.id}
       alignItems="flex-start"
       gap="4"
-      borderRadius="sm"
+      borderRadius="md"
       borderWidth="thin"
       borderStyle="solid"
-      borderColor="gray.1"
+      borderColor="border.muted"
       p="4"
     >
-      <Stack gap="0">
+      <Stack gap="0" w="full">
         <Badge
           className={statusStyle({ theme: status })}
           variant="solid"
