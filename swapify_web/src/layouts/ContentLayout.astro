@@ -5,10 +5,12 @@ import { ContentContainer } from "#root/features/marketing/components/content-co
 import PageLayout from "./PageLayout.astro";
 
 interface Props {
-  title: string;
+  frontmatter: {
+    title: string;
+  };
 }
 
-const { title } = Astro.props;
+const { frontmatter } = Astro.props;
 
 const contentStyles = css({
   flex: 1,
@@ -132,7 +134,7 @@ const contentStyles = css({
 });
 ---
 
-<PageLayout title={title}>
+<PageLayout title={frontmatter.title}>
   <ContentContainer flex={1} className={contentStyles}>
     <slot />
   </ContentContainer>

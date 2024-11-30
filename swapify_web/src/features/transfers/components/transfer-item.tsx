@@ -163,7 +163,7 @@ export function TransferItem({
       borderRadius="md"
       borderWidth="thin"
       borderStyle="solid"
-      borderColor="border.muted"
+      borderColor="border.subtle"
       p="4"
     >
       <Stack gap="0" w="full">
