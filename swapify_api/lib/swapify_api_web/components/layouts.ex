@@ -26,37 +26,39 @@ defmodule SwapifyApiWeb.Layouts do
 
   def admin(assigns) do
     ~H"""
-    <main class="min-h-[100vh] w-full">
-      <nav class="relative flex h-16 w-full flex-row items-center justify-between border-b border-solid border-neutral-200 px-4">
-        <a href={~p"/admin"} class="text-xl font-bold">
+    <main class="min-h-[100vh] relative flex w-full flex-col items-start justify-start md:flex-row">
+      <nav class="sticky top-0 left-0 flex h-16 w-full shrink-0 flex-row items-center justify-between border-b border-solid border-b-gray-200 bg-white px-4 md:h-[100vh] md:w-[280px] md:border-b-[0px] md:flex-col md:items-start md:justify-start md:pb-4">
+        <button id="menu-toggle" class="block md:hidden" type="button">
+          <Lucide.menu stroke-width={1} width="32" height="32" />
+        </button>
+
+        <a href={~p"/admin"} class="text-xl font-bold md:block md:py-4">
           Swapify
         </a>
 
-        <ul
+        <div
           id="nav-menu"
-          class="invisible absolute top-full right-0 left-0 flex w-full flex-col items-center justify-start bg-gray-50 md:visible md:static md:w-fit md:flex-row"
+          class="invisible fixed top-0 left-0 z-20 h-full w-full bg-gray-900 bg-opacity-75 md:visible md:static"
         >
-          <.nav_item href={~p"/admin"}>
-            Dashboard
-          </.nav_item>
+          <div class="max-w-[80%] flex h-full w-full flex-1 flex-col justify-between bg-white p-4 md:max-w-full md:p-0">
+            <ul class="flex w-full flex-col items-start justify-start md:flex-1">
+              <.nav_item href={~p"/admin"}>
+                Dashboard
+              </.nav_item>
 
-          <.nav_item href={~p"/admin/users"}>
-            Users
-          </.nav_item>
+              <.nav_item href={~p"/admin/users"}>
+                Users
+              </.nav_item>
+            </ul>
 
-          <li class="w-full">
             <.button as="a" size="sm" full_width href={~p"/admin/signout"}>
               Sign out
             </.button>
-          </li>
-        </ul>
-
-        <button id="menu-toggle" class="block md:hidden" type="button">
-          <Lucide.menu_square stroke-width={1} width="32" height="32" />
-        </button>
+          </div>
+        </div>
       </nav>
 
-      <div class="max-w-[1100px] mx-auto p-4">
+      <div class="w-full flex-1 p-4">
         <%= @inner_content %>
       </div>
     </main>
