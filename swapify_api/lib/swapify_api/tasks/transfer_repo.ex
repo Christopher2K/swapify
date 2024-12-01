@@ -1,5 +1,7 @@
 defmodule SwapifyApi.Tasks.TransferRepo do
   @doc "Transfer table repository"
+  use OpenTelemetryDecorator
+
   import Ecto.Query
 
   alias SwapifyApi.MusicProviders.Playlist
@@ -197,4 +199,18 @@ defmodule SwapifyApi.Tasks.TransferRepo do
       )
       |> Repo.one()
       |> Utils.from_nullable_to_tuple()
+
+  @doc """
+  Transfer count
+  """
+  @spec count() :: {:ok, pos_integer()}
+  @decorate with_span("transfer_repo.count")
+  def count() do
+    query =
+      from transfer in Transfer,
+        select: count("*")
+
+    Repo.one(query)
+    |> Utils.from_nullable_to_tuple()
+  end
 end

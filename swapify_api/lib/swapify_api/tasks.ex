@@ -190,4 +190,6 @@ defmodule SwapifyApi.Tasks do
       end
     end
   end
+
+  def count_transfers(), do: TransferRepo.count()
 end

@@ -83,4 +83,16 @@ defmodule SwapifyApiWeb.UI do
     </dl>
     """
   end
+
+  attr :name, :string, required: true
+  attr :value, :string, required: true
+
+  def card_metric(assigns) do
+    ~H"""
+    <div class="flex flex-col items-start justify-start gap-2 rounded-lg border border-solid border-gray-200 bg-white px-4 py-2">
+      <p class="w-full text-center text-xs"><%= @name %></p>
+      <p class="w-full text-center text-lg font-medium"><%= @value %></p>
+    </div>
+    """
+  end
 end

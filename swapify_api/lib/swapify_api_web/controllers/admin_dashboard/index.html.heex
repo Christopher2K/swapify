@@ -1,1 +1,13 @@
-Need to do something meaningful here
+<div class="flex w-full flex-col items-start justify-start gap-10">
+  <header class="flex flex-col items-start justify-start gap-2">
+    <.h1>Dashboard</.h1>
+  </header>
+
+  <.h2>App metrics</.h2>
+
+  <div class="flex w-full flex-row flex-wrap items-start justify-start gap-2">
+    <.card_metric name="Users" value={@user_count} />
+    <.card_metric name="Transfers" value={@transfer_count} />
+  </div>
+</div>
+
