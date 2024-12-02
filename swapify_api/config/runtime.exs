@@ -65,6 +65,7 @@ if config_env() == :prod do
     api_key: System.get_env("ZEPTO_API_KEY")
 
   config :opentelemetry,
+    resource: [service: %{name: "swapify_platform", version: "0.1.0"}],
     span_processor: :batch,
     exporter: :otlp
 

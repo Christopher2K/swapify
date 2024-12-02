@@ -6,4 +6,5 @@ config :swoosh, local: false
 
 config :logger,
   level: :info,
-  backends: [:console]
+  backends: [:console],
+  default_handler: [formatter: {LoggerJSON.Formatters.Basic, metadata: :all}]

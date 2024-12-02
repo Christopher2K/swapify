@@ -36,10 +36,21 @@ config :phoenix, :plug_init_mode, :runtime
 config :swoosh, :api_client, false
 
 if System.get_env("DEBUG_OTEL") == "true" do
-  config :opentelemetry, :processors,
-    otel_batch_processor: %{
-      exporter: {:otel_exporter_stdout, []}
-    }
+  # Print traces to stdout
+  # config :opentelemetry, :processors,
+  #   otel_batch_processor: %{
+  #     exporter: {:otel_exporter_stdout, []}
+  #   }
+
+  # Send traces to OTLP exporter on localhost
+  config :opentelemetry,
+    resource: [service: %{name: "swapify_platform", version: "0.1.0"}],
+    span_processor: :batch,
+    exporter: :otlp
+
+  config :opentelemetry_exporter,
+    otlp_protocol: :http_protobuf,
+    otlp_endpoint: "http://localhost:4318"
 else
   config :opentelemetry, traces_exporter: :none
 end

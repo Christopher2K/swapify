@@ -59,6 +59,7 @@ defmodule SwapifyApi.MixProject do
       {:jason, "~> 1.2"},
       {:joken, "~> 2.6"},
       {:jose, "~> 1.11"},
+      {:logger_json, "~> 6.1"},
       {:lucide_live_view, "~> 0.1.1"},
       {:mjml, "~> 4.0"},
       {:nimble_options, "~> 1.0"},

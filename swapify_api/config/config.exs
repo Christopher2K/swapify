@@ -42,7 +42,7 @@ config :swapify_api, SwapifyApi.Mailer, adapter: Swoosh.Adapters.Local
 
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id, :status]
+  metadata: [:request_id, :user_id, :otel_trace_id, :otel_span_id]
 
 config :phoenix, :json_library, Jason
 

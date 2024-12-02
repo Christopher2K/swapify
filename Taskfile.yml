@@ -66,3 +66,7 @@ tasks:
       - task: mix
         vars: { CLI_ARGS: 'run playground.exs' }
 
+  telemetry:start:
+    cmds:
+      - "otel-desktop-viewer"
+
