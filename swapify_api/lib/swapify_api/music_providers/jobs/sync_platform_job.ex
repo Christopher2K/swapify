@@ -13,7 +13,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
 
   On success, returns a `{:ok, %JobUpdateNotification{}}`
   """
-  alias SwapifyApi.Tasks
+  alias SwapifyApi.Operations
   alias SwapifyApi.MusicProviders
   alias SwapifyApi.Utils
   alias SwapifyApi.Accounts
@@ -21,7 +21,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
   alias SwapifyApi.MusicProviders.AppleMusicTokenWorker
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Spotify
-  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Operations.TaskEventHandler
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
   alias SwapifyApiWeb.JobUpdateChannel
@@ -78,7 +78,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         total = response.body["total"]
 
         with {:ok, _} <- MusicProviders.sync_playlist_metadata(:spotify, user_id, total),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+             {:ok, _} <- Operations.update_job_status(job_id, :done) do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("spotify", :done)}
         end
 
@@ -122,7 +122,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
         total = response.body["meta"]["total"]
 
         with {:ok, _} <- MusicProviders.sync_playlist_metadata(:applemusic, user_id, total),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done) do
+             {:ok, _} <- Operations.update_job_status(job_id, :done) do
           {:ok, notification: JobUpdateNotification.new_platform_sync_update("applemusic", :done)}
         end
 
@@ -152,7 +152,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
       service: job_args["platform_name"]
     )
 
-    Tasks.update_job_status(job_args["job_id"], :error)
+    Operations.update_job_status(job_args["job_id"], :error)
   end
 
   handle :success do
@@ -198,7 +198,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.SyncPlatformJob do
     )
 
     Task.async(fn ->
-      Tasks.update_job_status(job_id, :error)
+      Operations.update_job_status(job_id, :error)
     end)
   end
 end

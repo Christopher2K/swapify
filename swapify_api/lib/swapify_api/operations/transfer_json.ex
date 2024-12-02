@@ -1,7 +1,7 @@
-defmodule SwapifyApi.Tasks.TransferJSON do
-  alias SwapifyApi.Tasks.JobJSON
+defmodule SwapifyApi.Operations.TransferJSON do
+  alias SwapifyApi.Operations.JobJSON
   alias SwapifyApi.MusicProviders.PlaylistJSON
-  alias SwapifyApi.Tasks.Transfer
+  alias SwapifyApi.Operations.Transfer
 
   def show(%Transfer{} = t) do
     %{

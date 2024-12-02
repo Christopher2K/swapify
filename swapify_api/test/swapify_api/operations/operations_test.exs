@@ -1,12 +1,12 @@
-defmodule SwapifyApi.TasksTest do
+defmodule SwapifyApi.OperationsTest do
   alias SwapifyApi.MusicProviders
   use SwapifyApi.DataCase
 
-  alias SwapifyApi.Tasks
-  alias SwapifyApi.Tasks.Job
-  alias SwapifyApi.Tasks.Transfer
+  alias SwapifyApi.Operations
+  alias SwapifyApi.Operations.Job
+  alias SwapifyApi.Operations.Transfer
 
-  import SwapifyApi.TasksFixtures
+  import SwapifyApi.OperationsFixtures
   import SwapifyApi.AccountsFixtures
   import SwapifyApi.MusicProvidersFixtures
   import SwapifyApi.ScenarioFixtures
@@ -27,21 +27,21 @@ defmodule SwapifyApi.TasksTest do
     test "it sets the done_at value to the current date time when the status is :done", %{
       job: job
     } do
-      assert {:ok, %Job{} = job} = Tasks.update_job_status(job.id, :done)
+      assert {:ok, %Job{} = job} = Operations.update_job_status(job.id, :done)
       assert job.done_at != nil
     end
 
     test "it sets the canceled_at value to the current date time when the status is :canceled", %{
       job: job
     } do
-      assert {:ok, %Job{done_at: nil} = job} = Tasks.update_job_status(job.id, :canceled)
+      assert {:ok, %Job{done_at: nil} = job} = Operations.update_job_status(job.id, :canceled)
       assert job.canceled_at != nil
     end
 
     test "it sets the canceled_at value to the current date time when the status is :error", %{
       job: job
     } do
-      assert {:ok, %Job{done_at: nil} = job} = Tasks.update_job_status(job.id, :error)
+      assert {:ok, %Job{done_at: nil} = job} = Operations.update_job_status(job.id, :error)
       assert job.canceled_at != nil
     end
   end
@@ -63,7 +63,7 @@ defmodule SwapifyApi.TasksTest do
           user_id: user.id
         })
 
-      assert {:ok, %Transfer{} = transfer} = Tasks.cancel_transfer(user.id, transfer.id)
+      assert {:ok, %Transfer{} = transfer} = Operations.cancel_transfer(user.id, transfer.id)
       assert transfer.matching_step_job.status == :canceled
     end
 
@@ -81,7 +81,7 @@ defmodule SwapifyApi.TasksTest do
         })
 
       assert {:error, %ErrorMessage{code: :bad_request}} =
-               Tasks.cancel_transfer(user.id, transfer.id)
+               Operations.cancel_transfer(user.id, transfer.id)
     end
   end
 
@@ -96,7 +96,11 @@ defmodule SwapifyApi.TasksTest do
       spotify_pc: spotify_pc
     } do
       assert {:ok, %{transfer: transfer, job: job}} =
-               Tasks.start_playlist_transfer_matching_step(user.id, spotify_library.id, :spotify)
+               Operations.start_playlist_transfer_matching_step(
+                 user.id,
+                 spotify_library.id,
+                 :spotify
+               )
 
       assert_enqueued(
         worker: MusicProviders.Jobs.FindPlaylistTracksJob,
@@ -120,10 +124,18 @@ defmodule SwapifyApi.TasksTest do
       spotify_library: spotify_library
     } do
       assert {:ok, %{transfer: _, job: _}} =
-               Tasks.start_playlist_transfer_matching_step(user.id, spotify_library.id, :spotify)
+               Operations.start_playlist_transfer_matching_step(
+                 user.id,
+                 spotify_library.id,
+                 :spotify
+               )
 
       assert {:error, %ErrorMessage{code: :conflict}} =
-               Tasks.start_playlist_transfer_matching_step(user.id, spotify_library.id, :spotify)
+               Operations.start_playlist_transfer_matching_step(
+                 user.id,
+                 spotify_library.id,
+                 :spotify
+               )
     end
   end
 
@@ -157,7 +169,7 @@ defmodule SwapifyApi.TasksTest do
       am_pc: am_pc
     } do
       assert {:ok, %{transfer: transfer, job: job}} =
-               Tasks.start_playlist_transfer_transfer_step(user.id, transfer.id)
+               Operations.start_playlist_transfer_transfer_step(user.id, transfer.id)
 
       assert_enqueued(
         worker: MusicProviders.Jobs.TransferTracksJob,
@@ -179,10 +191,10 @@ defmodule SwapifyApi.TasksTest do
       transfer: transfer
     } do
       assert {:ok, %{transfer: %Transfer{}}} =
-               Tasks.start_playlist_transfer_transfer_step(user.id, transfer.id)
+               Operations.start_playlist_transfer_transfer_step(user.id, transfer.id)
 
       assert {:error, %ErrorMessage{}} =
-               Tasks.start_playlist_transfer_transfer_step(user.id, transfer.id)
+               Operations.start_playlist_transfer_transfer_step(user.id, transfer.id)
     end
   end
 end

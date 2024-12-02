@@ -27,10 +27,10 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Notifications.JobErrorNotification
   alias SwapifyApi.Notifications.JobUpdateNotification
-  alias SwapifyApi.Tasks
-  alias SwapifyApi.Tasks.MatchedTrack
-  alias SwapifyApi.Tasks.TaskEventHandler
-  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Operations
+  alias SwapifyApi.Operations.MatchedTrack
+  alias SwapifyApi.Operations.TaskEventHandler
+  alias SwapifyApi.Operations.TransferRepo
   alias SwapifyApi.Utils
   alias SwapifyApiWeb.JobUpdateChannel
 
@@ -99,7 +99,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
        ) do
     Task.Supervisor.start_child(Task.Supervisor, fn ->
       with {:ok, %{email: email, username: username}} <- Accounts.get_by_id(user_id),
-           {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+           {:ok, transfer} <- Operations.get_transfer_infos(transfer_id) do
         SwapifyApi.Emails.transfer_ready(email, username,
           username: username,
           source_name: PlatformConnection.get_name(transfer.source),
@@ -128,9 +128,9 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       )
     )
 
-    with {:ok, _} <- Tasks.update_job_status(job_id, :error),
+    with {:ok, _} <- Operations.update_job_status(job_id, :error),
          {:ok, %{username: username}} <- Accounts.get_by_id(user_id),
-         {:ok, transfer} <- Tasks.get_transfer_infos(transfer_id) do
+         {:ok, transfer} <- Operations.get_transfer_infos(transfer_id) do
       SwapifyApi.Emails.transfer_error(transfer.email, username,
         username: username,
         source_name: PlatformConnection.get_name(transfer.source),
@@ -157,7 +157,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- Operations.update_job_status(job_id, :done),
              {:ok, _} <- on_job_success(user_id, transfer_id) do
           {:ok,
            notification:
@@ -265,7 +265,7 @@ defmodule SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob do
       {:error, %ErrorMessage{code: :not_found}} ->
         with {:ok, _} <- process_match_results(unsaved_tracks, transfer_id, true),
              {:ok, _} <- process_error_results(unsaved_not_found_tracks, transfer_id, true),
-             {:ok, _} <- Tasks.update_job_status(job_id, :done),
+             {:ok, _} <- Operations.update_job_status(job_id, :done),
              {:ok, _} <- on_job_success(user_id, transfer_id) do
           {:ok,
            notification:

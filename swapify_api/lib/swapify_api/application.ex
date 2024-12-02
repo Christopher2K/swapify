@@ -2,7 +2,7 @@ defmodule SwapifyApi.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
-  alias SwapifyApi.Tasks.TaskEventHandler
+  alias SwapifyApi.Operations.TaskEventHandler
 
   require Logger
   require TaskEventHandler
@@ -14,7 +14,7 @@ defmodule SwapifyApi.Application do
     # OpenTelemetry setup
     OpentelemetryBandit.setup()
     OpentelemetryPhoenix.setup(adapter: :bandit)
-    OpentelemetryEcto.setup([:swapify_api, :repo], db_statement: :enabled)
+    # OpentelemetryEcto.setup([:swapify_api, :repo], db_statement: :enabled)
     # OpentelemetryOban.setup(trace: [:jobs])
 
     # Rate limiting storage setup

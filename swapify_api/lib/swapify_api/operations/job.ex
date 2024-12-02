@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks.Job do
+defmodule SwapifyApi.Operations.Job do
   use SwapifyApi.Schema
 
   alias SwapifyApi.Accounts.User

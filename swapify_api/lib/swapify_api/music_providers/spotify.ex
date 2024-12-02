@@ -2,7 +2,7 @@ defmodule SwapifyApi.MusicProviders.Spotify do
   @moduledoc "Interface to talk to Spotify"
   require Logger
 
-  alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.Operations.MatchedTrack
   alias SwapifyApi.Utils
   alias SwapifyApi.Oauth
   alias SwapifyApi.MusicProviders.Track

@@ -2,12 +2,12 @@ defmodule SwapifyApi.TransferRepoTest do
   alias SwapifyApi.MusicProviders.Playlist
   use SwapifyApi.DataCase
 
-  alias SwapifyApi.Tasks.Transfer
-  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Operations.Transfer
+  alias SwapifyApi.Operations.TransferRepo
   alias SwapifyApi.Repo
   import SwapifyApi.AccountsFixtures
   import SwapifyApi.MusicProvidersFixtures
-  import SwapifyApi.TasksFixtures
+  import SwapifyApi.OperationsFixtures
 
   describe "create_or_update/3" do
     setup do

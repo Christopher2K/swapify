@@ -1,5 +1,5 @@
-defmodule SwapifyApi.Tasks.JobJSON do
-  alias SwapifyApi.Tasks.Job
+defmodule SwapifyApi.Operations.JobJSON do
+  alias SwapifyApi.Operations.Job
 
   @fields [
     :id,

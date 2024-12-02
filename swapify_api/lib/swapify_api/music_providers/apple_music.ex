@@ -2,7 +2,7 @@ defmodule SwapifyApi.MusicProviders.AppleMusic do
   @moduledoc "Interfact to talk to Apple Music"
   require Logger
 
-  alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.Operations.MatchedTrack
   alias SwapifyApi.Utils
   alias SwapifyApi.MusicProviders.Track
 

@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks do
+defmodule SwapifyApi.Operations do
   @moduledoc """
   Task contexts
   """
@@ -8,10 +8,10 @@ defmodule SwapifyApi.Tasks do
   alias SwapifyApi.MusicProviders.Jobs.FindPlaylistTracksJob
   alias SwapifyApi.MusicProviders.Jobs.TransferTracksJob
   alias SwapifyApi.MusicProviders.PlaylistRepo
-  alias SwapifyApi.Tasks.Job
-  alias SwapifyApi.Tasks.JobRepo
-  alias SwapifyApi.Tasks.Transfer
-  alias SwapifyApi.Tasks.TransferRepo
+  alias SwapifyApi.Operations.Job
+  alias SwapifyApi.Operations.JobRepo
+  alias SwapifyApi.Operations.Transfer
+  alias SwapifyApi.Operations.TransferRepo
 
   @doc "Update a job status and timestamps if needed"
   @spec update_job_status(String.t(), Job.job_status()) ::

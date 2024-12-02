@@ -1,9 +1,9 @@
-defmodule SwapifyApi.Tasks.TaskEventHandler do
+defmodule SwapifyApi.Operations.TaskEventHandler do
   @moduledoc """
   Macros defining events handlers
 
   ## Examples
-    use SwapifyApi.Tasks.TaskEventHandler, job_module: "Swapify.MyObanJob"
+    use SwapifyApi.Operations.TaskEventHandler, job_module: "Swapify.MyObanJob"
 
     handle :success do
       # do something with the `args` variable
@@ -15,7 +15,7 @@ defmodule SwapifyApi.Tasks.TaskEventHandler do
   """
   defmacro __using__(opts) do
     quote do
-      import SwapifyApi.Tasks.TaskEventHandler
+      import SwapifyApi.Operations.TaskEventHandler
       @jobname unquote(opts[:job_module])
     end
   end

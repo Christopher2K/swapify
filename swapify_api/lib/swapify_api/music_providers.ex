@@ -7,7 +7,7 @@ defmodule SwapifyApi.MusicProviders do
   alias SwapifyApi.MusicProviders.Jobs.SyncLibraryJob
   alias SwapifyApi.MusicProviders.Jobs.SyncPlatformJob
   alias SwapifyApi.MusicProviders.PlaylistRepo
-  alias SwapifyApi.Tasks.JobRepo
+  alias SwapifyApi.Operations.JobRepo
   alias SwapifyApi.Repo
 
   @doc """

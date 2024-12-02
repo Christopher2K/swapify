@@ -1,8 +1,8 @@
-defmodule SwapifyApi.TasksFixtures do
+defmodule SwapifyApi.OperationsFixtures do
   alias SwapifyApi.Repo
-  alias SwapifyApi.Tasks.MatchedTrack
-  alias SwapifyApi.Tasks.Transfer
-  alias SwapifyApi.Tasks.Job
+  alias SwapifyApi.Operations.MatchedTrack
+  alias SwapifyApi.Operations.Transfer
+  alias SwapifyApi.Operations.Job
 
   import SwapifyApi.ValuesFixtures
 

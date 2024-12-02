@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks.TransferRepo do
+defmodule SwapifyApi.Operations.TransferRepo do
   @doc "Transfer table repository"
   use OpenTelemetryDecorator
 
@@ -7,8 +7,8 @@ defmodule SwapifyApi.Tasks.TransferRepo do
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Track
   alias SwapifyApi.Repo
-  alias SwapifyApi.Tasks.MatchedTrack
-  alias SwapifyApi.Tasks.Transfer
+  alias SwapifyApi.Operations.MatchedTrack
+  alias SwapifyApi.Operations.Transfer
   alias SwapifyApi.Utils
 
   @spec create(map()) :: {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()}

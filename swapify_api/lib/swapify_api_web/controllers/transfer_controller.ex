@@ -1,12 +1,12 @@
 defmodule SwapifyApiWeb.TransferController do
   use SwapifyApiWeb, :controller
 
-  alias SwapifyApi.Tasks
+  alias SwapifyApi.Operations
 
   def index(%Plug.Conn{} = conn, _) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, transfers} <- Tasks.list_transfers_by_user_id(user_id) do
+    with {:ok, transfers} <- Operations.list_transfers_by_user_id(user_id) do
       conn
       |> put_status(200)
       |> render(:index, transfers: transfers)
@@ -20,7 +20,7 @@ defmodule SwapifyApiWeb.TransferController do
     user_id = conn.assigns[:user_id]
 
     with {:ok, transfer} <-
-           Tasks.start_playlist_transfer_matching_step(user_id, playlist_id, destination) do
+           Operations.start_playlist_transfer_matching_step(user_id, playlist_id, destination) do
       conn
       |> put_status(200)
       |> render(:show, transfer: transfer)
@@ -37,7 +37,7 @@ defmodule SwapifyApiWeb.TransferController do
     user_id = conn.assigns[:user_id]
 
     with {:ok, %{transfer: transfer}} <-
-           Tasks.start_playlist_transfer_transfer_step(user_id, transfer_id) do
+           Operations.start_playlist_transfer_transfer_step(user_id, transfer_id) do
       conn
       |> put_status(200)
       |> render(:show, transfer: transfer)
@@ -49,7 +49,7 @@ defmodule SwapifyApiWeb.TransferController do
       }) do
     user_id = conn.assigns[:user_id]
 
-    with {:ok, transfer} <- Tasks.cancel_transfer(user_id, transfer_id) do
+    with {:ok, transfer} <- Operations.cancel_transfer(user_id, transfer_id) do
       conn
       |> put_status(200)
       |> render(:show, transfer: transfer)

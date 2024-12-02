@@ -1,6 +1,6 @@
-defmodule SwapifyApi.Tasks.JobRepo do
+defmodule SwapifyApi.Operations.JobRepo do
   alias SwapifyApi.Utils
-  alias SwapifyApi.Tasks.Job
+  alias SwapifyApi.Operations.Job
   alias SwapifyApi.Repo
 
   def create(args),

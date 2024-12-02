@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks.MatchedTrack do
+defmodule SwapifyApi.Operations.MatchedTrack do
   @moduledoc "Business representation of a track found on another platform during a transfer"
   @derive Jason.Encoder
 

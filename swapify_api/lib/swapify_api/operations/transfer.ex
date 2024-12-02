@@ -1,4 +1,4 @@
-defmodule SwapifyApi.Tasks.Transfer do
+defmodule SwapifyApi.Operations.Transfer do
   @moduledoc "Business a representation of a playlist transfer"
   use SwapifyApi.Schema
 
@@ -6,8 +6,8 @@ defmodule SwapifyApi.Tasks.Transfer do
   alias SwapifyApi.Accounts.User
   alias SwapifyApi.MusicProviders.Playlist
   alias SwapifyApi.MusicProviders.Track
-  alias SwapifyApi.Tasks.Job
-  alias SwapifyApi.Tasks.MatchedTrack
+  alias SwapifyApi.Operations.Job
+  alias SwapifyApi.Operations.MatchedTrack
 
   @type t :: %__MODULE__{
           id: String.t(),

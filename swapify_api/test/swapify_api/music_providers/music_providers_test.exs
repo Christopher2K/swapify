@@ -5,7 +5,7 @@ defmodule SwapifyApi.MusicProvidersTest do
   import SwapifyApi.MusicProvidersFixtures
 
   alias SwapifyApi.MusicProviders
-  alias SwapifyApi.Tasks.Job
+  alias SwapifyApi.Operations.Job
   alias SwapifyApi.Repo
 
   describe "start_library_sync/2" do

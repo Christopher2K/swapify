@@ -1,7 +1,7 @@
 defmodule SwapifyApi.Notifications.JobUpdateNotification do
   @derive Jason.Encoder
 
-  alias SwapifyApi.Tasks.Job
+  alias SwapifyApi.Operations.Job
 
   defstruct [:name, :data, tag: "JobUpdateNotification"]
 
